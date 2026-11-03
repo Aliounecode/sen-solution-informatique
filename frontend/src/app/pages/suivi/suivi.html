@@ -1,0 +1,50 @@
+<section class="mx-auto max-w-3xl px-4 py-10 md:px-6">
+  <span class="puce">// Suivi</span>
+  <h1 class="mt-4 font-display text-3xl font-bold md:text-4xl">Suivre une commande</h1>
+  <p class="mt-2 text-encre-attenue">
+    Saisissez la référence reçue lors de votre commande (ex. CMD-2026-00001).
+  </p>
+
+  <div class="mt-6 flex gap-2">
+    <input
+      [value]="reference()"
+      (input)="reference.set($any($event.target).value)"
+      (keyup.enter)="rechercher()"
+      placeholder="CMD-…"
+      class="w-full border-2 border-bordure bg-fond px-3 py-2 font-mono outline-none focus:border-cyan"
+    />
+    <button type="button" (click)="rechercher()" class="bouton-primaire">Rechercher</button>
+  </div>
+
+  @if (chargement()) {
+    <p class="mt-8 font-mono text-sm text-encre-attenue">Recherche…</p>
+  } @else if (erreur()) {
+    <p class="mt-8 border-2 border-orange bg-surface p-4 font-mono text-sm text-orange">
+      {{ erreur() }}
+    </p>
+  } @else if (commande(); as c) {
+    <div class="carte-relief mt-8">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <span class="font-mono text-lg font-bold text-cyan">{{ c.reference }}</span>
+        <span class="puce border-cyan text-cyan">{{ libelle(c.statut) }}</span>
+      </div>
+      <p class="mt-2 font-mono text-xs text-encre-attenue">
+        Passée le {{ c.cree_le | date: 'short' }} ·
+        {{ c.mode_retrait === 'livraison' ? 'Livraison' : 'Retrait en boutique' }}
+      </p>
+
+      <div class="mt-5 divide-y divide-bordure border-t-2 border-bordure">
+        @for (ligne of c.lignes; track ligne.id) {
+          <div class="flex justify-between gap-3 py-2 text-sm">
+            <span>{{ ligne.quantite }} × {{ ligne.nom_produit }}</span>
+            <span class="font-mono">{{ ligne.sous_total | fcfa }}</span>
+          </div>
+        }
+      </div>
+      <div class="mt-4 flex justify-between border-t-2 border-bordure pt-4">
+        <span class="font-mono uppercase text-encre-attenue">Total</span>
+        <span class="font-display text-xl font-bold text-cyan">{{ c.montant_total | fcfa }}</span>
+      </div>
+    </div>
+  }
+</section>

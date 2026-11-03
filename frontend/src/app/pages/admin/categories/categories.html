@@ -1,0 +1,141 @@
+<div>
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h1 class="font-display text-2xl font-bold">Catégories</h1>
+      <p class="mt-1 font-corps text-sm text-encre-attenue">
+        {{ categories().length }} catégorie(s).
+      </p>
+    </div>
+    <button type="button" (click)="ouvrirCreation()" class="admin-bouton">
+      + Nouvelle catégorie
+    </button>
+  </div>
+
+  <!-- Formulaire (création / édition) -->
+  @if (formulaireOuvert()) {
+    <div class="mt-6 admin-carte space-y-4">
+      <h2 class="font-display text-lg font-semibold">
+        {{ editionId() != null ? 'Modifier la catégorie' : 'Nouvelle catégorie' }}
+      </h2>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+            >Nom *</label
+          >
+          <input [value]="nom()" (input)="nom.set($any($event.target).value)" class="admin-champ" />
+        </div>
+        <div>
+          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+            >Catégorie parente</label
+          >
+          <select
+            [value]="parentId()"
+            (change)="parentId.set($any($event.target).value ? +$any($event.target).value : null)"
+            class="admin-champ"
+          >
+            <option value="">— Aucune (racine)</option>
+            @for (c of parentsPossibles(); track c.id) {
+              <option [value]="c.id">{{ c.nom }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+            >Ordre</label
+          >
+          <input
+            type="number"
+            [value]="ordre()"
+            (input)="ordre.set(+$any($event.target).value)"
+            class="admin-champ"
+          />
+        </div>
+        <div class="flex items-end">
+          <label class="flex items-center gap-2 font-corps text-sm">
+            <input
+              type="checkbox"
+              [checked]="actif()"
+              (change)="actif.set($any($event.target).checked)"
+            />
+            Active (visible en boutique)
+          </label>
+        </div>
+      </div>
+
+      @if (erreur()) {
+        <p class="font-corps text-sm text-orange">{{ erreur() }}</p>
+      }
+
+      <div class="flex gap-3">
+        <button
+          type="button"
+          (click)="enregistrer()"
+          [disabled]="envoi()"
+          class="admin-bouton disabled:opacity-50"
+        >
+          {{ envoi() ? 'Enregistrement…' : 'Enregistrer' }}
+        </button>
+        <button type="button" (click)="fermer()" class="admin-bouton-fantome">Annuler</button>
+      </div>
+    </div>
+  }
+
+  <!-- Liste -->
+  @if (chargement()) {
+    <p class="mt-8 font-corps text-sm text-encre-attenue">Chargement…</p>
+  } @else if (categories().length === 0) {
+    <p class="mt-8 font-corps text-sm text-encre-attenue">Aucune catégorie.</p>
+  } @else {
+    <div class="mt-6 admin-carte !p-0 overflow-hidden">
+      <table class="w-full text-left text-sm">
+        <thead
+          class="border-b border-bordure/70 font-corps text-xs uppercase tracking-wide text-encre-attenue"
+        >
+          <tr>
+            <th class="p-3">Nom</th>
+            <th class="p-3 hidden sm:table-cell">Parent</th>
+            <th class="p-3">Ordre</th>
+            <th class="p-3">État</th>
+            <th class="p-3 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (categorie of categories(); track categorie.id) {
+            <tr class="border-b border-bordure/40 last:border-0 hover:bg-surface-2/40">
+              <td class="p-3 font-corps font-medium">{{ categorie.nom }}</td>
+              <td class="p-3 hidden sm:table-cell font-corps text-encre-attenue">
+                {{ nomParent(categorie.parent_id) }}
+              </td>
+              <td class="p-3 font-mono">{{ categorie.ordre }}</td>
+              <td class="p-3">
+                @if (categorie.actif) {
+                  <span class="admin-badge !border-vert/50 !text-vert">active</span>
+                } @else {
+                  <span class="admin-badge">masquée</span>
+                }
+              </td>
+              <td class="p-3">
+                <div class="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    (click)="ouvrirEdition(categorie)"
+                    class="admin-bouton-fantome !py-1"
+                  >
+                    Éditer
+                  </button>
+                  <button
+                    type="button"
+                    (click)="supprimer(categorie)"
+                    class="admin-bouton-fantome !py-1 hover:!border-orange/60 hover:!text-orange"
+                  >
+                    Suppr.
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

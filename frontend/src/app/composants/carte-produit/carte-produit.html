@@ -1,0 +1,63 @@
+<a
+  [routerLink]="['/produit', produit().slug]"
+  class="carte group flex flex-col transition hover:-translate-y-1 hover:border-cyan"
+>
+  <!-- Visuel -->
+  <div
+    class="relative -mx-6 -mt-6 mb-4 aspect-4/3 overflow-hidden border-b-2 border-bordure bg-surface-2"
+  >
+    @if (image()) {
+      <img
+        [src]="image()"
+        [alt]="produit().nom"
+        class="h-full w-full object-cover transition group-hover:scale-105"
+      />
+    } @else {
+      <div
+        class="flex h-full w-full items-center justify-center font-mono text-xs text-encre-attenue"
+      >
+        pas d'image
+      </div>
+    }
+    <span
+      class="absolute left-2 top-2 puce"
+      [class.border-cyan]="produit().type_produit === 'ordinateur'"
+      [class.text-cyan]="produit().type_produit === 'ordinateur'"
+      [class.border-vert]="produit().type_produit === 'accessoire'"
+      [class.text-vert]="produit().type_produit === 'accessoire'"
+    >
+      {{ produit().type_produit }}
+    </span>
+    @if (enPromo()) {
+      <span
+        class="absolute right-2 top-2 border border-orange bg-orange px-2 py-1 font-mono text-xs font-semibold uppercase text-fond"
+      >
+        promo
+      </span>
+    }
+  </div>
+
+  <!-- Infos -->
+  @if (produit().marque) {
+    <span class="font-mono text-xs uppercase tracking-widest text-encre-attenue">{{
+      produit().marque
+    }}</span>
+  }
+  <h3 class="mt-1 line-clamp-2 font-display text-lg font-semibold">{{ produit().nom }}</h3>
+
+  <div class="mt-auto pt-4">
+    @if (enPromo()) {
+      <span class="mr-2 font-mono text-sm text-encre-attenue line-through">{{
+        produit().prix | fcfa
+      }}</span>
+      <span class="font-mono text-lg font-semibold text-cyan">{{
+        produit().prix_promo | fcfa
+      }}</span>
+    } @else {
+      <span class="font-mono text-lg font-semibold text-cyan">{{ produit().prix | fcfa }}</span>
+    }
+    @if (enRupture()) {
+      <p class="mt-1 font-mono text-xs uppercase tracking-wide text-orange">rupture de stock</p>
+    }
+  </div>
+</a>

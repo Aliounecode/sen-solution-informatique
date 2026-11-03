@@ -1,0 +1,260 @@
+<div>
+  <h1 class="font-display text-2xl font-bold">Tableau de bord</h1>
+  <p class="mt-1 font-corps text-sm text-encre-attenue">
+    Ce qui demande votre attention aujourd'hui.
+  </p>
+
+  @if (chargement()) {
+    <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-busy="true">
+      @for (i of [1, 2, 3, 4]; track i) {
+        <div class="h-28 animate-pulse rounded-xl bg-surface-2"></div>
+      }
+    </div>
+    <div class="mt-6 h-56 animate-pulse rounded-xl bg-surface-2"></div>
+  } @else if (erreur()) {
+    <p class="mt-8 admin-carte !border-orange/60 text-orange">{{ erreur() }}</p>
+  } @else if (stats(); as s) {
+    <!-- À traiter -->
+    <div class="mt-6 grid gap-4 sm:grid-cols-2">
+      <a
+        routerLink="/admin/commandes"
+        class="admin-carte block transition hover:border-cyan/60"
+        [class.!border-orange/60]="s.commandes_a_traiter > 0"
+      >
+        <span class="font-corps text-xs uppercase tracking-wide text-encre-attenue"
+          >Commandes à traiter</span
+        >
+        <p
+          class="mt-2 font-display text-3xl font-bold"
+          [class.text-orange]="s.commandes_a_traiter > 0"
+        >
+          {{ s.commandes_a_traiter }}
+        </p>
+        <p class="mt-1 font-corps text-xs text-encre-attenue">
+          {{
+            s.commandes_a_traiter > 0
+              ? 'Des clients attendent une validation →'
+              : 'Tout est à jour ✓'
+          }}
+        </p>
+      </a>
+      <a
+        routerLink="/admin/demandes"
+        class="admin-carte block transition hover:border-cyan/60"
+        [class.!border-orange/60]="s.demandes_a_traiter > 0"
+      >
+        <span class="font-corps text-xs uppercase tracking-wide text-encre-attenue"
+          >Dépannages à prendre en charge</span
+        >
+        <p
+          class="mt-2 font-display text-3xl font-bold"
+          [class.text-orange]="s.demandes_a_traiter > 0"
+        >
+          {{ s.demandes_a_traiter }}
+        </p>
+        <p class="mt-1 font-corps text-xs text-encre-attenue">
+          {{
+            s.demandes_a_traiter > 0 ? 'Nouvelles demandes reçues →' : 'Aucune nouvelle demande ✓'
+          }}
+        </p>
+      </a>
+    </div>
+
+    <!-- Chiffres clés -->
+    <div class="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div class="admin-carte-stat">
+        <span class="font-corps text-xs uppercase tracking-wide text-encre-attenue"
+          >Chiffre d'affaires</span
+        >
+        <p class="mt-2 font-display text-2xl font-bold text-cyan">
+          {{ s.chiffre_affaires | fcfa }}
+        </p>
+        <p class="mt-1 font-corps text-xs text-encre-attenue">commandes validées</p>
+      </div>
+      <div class="admin-carte-stat">
+        <span class="font-corps text-xs uppercase tracking-wide text-encre-attenue">Commandes</span>
+        <p class="mt-2 font-display text-2xl font-bold">{{ s.nombre_commandes_total }}</p>
+        <p class="mt-1 font-corps text-xs text-encre-attenue">au total</p>
+      </div>
+      <div class="admin-carte-stat">
+        <span class="font-corps text-xs uppercase tracking-wide text-encre-attenue"
+          >Dépannages</span
+        >
+        <p class="mt-2 font-display text-2xl font-bold">{{ s.nombre_demandes_total }}</p>
+        <p class="mt-1 font-corps text-xs text-encre-attenue">demandes reçues</p>
+      </div>
+      <div class="admin-carte-stat">
+        <span class="font-corps text-xs uppercase tracking-wide text-encre-attenue">Clients</span>
+        <p class="mt-2 font-display text-2xl font-bold">{{ s.nombre_clients }}</p>
+        <p class="mt-1 font-corps text-xs text-encre-attenue">comptes clients</p>
+      </div>
+    </div>
+
+    <!-- Ventes 7 jours + stock faible -->
+    <div class="mt-6 grid gap-6 lg:grid-cols-3">
+      <div class="admin-carte lg:col-span-2">
+        <div class="flex items-baseline justify-between">
+          <h2 class="font-display text-lg font-semibold">Ventes des 7 derniers jours</h2>
+          <span class="font-mono text-sm text-cyan">{{ totalVentes() | fcfa }}</span>
+        </div>
+        <div
+          class="mt-6 flex h-40 items-end gap-2"
+          role="img"
+          aria-label="Histogramme des ventes sur 7 jours"
+        >
+          @for (v of ventes(); track $index) {
+            <div class="flex h-full flex-1 flex-col items-center justify-end gap-2">
+              <div
+                class="w-full rounded-t-lg bg-cyan/80 transition-all"
+                [class.bg-surface-2]="v.montant === 0"
+                [style.height.%]="v.montant === 0 ? 4 : v.hauteur"
+                [title]="v.montant | fcfa"
+              ></div>
+              <span class="font-mono text-[11px] uppercase text-encre-attenue">{{
+                v.etiquette
+              }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="admin-carte">
+        <h2 class="font-display text-lg font-semibold">Stock faible</h2>
+        @if (s.stock_faible.length === 0) {
+          <p class="mt-4 font-corps text-sm text-encre-attenue">
+            Aucun produit à réapprovisionner ✓
+          </p>
+        } @else {
+          <ul class="mt-4 space-y-2">
+            @for (p of s.stock_faible; track p.id) {
+              <li>
+                <a
+                  [routerLink]="['/admin/produits', p.id]"
+                  class="flex items-center justify-between gap-2 rounded-lg bg-surface-2/50 px-3 py-2 transition hover:bg-surface-2"
+                >
+                  <span class="min-w-0 truncate font-corps text-sm">{{ p.nom }}</span>
+                  <span class="admin-badge shrink-0" [class.!text-orange]="p.quantite_stock === 0">
+                    {{ p.quantite_stock === 0 ? 'rupture' : p.quantite_stock + ' restant(s)' }}
+                  </span>
+                </a>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+
+    <!-- Activité récente -->
+    <div class="mt-6 grid gap-6 lg:grid-cols-2">
+      <div class="admin-carte">
+        <div class="flex items-center justify-between">
+          <h2 class="font-display text-lg font-semibold">Dernières commandes</h2>
+          <a routerLink="/admin/commandes" class="admin-lien !w-auto !px-2 !py-1 text-xs"
+            >Tout voir</a
+          >
+        </div>
+        @if (s.commandes_recentes.length === 0) {
+          <p class="mt-4 font-corps text-sm text-encre-attenue">Aucune commande pour le moment.</p>
+        } @else {
+          <ul class="mt-4 space-y-2">
+            @for (c of s.commandes_recentes; track c.reference) {
+              <li
+                class="flex items-center justify-between gap-2 rounded-lg bg-surface-2/50 px-3 py-2"
+              >
+                <span class="min-w-0">
+                  <span class="block truncate font-corps text-sm">{{ c.nom_client }}</span>
+                  <span class="font-mono text-[11px] text-encre-attenue">
+                    {{ c.reference }} · {{ c.cree_le | date: 'dd/MM HH:mm' }}
+                  </span>
+                </span>
+                <span class="text-right">
+                  <span class="block font-mono text-sm text-cyan">{{
+                    c.montant_total | fcfa
+                  }}</span>
+                  <span class="admin-badge">{{ libelleStatut(c.statut) }}</span>
+                </span>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      <div class="admin-carte">
+        <div class="flex items-center justify-between">
+          <h2 class="font-display text-lg font-semibold">Derniers dépannages</h2>
+          <a routerLink="/admin/demandes" class="admin-lien !w-auto !px-2 !py-1 text-xs"
+            >Tout voir</a
+          >
+        </div>
+        @if (s.demandes_recentes.length === 0) {
+          <p class="mt-4 font-corps text-sm text-encre-attenue">Aucune demande pour le moment.</p>
+        } @else {
+          <ul class="mt-4 space-y-2">
+            @for (d of s.demandes_recentes; track d.reference) {
+              <li
+                class="flex items-center justify-between gap-2 rounded-lg bg-surface-2/50 px-3 py-2"
+              >
+                <span class="min-w-0">
+                  <span class="block truncate font-corps text-sm"
+                    >{{ d.nom_client }} · {{ d.type_appareil }}</span
+                  >
+                  <span class="font-mono text-[11px] text-encre-attenue">
+                    {{ d.reference }} · {{ d.cree_le | date: 'dd/MM HH:mm' }}
+                  </span>
+                </span>
+                <span class="admin-badge">{{ libelleStatut(d.statut) }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+
+    <!-- Statuts + meilleures ventes -->
+    <div class="mt-6 grid gap-6 lg:grid-cols-3">
+      <div class="admin-carte">
+        <h2 class="font-display text-lg font-semibold">Commandes par statut</h2>
+        <ul class="mt-4 space-y-2">
+          @for (item of commandes(); track item.libelle) {
+            <li class="flex items-center justify-between">
+              <span class="font-corps text-sm text-encre-attenue">{{ item.libelle }}</span>
+              <span class="admin-badge">{{ item.valeur }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+      <div class="admin-carte">
+        <h2 class="font-display text-lg font-semibold">Dépannages par statut</h2>
+        <ul class="mt-4 space-y-2">
+          @for (item of demandes(); track item.libelle) {
+            <li class="flex items-center justify-between">
+              <span class="font-corps text-sm text-encre-attenue">{{ item.libelle }}</span>
+              <span class="admin-badge">{{ item.valeur }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+      <div class="admin-carte">
+        <h2 class="font-display text-lg font-semibold">Meilleures ventes</h2>
+        @if (s.top_produits.length === 0) {
+          <p class="mt-4 font-corps text-sm text-encre-attenue">
+            Aucune vente validée pour le moment.
+          </p>
+        } @else {
+          <ol class="mt-4 space-y-2">
+            @for (produit of s.top_produits; track produit.nom; let i = $index) {
+              <li
+                class="flex items-center justify-between gap-2 rounded-lg bg-surface-2/50 px-3 py-2"
+              >
+                <span class="min-w-0 truncate font-corps text-sm">
+                  <span class="mr-2 font-mono text-cyan">{{ i + 1 }}.</span>{{ produit.nom }}
+                </span>
+                <span class="admin-badge shrink-0">{{ produit.quantite }}</span>
+              </li>
+            }
+          </ol>
+        }
+      </div>
+    </div>
+  }
+</div>

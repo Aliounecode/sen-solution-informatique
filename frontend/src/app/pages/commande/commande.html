@@ -1,0 +1,175 @@
+<section class="mx-auto max-w-4xl px-4 py-10 md:px-6">
+  @if (resultat(); as commande) {
+    <!-- Confirmation -->
+    <div class="carte-relief text-center">
+      <span class="puce border-vert text-vert">Commande enregistrée</span>
+      <h1 class="mt-4 font-display text-3xl font-bold">Merci !</h1>
+      <p class="mt-2 text-encre-attenue">
+        Votre commande a bien été reçue. Conservez votre référence :
+      </p>
+      <p class="mt-4 font-mono text-2xl font-bold text-cyan">{{ commande.reference }}</p>
+      <p class="mt-2 font-mono text-sm text-encre-attenue">
+        Total : {{ commande.montant_total | fcfa }}
+      </p>
+      <div class="mt-6 flex flex-wrap justify-center gap-3">
+        <a
+          [routerLink]="['/suivi']"
+          [queryParams]="{ ref: commande.reference }"
+          class="bouton-primaire"
+          >Suivre ma commande</a
+        >
+        <a routerLink="/boutique" class="bouton-fantome">Retour à la boutique</a>
+      </div>
+    </div>
+  } @else if (panier.articles().length === 0) {
+    <span class="puce">// Commande</span>
+    <h1 class="mt-4 font-display text-3xl font-bold">Votre panier est vide</h1>
+    <a routerLink="/boutique" class="bouton-primaire mt-6">Aller à la boutique →</a>
+  } @else {
+    <span class="puce">// Commande</span>
+    <h1 class="mt-4 font-display text-3xl font-bold md:text-4xl">Finaliser la commande</h1>
+
+    <div class="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
+      <!-- Formulaire -->
+      <div class="space-y-5">
+        <div>
+          <label class="mb-1 block font-mono text-xs uppercase tracking-wide text-encre-attenue"
+            >Nom complet *</label
+          >
+          <input
+            [value]="nom()"
+            (input)="nom.set($any($event.target).value)"
+            class="w-full border-2 border-bordure bg-fond px-3 py-2 outline-none focus:border-cyan"
+          />
+        </div>
+        <div class="grid gap-5 sm:grid-cols-2">
+          <div>
+            <label class="mb-1 block font-mono text-xs uppercase tracking-wide text-encre-attenue"
+              >Téléphone *</label
+            >
+            <input
+              [value]="telephone()"
+              (input)="telephone.set($any($event.target).value)"
+              class="w-full border-2 border-bordure bg-fond px-3 py-2 outline-none focus:border-cyan"
+            />
+          </div>
+          <div>
+            <label class="mb-1 block font-mono text-xs uppercase tracking-wide text-encre-attenue"
+              >E-mail (facultatif)</label
+            >
+            <input
+              type="email"
+              [value]="email()"
+              (input)="email.set($any($event.target).value)"
+              class="w-full border-2 border-bordure bg-fond px-3 py-2 outline-none focus:border-cyan"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="mb-2 block font-mono text-xs uppercase tracking-wide text-encre-attenue"
+            >Mode de retrait</label
+          >
+          <div class="flex gap-3">
+            <button
+              type="button"
+              (click)="modeRetrait.set('retrait_boutique')"
+              class="flex-1 border-2 px-4 py-3 font-mono text-sm transition"
+              [class.border-cyan]="modeRetrait() === 'retrait_boutique'"
+              [class.text-cyan]="modeRetrait() === 'retrait_boutique'"
+              [class.border-bordure]="modeRetrait() !== 'retrait_boutique'"
+            >
+              Retrait en boutique
+            </button>
+            <button
+              type="button"
+              (click)="modeRetrait.set('livraison')"
+              class="flex-1 border-2 px-4 py-3 font-mono text-sm transition"
+              [class.border-cyan]="modeRetrait() === 'livraison'"
+              [class.text-cyan]="modeRetrait() === 'livraison'"
+              [class.border-bordure]="modeRetrait() !== 'livraison'"
+            >
+              Livraison
+            </button>
+          </div>
+        </div>
+
+        @if (modeRetrait() === 'livraison') {
+          <div>
+            <label class="mb-1 block font-mono text-xs uppercase tracking-wide text-encre-attenue"
+              >Adresse de livraison *</label
+            >
+            <input
+              [value]="adresse()"
+              (input)="adresse.set($any($event.target).value)"
+              placeholder="Quartier, rue, repère…"
+              class="w-full border-2 border-bordure bg-fond px-3 py-2 outline-none focus:border-cyan"
+            />
+          </div>
+        }
+
+        <div>
+          <label class="mb-1 block font-mono text-xs uppercase tracking-wide text-encre-attenue"
+            >Moyen de paiement</label
+          >
+          <select
+            (change)="moyenPaiement.set($any($event.target).value)"
+            class="w-full border-2 border-bordure bg-fond px-3 py-2 font-mono text-sm outline-none focus:border-cyan"
+          >
+            <option value="">À préciser</option>
+            <option value="especes">Espèces</option>
+            <option value="wave">Wave</option>
+            <option value="orange_money">Orange Money</option>
+            <option value="carte">Carte bancaire</option>
+            <option value="autre">Autre</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="mb-1 block font-mono text-xs uppercase tracking-wide text-encre-attenue"
+            >Note (facultatif)</label
+          >
+          <textarea
+            rows="3"
+            [value]="note()"
+            (input)="note.set($any($event.target).value)"
+            class="w-full border-2 border-bordure bg-fond px-3 py-2 outline-none focus:border-cyan"
+          ></textarea>
+        </div>
+
+        @if (erreur()) {
+          <p class="border-2 border-orange bg-surface p-3 font-mono text-sm text-orange">
+            {{ erreur() }}
+          </p>
+        }
+      </div>
+
+      <!-- Récapitulatif -->
+      <aside class="carte h-fit">
+        <span class="puce">Récapitulatif</span>
+        <div class="mt-4 divide-y divide-bordure">
+          @for (article of panier.articles(); track article.produit_id) {
+            <div class="flex justify-between gap-3 py-2 text-sm">
+              <span class="min-w-0 flex-1 truncate"
+                >{{ article.quantite }} × {{ article.nom }}</span
+              >
+              <span class="font-mono">{{ article.prix * article.quantite | fcfa }}</span>
+            </div>
+          }
+        </div>
+        <div class="mt-4 flex justify-between border-t-2 border-bordure pt-4">
+          <span class="font-mono uppercase text-encre-attenue">Total</span>
+          <span class="font-display text-xl font-bold text-cyan">{{ panier.total() | fcfa }}</span>
+        </div>
+        <button
+          type="button"
+          (click)="passer()"
+          [disabled]="envoi()"
+          class="bouton-primaire mt-6 w-full justify-center disabled:opacity-50"
+        >
+          {{ envoi() ? 'Envoi…' : 'Confirmer la commande' }}
+        </button>
+      </aside>
+    </div>
+  }
+</section>

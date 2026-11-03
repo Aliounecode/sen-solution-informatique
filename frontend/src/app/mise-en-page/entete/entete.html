@@ -1,0 +1,156 @@
+<header class="sticky top-0 z-40 border-b-2 border-bordure bg-fond/95 backdrop-blur">
+  <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 md:px-6">
+    <a routerLink="/" (click)="fermerMenu()" class="flex items-center gap-3">
+      <span class="border-2 border-cyan px-2 py-1 font-display text-lg font-bold text-cyan"
+        >SSI</span
+      >
+      <span class="hidden leading-tight sm:block">
+        <span class="block font-display text-base font-semibold">Sen Solution Informatique</span>
+        <span class="block font-mono text-[11px] uppercase tracking-widest text-encre-attenue">
+          // vente &amp; dépannage
+        </span>
+      </span>
+    </a>
+
+    <!-- Navigation desktop -->
+    <nav class="hidden items-center gap-3 md:flex">
+      <a
+        routerLink="/boutique"
+        routerLinkActive="text-cyan border-cyan"
+        class="border-2 border-transparent px-3 py-2 font-mono text-xs uppercase tracking-wide text-encre transition hover:text-cyan"
+        >Boutique</a
+      >
+      <a
+        routerLink="/depannage"
+        routerLinkActive="text-vert border-vert"
+        class="border-2 border-transparent px-3 py-2 font-mono text-xs uppercase tracking-wide text-encre transition hover:text-vert"
+        >Dépannage</a
+      >
+      <a
+        routerLink="/suivi"
+        routerLinkActive="text-cyan border-cyan"
+        class="border-2 border-transparent px-3 py-2 font-mono text-xs uppercase tracking-wide text-encre transition hover:text-cyan"
+        >Suivi</a
+      >
+      @if (auth.estAdmin()) {
+        <a
+          routerLink="/admin"
+          class="border-2 border-orange px-3 py-2 font-mono text-xs uppercase tracking-wide text-orange transition hover:bg-orange hover:text-fond"
+          >Admin</a
+        >
+      }
+      @if (auth.estConnecte()) {
+        <a routerLink="/mon-compte" class="bouton-fantome !px-3 !py-2">Mon compte</a>
+        <button type="button" (click)="auth.deconnexion()" class="bouton-fantome !px-3 !py-2">
+          Quitter
+        </button>
+      } @else {
+        <a routerLink="/connexion" class="bouton-primaire !px-3 !py-2">Connexion</a>
+      }
+    </nav>
+
+    <div class="flex items-center gap-2">
+      <!-- Panier (toujours visible) -->
+      <a
+        routerLink="/panier"
+        (click)="fermerMenu()"
+        aria-label="Panier"
+        class="relative border-2 px-3 py-2 font-mono text-xs uppercase tracking-wide transition hover:border-cyan hover:text-cyan"
+        [class.border-cyan]="panier.nombreArticles() > 0"
+        [class.text-cyan]="panier.nombreArticles() > 0"
+        [class.border-bordure]="panier.nombreArticles() === 0"
+        [class.text-encre]="panier.nombreArticles() === 0"
+      >
+        Panier
+        @if (panier.nombreArticles() > 0) {
+          <span
+            class="ml-1 inline-flex h-5 min-w-5 items-center justify-center bg-cyan px-1 font-mono text-[11px] font-bold text-fond"
+          >
+            {{ panier.nombreArticles() }}
+          </span>
+        }
+      </a>
+
+      <!-- Bouton menu mobile -->
+      <button
+        type="button"
+        (click)="menuOuvert.set(!menuOuvert())"
+        [attr.aria-expanded]="menuOuvert()"
+        aria-label="Menu"
+        class="border-2 border-bordure px-3 py-2 font-mono text-xs uppercase md:hidden"
+      >
+        {{ menuOuvert() ? '✕' : 'Menu' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Menu mobile -->
+  @if (menuOuvert()) {
+    <nav class="border-t-2 border-bordure bg-surface px-4 py-3 md:hidden">
+      <ul class="space-y-1">
+        <li>
+          <a
+            routerLink="/boutique"
+            (click)="fermerMenu()"
+            class="block px-2 py-3 font-mono text-sm uppercase tracking-wide hover:text-cyan"
+            >Boutique</a
+          >
+        </li>
+        <li>
+          <a
+            routerLink="/depannage"
+            (click)="fermerMenu()"
+            class="block px-2 py-3 font-mono text-sm uppercase tracking-wide hover:text-vert"
+            >Dépannage</a
+          >
+        </li>
+        <li>
+          <a
+            routerLink="/suivi"
+            (click)="fermerMenu()"
+            class="block px-2 py-3 font-mono text-sm uppercase tracking-wide hover:text-cyan"
+            >Suivi de commande</a
+          >
+        </li>
+        @if (auth.estAdmin()) {
+          <li>
+            <a
+              routerLink="/admin"
+              (click)="fermerMenu()"
+              class="block px-2 py-3 font-mono text-sm uppercase tracking-wide text-orange"
+              >Admin</a
+            >
+          </li>
+        }
+        @if (auth.estConnecte()) {
+          <li>
+            <a
+              routerLink="/mon-compte"
+              (click)="fermerMenu()"
+              class="block px-2 py-3 font-mono text-sm uppercase tracking-wide hover:text-cyan"
+              >Mon compte</a
+            >
+          </li>
+          <li>
+            <button
+              type="button"
+              (click)="deconnexion()"
+              class="block w-full px-2 py-3 text-left font-mono text-sm uppercase tracking-wide text-encre-attenue"
+            >
+              Quitter
+            </button>
+          </li>
+        } @else {
+          <li>
+            <a
+              routerLink="/connexion"
+              (click)="fermerMenu()"
+              class="bouton-primaire mt-2 w-full text-center"
+              >Connexion</a
+            >
+          </li>
+        }
+      </ul>
+    </nav>
+  }
+</header>

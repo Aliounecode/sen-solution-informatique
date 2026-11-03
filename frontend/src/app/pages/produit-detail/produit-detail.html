@@ -1,0 +1,210 @@
+@if (chargement()) {
+  <div class="mx-auto grid max-w-7xl gap-10 px-4 py-10 md:px-6 lg:grid-cols-2" aria-busy="true">
+    <div class="aspect-square animate-pulse border-2 border-bordure bg-surface-2"></div>
+    <div class="space-y-4">
+      <div class="h-4 w-24 animate-pulse bg-surface-2"></div>
+      <div class="h-10 w-3/4 animate-pulse bg-surface-2"></div>
+      <div class="h-8 w-40 animate-pulse bg-surface-2"></div>
+      <div class="h-24 animate-pulse bg-surface-2"></div>
+    </div>
+  </div>
+} @else if (erreur()) {
+  <div class="mx-auto max-w-7xl px-4 py-16 md:px-6">
+    <p class="border-2 border-orange bg-surface p-4 font-mono text-sm text-orange">
+      {{ erreur() }}
+    </p>
+    <a routerLink="/boutique" class="bouton-fantome mt-6">← Retour à la boutique</a>
+  </div>
+} @else if (produit(); as p) {
+  <section class="mx-auto max-w-7xl px-4 py-10 md:px-6">
+    <a
+      routerLink="/boutique"
+      class="font-mono text-xs uppercase tracking-widest text-encre-attenue hover:text-cyan"
+    >
+      ← Boutique
+    </a>
+
+    <div class="mt-6 grid gap-10 lg:grid-cols-2">
+      <!-- Galerie -->
+      <div>
+        <div class="relative aspect-square overflow-hidden border-2 border-bordure bg-surface-2">
+          @if (imageActive()) {
+            <img [src]="imageActive()" [alt]="p.nom" class="h-full w-full object-cover" />
+          } @else {
+            <div
+              class="flex h-full w-full items-center justify-center font-mono text-sm text-encre-attenue"
+            >
+              pas d'image
+            </div>
+          }
+          @if (p.images.length > 1) {
+            <button
+              type="button"
+              (click)="precedente()"
+              aria-label="Image précédente"
+              class="absolute left-2 top-1/2 -translate-y-1/2 border-2 border-bordure bg-fond/80 px-3 py-2 font-display text-xl text-encre transition hover:border-cyan hover:text-cyan"
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              (click)="suivante()"
+              aria-label="Image suivante"
+              class="absolute right-2 top-1/2 -translate-y-1/2 border-2 border-bordure bg-fond/80 px-3 py-2 font-display text-xl text-encre transition hover:border-cyan hover:text-cyan"
+            >
+              ›
+            </button>
+            <span
+              class="absolute bottom-2 right-2 bg-fond/80 px-2 py-1 font-mono text-xs text-encre-attenue"
+            >
+              {{ indexImage() + 1 }} / {{ p.images.length }}
+            </span>
+          }
+        </div>
+        @if (p.images.length > 1) {
+          <div class="mt-3 flex flex-wrap gap-2">
+            @for (img of p.images; track img.id; let i = $index) {
+              <button
+                type="button"
+                (click)="indexImage.set(i)"
+                class="h-16 w-16 overflow-hidden border-2 transition"
+                [class.border-cyan]="indexImage() === i"
+                [class.border-bordure]="indexImage() !== i"
+              >
+                <img [src]="img.url" [alt]="p.nom" class="h-full w-full object-cover" />
+              </button>
+            }
+          </div>
+          <p class="mt-2 font-mono text-xs text-encre-attenue">
+            Astuce : flèches ← → du clavier pour défiler.
+          </p>
+        }
+      </div>
+
+      <!-- Infos + achat -->
+      <div>
+        <div class="flex items-center gap-2">
+          <span
+            class="puce"
+            [class.border-cyan]="p.type_produit === 'ordinateur'"
+            [class.text-cyan]="p.type_produit === 'ordinateur'"
+            [class.border-vert]="p.type_produit === 'accessoire'"
+            [class.text-vert]="p.type_produit === 'accessoire'"
+          >
+            {{ p.type_produit }}
+          </span>
+          @if (p.marque) {
+            <span class="font-mono text-xs uppercase tracking-widest text-encre-attenue">{{
+              p.marque
+            }}</span>
+          }
+        </div>
+
+        <h1 class="mt-3 font-display text-3xl font-bold md:text-4xl">{{ p.nom }}</h1>
+        @if (p.modele) {
+          <p class="mt-1 font-mono text-sm text-encre-attenue">Modèle : {{ p.modele }}</p>
+        }
+        <p class="mt-1 font-mono text-xs text-encre-attenue">Réf. {{ p.reference }}</p>
+
+        <div class="mt-6 flex items-baseline gap-3">
+          @if (enPromo()) {
+            <span class="font-mono text-lg text-encre-attenue line-through">{{
+              p.prix | fcfa
+            }}</span>
+            <span class="font-display text-3xl font-bold text-cyan">{{ p.prix_promo | fcfa }}</span>
+          } @else {
+            <span class="font-display text-3xl font-bold text-cyan">{{ p.prix | fcfa }}</span>
+          }
+        </div>
+
+        @if (enRupture()) {
+          <p
+            class="mt-4 border-2 border-orange bg-surface p-3 font-mono text-sm uppercase text-orange"
+          >
+            Rupture de stock
+          </p>
+        } @else {
+          <p class="mt-2 font-mono text-xs uppercase tracking-wide text-vert">
+            En stock ({{ p.quantite_stock }})
+          </p>
+
+          <div class="mt-6 flex flex-wrap items-center gap-4">
+            <div class="flex items-center border-2 border-bordure">
+              <button
+                type="button"
+                (click)="changerQuantite(-1)"
+                class="px-4 py-2 font-mono text-lg text-encre hover:text-cyan"
+              >
+                −
+              </button>
+              <span class="w-12 text-center font-mono">{{ quantite() }}</span>
+              <button
+                type="button"
+                (click)="changerQuantite(1)"
+                class="px-4 py-2 font-mono text-lg text-encre hover:text-cyan"
+              >
+                +
+              </button>
+            </div>
+            <button type="button" (click)="ajouterAuPanier()" class="bouton-primaire">
+              Ajouter au panier
+            </button>
+          </div>
+
+          @if (confirme()) {
+            <p class="mt-3 font-mono text-sm text-vert">✓ Ajouté au panier</p>
+          }
+        }
+
+        @if (p.description) {
+          <div class="mt-8 border-t-2 border-bordure pt-6">
+            <span class="puce">Description</span>
+            <p class="mt-3 whitespace-pre-line text-encre-attenue">{{ p.description }}</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Caractéristiques -->
+    @if (caracteristiquesGroupees().length > 0) {
+      <div class="mt-12">
+        <h2 class="font-display text-2xl font-semibold">Caractéristiques techniques</h2>
+        <div class="mt-6 grid gap-6 md:grid-cols-2">
+          @for (groupe of caracteristiquesGroupees(); track groupe.groupe) {
+            <div class="carte">
+              <span class="puce border-cyan text-cyan">{{ groupe.groupe }}</span>
+              <dl class="mt-4 divide-y divide-bordure">
+                @for (item of groupe.items; track item.libelle) {
+                  <div class="flex justify-between gap-4 py-2">
+                    <dt class="text-encre-attenue">{{ item.libelle }}</dt>
+                    <dd class="text-right font-mono">{{ item.valeur }}</dd>
+                  </div>
+                }
+              </dl>
+            </div>
+          }
+        </div>
+      </div>
+    }
+    <!-- Produits similaires -->
+    @if (chargementSimilaires() || similaires().length > 0) {
+      <div class="mt-16 border-t-2 border-bordure pt-10">
+        <span class="puce border-cyan text-cyan">// similaires</span>
+        <h2 class="mt-3 font-display text-2xl font-semibold">
+          Ces produits pourraient vous plaire
+        </h2>
+        <div class="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          @if (chargementSimilaires()) {
+            @for (i of [1, 2, 3, 4]; track i) {
+              <div class="aspect-[3/4] animate-pulse border-2 border-bordure bg-surface-2"></div>
+            }
+          } @else {
+            @for (s of similaires(); track s.id) {
+              <app-carte-produit [produit]="s" />
+            }
+          }
+        </div>
+      </div>
+    }
+  </section>
+}

@@ -1,0 +1,189 @@
+<div>
+  <h1 class="font-display text-2xl font-bold">Commandes</h1>
+  <p class="mt-1 font-corps text-sm text-encre-attenue">{{ total() }} commande(s).</p>
+
+  <!-- Filtres -->
+  <div class="mt-6 flex flex-col gap-3 md:flex-row md:items-center">
+    <div class="flex flex-1 gap-2">
+      <input
+        type="search"
+        placeholder="Réf., nom, téléphone…"
+        [value]="recherche()"
+        (input)="recherche.set($any($event.target).value)"
+        (keyup.enter)="appliquer()"
+        class="admin-champ"
+      />
+      <button type="button" (click)="appliquer()" class="admin-bouton">OK</button>
+    </div>
+    <select (change)="surStatut($any($event.target).value)" class="admin-champ md:w-56">
+      <option value="">Tous statuts</option>
+      <option value="nouvelle">Nouvelles</option>
+      <option value="validee">Validées</option>
+      <option value="refusee">Refusées</option>
+      <option value="annulee">Annulées</option>
+    </select>
+  </div>
+
+  @if (chargement()) {
+    <p class="mt-8 font-corps text-sm text-encre-attenue">Chargement…</p>
+  } @else if (commandes().length === 0) {
+    <p class="mt-8 font-corps text-sm text-encre-attenue">Aucune commande.</p>
+  } @else {
+    <div class="mt-6 admin-carte !p-0 overflow-hidden">
+      <table class="w-full text-left text-sm">
+        <thead
+          class="border-b border-bordure/70 font-corps text-xs uppercase tracking-wide text-encre-attenue"
+        >
+          <tr>
+            <th class="p-3">Référence</th>
+            <th class="p-3 hidden sm:table-cell">Client</th>
+            <th class="p-3">Total</th>
+            <th class="p-3">Statut</th>
+            <th class="p-3 text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (commande of commandes(); track commande.reference) {
+            <tr class="border-b border-bordure/40 last:border-0 hover:bg-surface-2/40">
+              <td class="p-3 font-mono font-medium text-cyan">{{ commande.reference }}</td>
+              <td class="p-3 hidden sm:table-cell font-corps">{{ $any(commande).nom_client }}</td>
+              <td class="p-3 font-mono">{{ commande.montant_total | fcfa }}</td>
+              <td class="p-3">
+                <span class="admin-badge">{{ libelle(commande.statut) }}</span>
+              </td>
+              <td class="p-3 text-right">
+                <button type="button" (click)="ouvrir(commande)" class="admin-bouton-fantome !py-1">
+                  Gérer
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (nombrePages() > 1) {
+      <div class="mt-6 flex items-center justify-center gap-4">
+        <button
+          type="button"
+          (click)="allerPage(page() - 1)"
+          [disabled]="page() <= 1"
+          class="admin-bouton-fantome disabled:opacity-40"
+        >
+          ←
+        </button>
+        <span class="font-corps text-sm text-encre-attenue"
+          >Page {{ page() }} / {{ nombrePages() }}</span
+        >
+        <button
+          type="button"
+          (click)="allerPage(page() + 1)"
+          [disabled]="page() >= nombrePages()"
+          class="admin-bouton-fantome disabled:opacity-40"
+        >
+          →
+        </button>
+      </div>
+    }
+  }
+</div>
+
+<!-- Panneau détail -->
+@if (detail(); as d) {
+  <div class="fixed inset-0 z-50 flex justify-end bg-fond/70 backdrop-blur-sm" (click)="fermer()">
+    <div
+      class="h-full w-full max-w-lg overflow-y-auto border-l border-bordure bg-surface p-6"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="flex items-center justify-between">
+        <h2 class="font-display text-xl font-bold text-cyan">{{ d.reference }}</h2>
+        <button type="button" (click)="fermer()" class="admin-bouton-fantome !py-1">
+          Fermer ✕
+        </button>
+      </div>
+      <span class="admin-badge mt-2">{{ libelle(d.statut) }}</span>
+
+      <div class="mt-5 space-y-1 font-corps text-sm">
+        <p><span class="text-encre-attenue">Client :</span> {{ d.nom_client }}</p>
+        <p><span class="text-encre-attenue">Téléphone :</span> {{ d.telephone_client }}</p>
+        @if (d.email_client) {
+          <p><span class="text-encre-attenue">E-mail :</span> {{ d.email_client }}</p>
+        }
+        <p>
+          <span class="text-encre-attenue">Retrait :</span>
+          {{ d.mode_retrait === 'livraison' ? 'Livraison' : 'Retrait en boutique' }}
+        </p>
+        @if (d.adresse_livraison) {
+          <p><span class="text-encre-attenue">Adresse :</span> {{ d.adresse_livraison }}</p>
+        }
+        @if (d.moyen_paiement) {
+          <p><span class="text-encre-attenue">Paiement :</span> {{ d.moyen_paiement }}</p>
+        }
+        @if (d.note_client) {
+          <p><span class="text-encre-attenue">Note client :</span> {{ d.note_client }}</p>
+        }
+      </div>
+
+      <div class="mt-5 admin-carte !bg-surface-2/50">
+        <h3 class="font-corps text-xs uppercase tracking-wide text-encre-attenue">Articles</h3>
+        <div class="mt-2 divide-y divide-bordure/50">
+          @for (ligne of d.lignes; track ligne.id) {
+            <div class="flex justify-between gap-3 py-2 text-sm">
+              <span>{{ ligne.quantite }} × {{ ligne.nom_produit }}</span>
+              <span class="font-mono">{{ ligne.sous_total | fcfa }}</span>
+            </div>
+          }
+        </div>
+        <div class="mt-2 flex justify-between border-t border-bordure pt-2 font-semibold">
+          <span>Total</span><span class="font-mono text-cyan">{{ d.montant_total | fcfa }}</span>
+        </div>
+      </div>
+
+      @if (erreur()) {
+        <p class="mt-4 font-corps text-sm text-orange">{{ erreur() }}</p>
+      }
+
+      <!-- Transitions -->
+      <div class="mt-5 flex flex-wrap gap-2">
+        @if (d.statut === 'nouvelle') {
+          <button
+            type="button"
+            (click)="changerStatut('validee')"
+            [disabled]="action()"
+            class="admin-bouton disabled:opacity-50"
+          >
+            Valider
+          </button>
+          <button
+            type="button"
+            (click)="changerStatut('refusee')"
+            [disabled]="action()"
+            class="admin-bouton-fantome hover:!border-orange/60 hover:!text-orange"
+          >
+            Refuser
+          </button>
+        }
+        @if (d.statut === 'nouvelle' || d.statut === 'validee') {
+          <button
+            type="button"
+            (click)="changerStatut('annulee')"
+            [disabled]="action()"
+            class="admin-bouton-fantome hover:!border-orange/60 hover:!text-orange"
+          >
+            Annuler
+          </button>
+        }
+        @if (d.statut === 'validee') {
+          <p class="w-full font-corps text-xs text-encre-attenue">
+            Le stock a été décrémenté à la validation. L'annuler le restaure.
+          </p>
+        }
+        @if (d.statut === 'refusee' || d.statut === 'annulee') {
+          <p class="font-corps text-sm text-encre-attenue">
+            Commande clôturée — aucune action possible.
+          </p>
+        }
+      </div>
+    </div>
+  </div>
+}

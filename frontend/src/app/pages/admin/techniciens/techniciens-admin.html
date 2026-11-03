@@ -1,0 +1,132 @@
+<div>
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h1 class="font-display text-2xl font-bold">Techniciens</h1>
+      <p class="mt-1 font-corps text-sm text-encre-attenue">
+        Affectés aux demandes de dépannage (sans compte de connexion).
+      </p>
+    </div>
+    <button type="button" (click)="ouvrirCreation()" class="admin-bouton">
+      + Nouveau technicien
+    </button>
+  </div>
+
+  @if (formulaireOuvert()) {
+    <div class="mt-6 admin-carte space-y-4">
+      <h2 class="font-display text-lg font-semibold">
+        {{ editionId() != null ? 'Modifier' : 'Nouveau technicien' }}
+      </h2>
+      <div class="grid gap-4 sm:grid-cols-3">
+        <div>
+          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+            >Nom *</label
+          >
+          <input [value]="nom()" (input)="nom.set($any($event.target).value)" class="admin-champ" />
+        </div>
+        <div>
+          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+            >Téléphone</label
+          >
+          <input
+            [value]="telephone()"
+            (input)="telephone.set($any($event.target).value)"
+            class="admin-champ"
+          />
+        </div>
+        <div>
+          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+            >Spécialité</label
+          >
+          <input
+            [value]="specialite()"
+            (input)="specialite.set($any($event.target).value)"
+            placeholder="Hardware, réseau…"
+            class="admin-champ"
+          />
+        </div>
+      </div>
+      <label class="flex items-center gap-2 font-corps text-sm">
+        <input
+          type="checkbox"
+          [checked]="actif()"
+          (change)="actif.set($any($event.target).checked)"
+        />
+        Actif
+      </label>
+      @if (erreur()) {
+        <p class="font-corps text-sm text-orange">{{ erreur() }}</p>
+      }
+      <div class="flex gap-3">
+        <button
+          type="button"
+          (click)="enregistrer()"
+          [disabled]="envoi()"
+          class="admin-bouton disabled:opacity-50"
+        >
+          {{ envoi() ? 'Enregistrement…' : 'Enregistrer' }}
+        </button>
+        <button type="button" (click)="fermer()" class="admin-bouton-fantome">Annuler</button>
+      </div>
+    </div>
+  }
+
+  @if (chargement()) {
+    <p class="mt-8 font-corps text-sm text-encre-attenue">Chargement…</p>
+  } @else if (techniciens().length === 0) {
+    <p class="mt-8 font-corps text-sm text-encre-attenue">Aucun technicien.</p>
+  } @else {
+    <div class="mt-6 admin-carte !p-0 overflow-hidden">
+      <table class="w-full text-left text-sm">
+        <thead
+          class="border-b border-bordure/70 font-corps text-xs uppercase tracking-wide text-encre-attenue"
+        >
+          <tr>
+            <th class="p-3">Nom</th>
+            <th class="p-3 hidden sm:table-cell">Téléphone</th>
+            <th class="p-3 hidden sm:table-cell">Spécialité</th>
+            <th class="p-3">État</th>
+            <th class="p-3 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (t of techniciens(); track t.id) {
+            <tr class="border-b border-bordure/40 last:border-0 hover:bg-surface-2/40">
+              <td class="p-3 font-corps font-medium">{{ t.nom }}</td>
+              <td class="p-3 hidden sm:table-cell font-mono text-encre-attenue">
+                {{ t.telephone ?? '—' }}
+              </td>
+              <td class="p-3 hidden sm:table-cell font-corps text-encre-attenue">
+                {{ t.specialite ?? '—' }}
+              </td>
+              <td class="p-3">
+                @if (t.actif) {
+                  <span class="admin-badge !border-vert/50 !text-vert">actif</span>
+                } @else {
+                  <span class="admin-badge">inactif</span>
+                }
+              </td>
+              <td class="p-3">
+                <div class="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    (click)="ouvrirEdition(t)"
+                    class="admin-bouton-fantome !py-1"
+                  >
+                    Éditer
+                  </button>
+                  <button
+                    type="button"
+                    (click)="supprimer(t)"
+                    class="admin-bouton-fantome !py-1 hover:!border-orange/60 hover:!text-orange"
+                  >
+                    Suppr.
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

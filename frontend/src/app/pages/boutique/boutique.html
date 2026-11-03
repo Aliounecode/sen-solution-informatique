@@ -1,0 +1,101 @@
+<section class="mx-auto max-w-7xl px-4 py-10 md:px-6">
+  <span class="puce"> Boutique</span>
+  <h1 class="mt-4 font-display text-3xl font-bold md:text-4xl">Matériel informatique</h1>
+  <p class="mt-2 max-w-2xl text-encre-attenue">
+    Ordinateurs, accessoires et composants. Filtrez, comparez, et retrouvez les caractéristiques
+    complètes sur chaque fiche.
+  </p>
+
+  <!-- Filtres -->
+  <div
+    class="mt-8 flex flex-col gap-3 border-2 border-bordure bg-surface p-4 md:flex-row md:items-center"
+  >
+    <div class="flex flex-1 gap-2">
+      <input
+        type="search"
+        placeholder="Rechercher un produit…"
+        [value]="recherche()"
+        (input)="recherche.set($any($event.target).value)"
+        (keyup.enter)="appliquer()"
+        class="w-full border-2 border-bordure bg-fond px-3 py-2 text-sm outline-none focus:border-cyan"
+      />
+      <button type="button" (click)="appliquer()" class="bouton-primaire !px-4 !py-2">OK</button>
+    </div>
+
+    <select
+      (change)="surCategorie($any($event.target).value)"
+      class="border-2 border-bordure bg-fond px-3 py-2 font-mono text-xs uppercase text-encre outline-none focus:border-cyan"
+    >
+      <option value="">Toutes catégories</option>
+      @for (categorie of categoriesArbre(); track categorie.id) {
+        <option [value]="categorie.id">{{ categorie.label }}</option>
+      }
+    </select>
+
+    <select
+      (change)="surType($any($event.target).value)"
+      class="border-2 border-bordure bg-fond px-3 py-2 font-mono text-xs uppercase text-encre outline-none focus:border-cyan"
+    >
+      <option value="">Tous types</option>
+      <option value="ordinateur">Ordinateurs</option>
+      <option value="accessoire">Accessoires</option>
+    </select>
+
+    <select
+      (change)="surTri($any($event.target).value)"
+      class="border-2 border-bordure bg-fond px-3 py-2 font-mono text-xs uppercase text-encre outline-none focus:border-cyan"
+    >
+      <option value="recent">Plus récents</option>
+      <option value="prix_asc">Prix croissant</option>
+      <option value="prix_desc">Prix décroissant</option>
+      <option value="nom">Nom (A→Z)</option>
+    </select>
+  </div>
+
+  <!-- États -->
+  @if (chargement()) {
+    <p class="mt-10 font-mono text-sm text-encre-attenue">Chargement…</p>
+  } @else if (erreur()) {
+    <p class="mt-10 border-2 border-orange bg-surface p-4 font-mono text-sm text-orange">
+      {{ erreur() }}
+    </p>
+  } @else if (produits().length === 0) {
+    <p class="mt-10 font-mono text-sm text-encre-attenue">
+      Aucun produit ne correspond à votre recherche.
+    </p>
+  } @else {
+    <p class="mt-6 font-mono text-xs uppercase tracking-widest text-encre-attenue">
+      {{ total() }} produit(s)
+    </p>
+    <div class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      @for (produit of produits(); track produit.id) {
+        <app-carte-produit [produit]="produit" />
+      }
+    </div>
+
+    <!-- Pagination -->
+    @if (nombrePages() > 1) {
+      <div class="mt-10 flex items-center justify-center gap-4">
+        <button
+          type="button"
+          (click)="allerPage(page() - 1)"
+          [disabled]="page() <= 1"
+          class="bouton-fantome !px-4 !py-2 disabled:opacity-40"
+        >
+          ← Précédent
+        </button>
+        <span class="font-mono text-sm text-encre-attenue"
+          >Page {{ page() }} / {{ nombrePages() }}</span
+        >
+        <button
+          type="button"
+          (click)="allerPage(page() + 1)"
+          [disabled]="page() >= nombrePages()"
+          class="bouton-fantome !px-4 !py-2 disabled:opacity-40"
+        >
+          Suivant →
+        </button>
+      </div>
+    }
+  }
+</section>

@@ -1,0 +1,250 @@
+import { Component, OnInit, inject, input, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+
+import { AdministrationService } from '../../../coeur/services/administration';
+import { Categorie } from '../../../coeur/modeles/categorie';
+import { Specification } from '../../../coeur/modeles/specification';
+import { ImageProduit, TypeProduit } from '../../../coeur/modeles/produit';
+
+@Component({
+  selector: 'app-produit-edition',
+  imports: [RouterLink],
+  templateUrl: './produit-edition.html',
+})
+export class ProduitEdition implements OnInit {
+  private readonly admin = inject(AdministrationService);
+  private readonly routeur = inject(Router);
+
+  readonly id = input<string>('');
+
+  protected readonly enEdition = signal(false);
+  protected readonly produitId = signal<number | null>(null);
+  protected readonly categories = signal<Categorie[]>([]);
+  protected readonly specifications = signal<Specification[]>([]);
+  protected readonly images = signal<ImageProduit[]>([]);
+  protected readonly imagesEnAttente = signal<{ url: string; public_id: string | null }[]>([]);
+
+  protected readonly chargement = signal(true);
+  protected readonly envoi = signal(false);
+  protected readonly televersement = signal(false);
+  protected readonly erreur = signal<string | null>(null);
+
+  protected readonly reference = signal('');
+  protected readonly nom = signal('');
+  protected readonly categorieId = signal<number | null>(null);
+  protected readonly typeProduit = signal<TypeProduit>('ordinateur');
+  protected readonly marque = signal('');
+  protected readonly modele = signal('');
+  protected readonly description = signal('');
+  protected readonly prix = signal<number | null>(null);
+  protected readonly prixPromo = signal<number | null>(null);
+  protected readonly promoActive = signal(false);
+  protected readonly stock = signal<number>(0);
+  protected readonly enVedette = signal(false);
+  protected readonly actif = signal(true);
+  protected readonly caracteristiques = signal<Record<string, string>>({});
+  protected readonly caracteristiquesLibres = signal<{ nom: string; valeur: string }[]>([]);
+
+  protected readonly urlImage = signal('');
+  protected readonly publicIdImage = signal('');
+
+  async ngOnInit(): Promise<void> {
+    try {
+      const [categories, specifications] = await Promise.all([
+        this.admin.listerCategories(),
+        this.admin.listerSpecifications(),
+      ]);
+      this.categories.set(categories);
+      this.specifications.set(specifications.filter((s) => s.actif));
+
+      const parametre = this.id();
+      if (parametre && parametre !== 'nouveau') {
+        this.enEdition.set(true);
+        const produit = await this.admin.obtenirProduit(Number(parametre));
+        this.produitId.set(produit.id);
+        this.reference.set(produit.reference);
+        this.nom.set(produit.nom);
+        this.categorieId.set(produit.categorie_id);
+        this.typeProduit.set(produit.type_produit);
+        this.marque.set(produit.marque ?? '');
+        this.modele.set(produit.modele ?? '');
+        this.description.set(produit.description ?? '');
+        this.prix.set(produit.prix);
+        this.prixPromo.set(produit.prix_promo);
+        this.promoActive.set(produit.promo_active);
+        this.stock.set(produit.quantite_stock);
+        this.enVedette.set(produit.en_vedette);
+        this.actif.set(produit.actif);
+        this.images.set(produit.images);
+
+        // Séparer les specs prédéfinies des champs personnalisés
+        const clesSpecs = new Set(this.specifications().map((s) => s.cle));
+        const valeursSpecs: Record<string, string> = {};
+        const libres: { nom: string; valeur: string }[] = [];
+        for (const [cle, valeur] of Object.entries(produit.caracteristiques ?? {})) {
+          if (clesSpecs.has(cle)) {
+            valeursSpecs[cle] = String(valeur ?? '');
+          } else {
+            libres.push({ nom: cle, valeur: String(valeur ?? '') });
+          }
+        }
+        this.caracteristiques.set(valeursSpecs);
+        this.caracteristiquesLibres.set(libres);
+      } else if (categories.length > 0) {
+        this.categorieId.set(categories[0].id);
+      }
+    } catch {
+      this.erreur.set('Chargement impossible.');
+    } finally {
+      this.chargement.set(false);
+    }
+  }
+
+  protected majCaracteristique(cle: string, valeur: string): void {
+    this.caracteristiques.update((c) => ({ ...c, [cle]: valeur }));
+  }
+
+  // --- Champs personnalisés ---
+  protected ajouterLigneLibre(): void {
+    this.caracteristiquesLibres.update((l) => [...l, { nom: '', valeur: '' }]);
+  }
+  protected majLibreNom(index: number, nom: string): void {
+    this.caracteristiquesLibres.update((l) => l.map((x, i) => (i === index ? { ...x, nom } : x)));
+  }
+  protected majLibreValeur(index: number, valeur: string): void {
+    this.caracteristiquesLibres.update((l) =>
+      l.map((x, i) => (i === index ? { ...x, valeur } : x)),
+    );
+  }
+  protected retirerLibre(index: number): void {
+    this.caracteristiquesLibres.update((l) => l.filter((_, i) => i !== index));
+  }
+
+  private _construireCaracteristiques(): Record<string, unknown> {
+    const source = this.caracteristiques();
+    const resultat: Record<string, unknown> = {};
+    for (const spec of this.specifications()) {
+      const brut = (source[spec.cle] ?? '').trim();
+      if (brut === '') continue;
+      if (spec.type_valeur === 'nombre') {
+        const nombre = Number(brut);
+        resultat[spec.cle] = Number.isNaN(nombre) ? brut : nombre;
+      } else if (spec.type_valeur === 'booleen') {
+        resultat[spec.cle] = brut === 'true' || brut === 'oui';
+      } else {
+        resultat[spec.cle] = brut;
+      }
+    }
+    for (const ligne of this.caracteristiquesLibres()) {
+      const nom = ligne.nom.trim();
+      const valeur = ligne.valeur.trim();
+      if (nom && valeur) resultat[nom] = valeur;
+    }
+    return resultat;
+  }
+
+  private async _ajouterImageDepuis(url: string, public_id: string | null): Promise<void> {
+    if (this.enEdition() && this.produitId() != null) {
+      const produit = await this.admin.ajouterImage(this.produitId()!, {
+        url,
+        public_id: public_id ?? undefined,
+        est_principale: this.images().length === 0,
+      });
+      this.images.set(produit.images);
+    } else {
+      this.imagesEnAttente.update((liste) => [...liste, { url, public_id }]);
+    }
+  }
+
+  protected async surFichier(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const fichier = input.files?.[0];
+    if (!fichier) return;
+    this.televersement.set(true);
+    this.erreur.set(null);
+    try {
+      const { url, public_id } = await this.admin.televerserImageCloudinary(fichier);
+      await this._ajouterImageDepuis(url, public_id);
+    } catch {
+      this.erreur.set('Téléversement impossible (Cloudinary configuré côté serveur ?).');
+    } finally {
+      this.televersement.set(false);
+      input.value = '';
+    }
+  }
+
+  protected async ajouterImageUrl(): Promise<void> {
+    if (!this.urlImage().trim()) return;
+    try {
+      await this._ajouterImageDepuis(this.urlImage().trim(), this.publicIdImage().trim() || null);
+      this.urlImage.set('');
+      this.publicIdImage.set('');
+    } catch (erreur: any) {
+      this.erreur.set(erreur?.error?.detail ?? "Ajout de l'image impossible.");
+    }
+  }
+
+  protected retirerEnAttente(index: number): void {
+    this.imagesEnAttente.update((liste) => liste.filter((_, i) => i !== index));
+  }
+
+  protected async supprimerImage(imageId: number): Promise<void> {
+    try {
+      await this.admin.supprimerImage(imageId);
+      this.images.update((liste) => liste.filter((i) => i.id !== imageId));
+    } catch {
+      this.erreur.set("Suppression de l'image impossible.");
+    }
+  }
+
+  protected async enregistrer(): Promise<void> {
+    if (this.nom().trim().length < 2 || this.categorieId() == null) {
+      this.erreur.set('Nom et catégorie sont requis.');
+      return;
+    }
+    if (this.prix() == null || this.prix()! < 0) {
+      this.erreur.set('Le prix est requis.');
+      return;
+    }
+
+    this.envoi.set(true);
+    this.erreur.set(null);
+    const donnees: Record<string, unknown> = {
+      reference: this.reference().trim() || null,
+      nom: this.nom().trim(),
+      categorie_id: this.categorieId(),
+      type_produit: this.typeProduit(),
+      marque: this.marque().trim() || null,
+      modele: this.modele().trim() || null,
+      description: this.description().trim() || null,
+      prix: this.prix(),
+      prix_promo: this.prixPromo(),
+      promo_active: this.promoActive(),
+      quantite_stock: this.stock(),
+      caracteristiques: this._construireCaracteristiques(),
+      en_vedette: this.enVedette(),
+      actif: this.actif(),
+    };
+
+    try {
+      if (this.enEdition() && this.produitId() != null) {
+        await this.admin.modifierProduit(this.produitId()!, donnees);
+      } else {
+        const cree = await this.admin.creerProduit(donnees);
+        const enAttente = this.imagesEnAttente();
+        for (let i = 0; i < enAttente.length; i++) {
+          await this.admin.ajouterImage(cree.id, {
+            url: enAttente[i].url,
+            public_id: enAttente[i].public_id ?? undefined,
+            est_principale: i === 0,
+          });
+        }
+      }
+      this.routeur.navigateByUrl('/admin/produits');
+    } catch (erreur: any) {
+      this.erreur.set(erreur?.error?.detail ?? 'Enregistrement impossible.');
+    } finally {
+      this.envoi.set(false);
+    }
+  }
+}

@@ -1,0 +1,81 @@
+<section class="mx-auto max-w-md px-4 py-16 md:px-6">
+  <span class="puce">// Inscription</span>
+  <h1 class="mt-4 font-display text-3xl font-bold">Créer un compte</h1>
+  <p class="mt-2 text-encre-attenue">Suivez vos commandes et vos demandes de dépannage.</p>
+
+  <div class="mt-8 space-y-5">
+    <div>
+      <label class="mb-1 block font-mono text-xs uppercase tracking-wide text-encre-attenue"
+        >Nom complet</label
+      >
+      <input
+        [value]="nom()"
+        (input)="nom.set($any($event.target).value)"
+        class="w-full border-2 border-bordure bg-fond px-3 py-2 outline-none focus:border-cyan"
+      />
+    </div>
+    <div>
+      <label class="mb-1 block font-mono text-xs uppercase tracking-wide text-encre-attenue"
+        >E-mail</label
+      >
+      <input
+        type="email"
+        [value]="email()"
+        (input)="email.set($any($event.target).value)"
+        class="w-full border-2 border-bordure bg-fond px-3 py-2 outline-none focus:border-cyan"
+      />
+    </div>
+    <div>
+      <label class="mb-1 block font-mono text-xs uppercase tracking-wide text-encre-attenue"
+        >Téléphone (facultatif)</label
+      >
+      <input
+        [value]="telephone()"
+        (input)="telephone.set($any($event.target).value)"
+        class="w-full border-2 border-bordure bg-fond px-3 py-2 outline-none focus:border-cyan"
+      />
+    </div>
+    <div>
+      <label class="mb-1 block font-mono text-xs uppercase tracking-wide text-encre-attenue"
+        >Mot de passe</label
+      >
+      <div class="relative">
+        <input
+          [type]="voirMdp() ? 'text' : 'password'"
+          [value]="motDePasse()"
+          (input)="motDePasse.set($any($event.target).value)"
+          (keyup.enter)="inscrire()"
+          class="w-full border-2 border-bordure bg-fond px-3 py-2 pr-16 outline-none focus:border-cyan"
+        />
+        <button
+          type="button"
+          (click)="voirMdp.set(!voirMdp())"
+          class="absolute right-2 top-1/2 -translate-y-1/2 font-mono text-xs uppercase tracking-wide text-encre-attenue hover:text-cyan"
+        >
+          {{ voirMdp() ? 'Cacher' : 'Voir' }}
+        </button>
+      </div>
+      <p class="mt-1 font-mono text-xs text-encre-attenue">8 caractères minimum.</p>
+    </div>
+
+    @if (erreur()) {
+      <p class="border-2 border-orange bg-surface p-3 font-mono text-sm text-orange">
+        {{ erreur() }}
+      </p>
+    }
+
+    <button
+      type="button"
+      (click)="inscrire()"
+      [disabled]="envoi()"
+      class="bouton-primaire w-full justify-center disabled:opacity-50"
+    >
+      {{ envoi() ? 'Création…' : 'Créer mon compte' }}
+    </button>
+  </div>
+
+  <p class="mt-6 text-sm text-encre-attenue">
+    Déjà inscrit ?
+    <a routerLink="/connexion" class="text-cyan underline">Se connecter</a>
+  </p>
+</section>

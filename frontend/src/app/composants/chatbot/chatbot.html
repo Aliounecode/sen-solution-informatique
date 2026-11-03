@@ -1,0 +1,142 @@
+@if (!ouvert()) {
+  <button
+    type="button"
+    (click)="ouvrir()"
+    aria-label="Ouvrir l'assistant"
+    class="fixed bottom-4 right-4 z-50 flex items-center gap-2 border-2 border-cyan bg-fond px-4 py-3 font-mono text-xs uppercase tracking-wide text-cyan shadow-[4px_4px_0_0_#22d3ee] transition hover:-translate-y-0.5 hover:bg-cyan hover:text-fond"
+  >
+    <span aria-hidden="true">💬</span> Besoin d'aide ?
+  </button>
+} @else {
+  <section
+    role="dialog"
+    aria-label="Assistant Sen Solution Informatique"
+    class="fixed inset-x-3 bottom-3 z-50 flex h-[34rem] max-h-[80vh] flex-col border-2 border-cyan bg-fond shadow-[6px_6px_0_0_#22d3ee] sm:inset-x-auto sm:bottom-4 sm:right-4 sm:w-96"
+  >
+    <header
+      class="flex items-center justify-between border-b-2 border-bordure bg-surface px-4 py-3"
+    >
+      <div>
+        <p class="font-display text-sm font-semibold">Assistant SSI</p>
+        <p class="font-mono text-[11px] uppercase tracking-widest text-vert">● en ligne</p>
+      </div>
+      <button
+        type="button"
+        (click)="fermer()"
+        aria-label="Fermer l'assistant"
+        class="px-2 py-1 font-mono text-encre-attenue hover:text-cyan"
+      >
+        ✕
+      </button>
+    </header>
+
+    <div #zoneMessages class="flex-1 space-y-3 overflow-y-auto p-4">
+      @for (m of messages(); track $index) {
+        <div class="flex flex-col" [class.items-end]="m.role === 'user'">
+          <div
+            class="max-w-[88%] whitespace-pre-line px-3 py-2 font-corps text-sm"
+            [class.bg-cyan]="m.role === 'user'"
+            [class.text-fond]="m.role === 'user'"
+            [class.border-2]="m.role === 'assistant'"
+            [class.border-bordure]="m.role === 'assistant' && !m.erreur"
+            [class.border-orange]="m.erreur"
+            [class.bg-surface]="m.role === 'assistant'"
+          >
+            {{ m.contenu }}
+          </div>
+
+          @if (m.produits && m.produits.length > 0) {
+            <div class="mt-2 w-full space-y-2">
+              @for (p of m.produits; track p.id) {
+                <a
+                  [routerLink]="['/produit', p.slug]"
+                  (click)="fermer()"
+                  class="flex items-center gap-3 border-2 border-bordure bg-surface-2 p-2 transition hover:border-cyan"
+                >
+                  @if (image(p); as url) {
+                    <img [src]="url" [alt]="p.nom" class="h-12 w-12 shrink-0 object-cover" />
+                  } @else {
+                    <div class="h-12 w-12 shrink-0 bg-surface"></div>
+                  }
+                  <span class="min-w-0 flex-1">
+                    <span class="block truncate font-corps text-sm font-semibold">{{ p.nom }}</span>
+                    <span class="font-mono text-xs text-cyan">{{ prix(p) | fcfa }}</span>
+                    @if (p.quantite_stock <= 0) {
+                      <span class="ml-2 font-mono text-[11px] uppercase text-orange">rupture</span>
+                    }
+                  </span>
+                </a>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (envoi()) {
+        <div
+          class="w-fit animate-pulse border-2 border-bordure bg-surface px-3 py-2 font-mono text-sm text-encre-attenue"
+        >
+          …
+        </div>
+      }
+
+      @if (messages().length === 1) {
+        <div class="flex flex-wrap gap-2 pt-1">
+          @for (s of suggestions; track s) {
+            <button
+              type="button"
+              (click)="suggerer(s)"
+              class="border-2 border-bordure px-2 py-1 text-left font-corps text-xs text-encre-attenue transition hover:border-cyan hover:text-cyan"
+            >
+              {{ s }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    @if (contact(); as c) {
+      @if (c.whatsapp || c.telephone) {
+        <div class="flex items-center gap-2 border-t-2 border-bordure bg-surface-2 px-3 py-2">
+          <span class="font-mono text-[11px] uppercase tracking-wide text-encre-attenue"
+            >Parler au gérant :</span
+          >
+          @if (c.whatsapp) {
+            <a
+              [href]="lienWhatsapp(c.whatsapp)"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="border-2 border-vert px-2 py-1 font-mono text-[11px] uppercase text-vert hover:bg-vert hover:text-fond"
+              >WhatsApp</a
+            >
+          }
+          @if (c.telephone) {
+            <a
+              [href]="lienTelephone(c.telephone)"
+              class="border-2 border-cyan px-2 py-1 font-mono text-[11px] uppercase text-cyan hover:bg-cyan hover:text-fond"
+              >Appeler</a
+            >
+          }
+        </div>
+      }
+    }
+
+    <form (submit)="envoyer($event)" class="flex border-t-2 border-bordure">
+      <input
+        [value]="saisie()"
+        (input)="saisie.set($any($event.target).value)"
+        maxlength="500"
+        placeholder="Votre question…"
+        aria-label="Votre message"
+        class="min-w-0 flex-1 bg-fond px-3 py-3 font-corps text-sm text-encre outline-none placeholder:text-encre-attenue"
+      />
+      <button
+        type="submit"
+        [disabled]="envoi() || !saisie().trim()"
+        class="bg-cyan px-4 font-mono text-xs font-bold uppercase text-fond disabled:opacity-40"
+      >
+        Envoyer
+      </button>
+    </form>
+  </section>
+}

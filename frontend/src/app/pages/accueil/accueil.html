@@ -1,0 +1,63 @@
+<!-- Héros -->
+<section class="relative overflow-hidden border-b-2 border-bordure">
+  <div class="mx-auto max-w-7xl px-4 py-20 md:px-6 md:py-28">
+    <span class="puce">// Dakar · informatique</span>
+    <h1 class="mt-5 max-w-3xl font-display text-4xl font-bold leading-tight md:text-6xl">
+      On vous <span class="text-cyan">équipe</span>. On vous <span class="text-vert">dépanne</span>.
+    </h1>
+    <p class="mt-5 max-w-xl text-lg text-encre-attenue">
+      Sen Solution Informatique, c'est deux métiers sous un même toit : la vente d'ordinateurs et
+      d'accessoires, et le service de dépannage de vos appareils.
+    </p>
+    <div class="mt-8 flex flex-wrap gap-4">
+      <a routerLink="/boutique" class="bouton-primaire">Explorer la boutique →</a>
+      <a routerLink="/depannage" class="bouton-vert">Demander un dépannage →</a>
+    </div>
+  </div>
+</section>
+
+<!-- Les deux univers -->
+<section class="mx-auto grid max-w-7xl gap-6 px-4 py-16 md:grid-cols-2 md:px-6">
+  <a routerLink="/boutique" class="carte-relief group block transition hover:-translate-y-1">
+    <span class="puce border-cyan text-cyan">Boutique</span>
+    <h2 class="mt-4 font-display text-2xl font-semibold">Matériel informatique</h2>
+    <p class="mt-2 text-encre-attenue">
+      Ordinateurs portables et de bureau, accessoires : fiches détaillées, caractéristiques
+      techniques et prix en FCFA.
+    </p>
+    <span class="mt-5 inline-block font-mono text-sm text-cyan group-hover:underline">
+      Voir le catalogue →
+    </span>
+  </a>
+
+  <a
+    routerLink="/depannage"
+    class="carte-relief group block transition hover:-translate-y-1"
+    style="box-shadow: 6px 6px 0 0 rgba(61, 220, 132, 0.18)"
+  >
+    <span class="puce border-vert text-vert">Dépannage</span>
+    <h2 class="mt-4 font-display text-2xl font-semibold">Réparation & interventions</h2>
+    <p class="mt-2 text-encre-attenue">
+      Décrivez la panne, recevez un diagnostic et un devis, puis suivez la réparation étape par
+      étape jusqu'à la récupération.
+    </p>
+    <span class="mt-5 inline-block font-mono text-sm text-vert group-hover:underline">
+      Ouvrir une demande →
+    </span>
+  </a>
+</section>
+
+<!-- En vedette -->
+@if (vedettes().length > 0) {
+  <section class="mx-auto max-w-7xl px-4 pb-16 md:px-6">
+    <div class="flex items-center justify-between">
+      <h2 class="font-display text-2xl font-semibold">Notre sélection</h2>
+      <a routerLink="/boutique" class="font-mono text-sm text-cyan hover:underline">Tout voir →</a>
+    </div>
+    <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      @for (produit of vedettes(); track produit.id) {
+        <app-carte-produit [produit]="produit" />
+      }
+    </div>
+  </section>
+}

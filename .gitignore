@@ -1,0 +1,23 @@
+﻿# Secrets
+.env
+.env.*
+!.env.example
+
+# Backend (Python)
+backend/venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.db
+
+# Frontend (Angular)
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/out-tsc/
+
+# Éditeur / système
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

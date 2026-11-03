@@ -1,0 +1,75 @@
+<!-- Héros -->
+<section class="border-b-2 border-bordure">
+  <div class="mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-20">
+    <span class="puce border-vert text-vert">// Dépannage</span>
+    <h1 class="mt-5 max-w-3xl font-display text-4xl font-bold leading-tight md:text-5xl">
+      Un souci matériel ? <span class="text-vert">On le répare.</span>
+    </h1>
+    <p class="mt-5 max-w-xl text-lg text-encre-attenue">
+      Décrivez la panne, on établit un diagnostic et un devis, puis vous suivez la réparation étape
+      par étape jusqu'à la récupération de votre appareil.
+    </p>
+    <div class="mt-8 flex flex-wrap gap-4">
+      <a routerLink="/depannage/demande" class="bouton-vert">Faire une demande →</a>
+      <a routerLink="/depannage/suivi" class="bouton-fantome">Suivre ma demande</a>
+    </div>
+  </div>
+</section>
+
+<!-- Déroulé -->
+<section class="mx-auto max-w-7xl px-4 py-12 md:px-6">
+  <div class="grid gap-4 md:grid-cols-5">
+    @for (
+      etape of [
+        { n: '01', t: 'Demande', d: 'Vous décrivez la panne' },
+        { n: '02', t: 'Diagnostic', d: 'On identifie le problème' },
+        { n: '03', t: 'Devis', d: 'Vous validez le montant' },
+        { n: '04', t: 'Réparation', d: 'On remet en état' },
+        { n: '05', t: 'Récupération', d: 'Appareil prêt' },
+      ];
+      track etape.n
+    ) {
+      <div class="carte">
+        <span class="font-mono text-sm text-vert">{{ etape.n }}</span>
+        <h3 class="mt-2 font-display text-lg font-semibold">{{ etape.t }}</h3>
+        <p class="mt-1 text-sm text-encre-attenue">{{ etape.d }}</p>
+      </div>
+    }
+  </div>
+</section>
+
+<!-- Prestations -->
+<section class="mx-auto max-w-7xl px-4 pb-16 md:px-6">
+  <h2 class="font-display text-2xl font-semibold">Nos prestations</h2>
+
+  @if (chargement()) {
+    <p class="mt-6 font-mono text-sm text-encre-attenue">Chargement…</p>
+  } @else if (prestations().length === 0) {
+    <p class="mt-6 text-encre-attenue">
+      Les prestations seront bientôt disponibles. Vous pouvez déjà
+      <a routerLink="/depannage/demande" class="text-vert underline">décrire votre panne</a>.
+    </p>
+  } @else {
+    <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      @for (prestation of prestations(); track prestation.id) {
+        <div class="carte flex flex-col" style="box-shadow: 6px 6px 0 0 rgba(61, 220, 132, 0.15)">
+          <h3 class="font-display text-lg font-semibold">{{ prestation.nom }}</h3>
+          @if (prestation.description) {
+            <p class="mt-2 text-sm text-encre-attenue">{{ prestation.description }}</p>
+          }
+          <div class="mt-auto pt-4">
+            @if (prestation.duree_estimee) {
+              <p class="font-mono text-xs uppercase tracking-wide text-encre-attenue">
+                ⏱ {{ prestation.duree_estimee }}
+              </p>
+            }
+            <p class="mt-1 font-mono text-lg font-semibold text-vert">
+              {{ prestation.tarif != null ? (prestation.tarif | fcfa) : 'Sur devis' }}
+            </p>
+          </div>
+        </div>
+      }
+    </div>
+    <a routerLink="/depannage/demande" class="bouton-vert mt-8">Demander un dépannage →</a>
+  }
+</section>

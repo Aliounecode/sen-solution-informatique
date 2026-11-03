@@ -1,0 +1,227 @@
+<div>
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h1 class="font-display text-2xl font-bold">Utilisateurs</h1>
+      <p class="mt-1 font-corps text-sm text-encre-attenue">{{ total() }} compte(s).</p>
+    </div>
+    <button type="button" (click)="ouvrirCreation()" class="admin-bouton">+ Nouveau compte</button>
+  </div>
+
+  <!-- Création -->
+  @if (creationOuverte()) {
+    <div class="mt-6 admin-carte space-y-4">
+      <h2 class="font-display text-lg font-semibold">Nouveau compte</h2>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+            >Nom complet *</label
+          >
+          <input
+            [value]="nvNom()"
+            (input)="nvNom.set($any($event.target).value)"
+            class="admin-champ"
+          />
+        </div>
+        <div>
+          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+            >E-mail *</label
+          >
+          <input
+            type="email"
+            [value]="nvEmail()"
+            (input)="nvEmail.set($any($event.target).value)"
+            class="admin-champ"
+          />
+        </div>
+        <div>
+          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+            >Téléphone</label
+          >
+          <input
+            [value]="nvTelephone()"
+            (input)="nvTelephone.set($any($event.target).value)"
+            class="admin-champ"
+          />
+        </div>
+        <div>
+          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+            >Mot de passe *</label
+          >
+          <input
+            type="text"
+            [value]="nvMotDePasse()"
+            (input)="nvMotDePasse.set($any($event.target).value)"
+            placeholder="8 caractères min."
+            class="admin-champ"
+          />
+        </div>
+        <div>
+          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+            >Rôle</label
+          >
+          <select
+            [value]="nvRole()"
+            (change)="nvRole.set($any($event.target).value)"
+            class="admin-champ"
+          >
+            <option value="client">Client</option>
+            <option value="admin">Administrateur</option>
+          </select>
+        </div>
+      </div>
+      @if (erreur()) {
+        <p class="font-corps text-sm text-orange">{{ erreur() }}</p>
+      }
+      <div class="flex gap-3">
+        <button
+          type="button"
+          (click)="creer()"
+          [disabled]="envoi()"
+          class="admin-bouton disabled:opacity-50"
+        >
+          {{ envoi() ? 'Création…' : 'Créer le compte' }}
+        </button>
+        <button type="button" (click)="fermerCreation()" class="admin-bouton-fantome">
+          Annuler
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Filtres -->
+  <div class="mt-6 flex flex-col gap-3 md:flex-row md:items-center">
+    <div class="flex flex-1 gap-2">
+      <input
+        type="search"
+        placeholder="Nom, e-mail, téléphone…"
+        [value]="recherche()"
+        (input)="recherche.set($any($event.target).value)"
+        (keyup.enter)="appliquer()"
+        class="admin-champ"
+      />
+      <button type="button" (click)="appliquer()" class="admin-bouton">OK</button>
+    </div>
+    <select (change)="surRole($any($event.target).value)" class="admin-champ md:w-56">
+      <option value="">Tous rôles</option>
+      <option value="client">Clients</option>
+      <option value="admin">Administrateurs</option>
+    </select>
+  </div>
+
+  @if (erreur() && !creationOuverte()) {
+    <p class="mt-4 admin-carte !border-orange/50 text-orange">{{ erreur() }}</p>
+  }
+
+  @if (chargement()) {
+    <p class="mt-8 font-corps text-sm text-encre-attenue">Chargement…</p>
+  } @else if (utilisateurs().length === 0) {
+    <p class="mt-8 font-corps text-sm text-encre-attenue">Aucun utilisateur.</p>
+  } @else {
+    <div class="mt-6 admin-carte !p-0 overflow-hidden">
+      <table class="w-full text-left text-sm">
+        <thead
+          class="border-b border-bordure/70 font-corps text-xs uppercase tracking-wide text-encre-attenue"
+        >
+          <tr>
+            <th class="p-3">Nom</th>
+            <th class="p-3 hidden md:table-cell">E-mail</th>
+            <th class="p-3">Rôle</th>
+            <th class="p-3">État</th>
+            <th class="p-3 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (u of utilisateurs(); track u.id) {
+            <tr class="border-b border-bordure/40 last:border-0 hover:bg-surface-2/40">
+              <td class="p-3">
+                <p class="font-corps font-medium">
+                  {{ u.nom_complet }}
+                  @if (u.id === moiId()) {
+                    <span class="ml-1 admin-badge !border-cyan/50 !text-cyan">vous</span>
+                  }
+                </p>
+                <p class="font-corps text-xs text-encre-attenue md:hidden">{{ u.email }}</p>
+              </td>
+              <td class="p-3 hidden md:table-cell font-corps text-encre-attenue">{{ u.email }}</td>
+              <td class="p-3">
+                <span
+                  class="admin-badge"
+                  [class.!border-orange/50]="u.role === 'admin'"
+                  [class.!text-orange]="u.role === 'admin'"
+                >
+                  {{ u.role === 'admin' ? 'Admin' : 'Client' }}
+                </span>
+              </td>
+              <td class="p-3">
+                @if (u.actif) {
+                  <span class="admin-badge !border-vert/50 !text-vert">actif</span>
+                } @else {
+                  <span class="admin-badge">désactivé</span>
+                }
+              </td>
+              <td class="p-3">
+                <div class="flex flex-wrap justify-end gap-2">
+                  @if (u.role === 'client') {
+                    <button
+                      type="button"
+                      (click)="changerRole(u, 'admin')"
+                      class="admin-bouton-fantome !py-1"
+                    >
+                      → Admin
+                    </button>
+                  } @else {
+                    <button
+                      type="button"
+                      (click)="changerRole(u, 'client')"
+                      class="admin-bouton-fantome !py-1"
+                    >
+                      → Client
+                    </button>
+                  }
+                  <button
+                    type="button"
+                    (click)="basculerActif(u)"
+                    class="admin-bouton-fantome !py-1"
+                  >
+                    {{ u.actif ? 'Désactiver' : 'Activer' }}
+                  </button>
+                  <button
+                    type="button"
+                    (click)="reinitialiser(u)"
+                    class="admin-bouton-fantome !py-1"
+                  >
+                    Mot de passe
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (nombrePages() > 1) {
+      <div class="mt-6 flex items-center justify-center gap-4">
+        <button
+          type="button"
+          (click)="allerPage(page() - 1)"
+          [disabled]="page() <= 1"
+          class="admin-bouton-fantome disabled:opacity-40"
+        >
+          ←
+        </button>
+        <span class="font-corps text-sm text-encre-attenue"
+          >Page {{ page() }} / {{ nombrePages() }}</span
+        >
+        <button
+          type="button"
+          (click)="allerPage(page() + 1)"
+          [disabled]="page() >= nombrePages()"
+          class="admin-bouton-fantome disabled:opacity-40"
+        >
+          →
+        </button>
+      </div>
+    }
+  }
+</div>

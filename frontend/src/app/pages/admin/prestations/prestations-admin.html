@@ -1,0 +1,154 @@
+<div>
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h1 class="font-display text-2xl font-bold">Prestations</h1>
+      <p class="mt-1 font-corps text-sm text-encre-attenue">Les services de dépannage proposés.</p>
+    </div>
+    <button type="button" (click)="ouvrirCreation()" class="admin-bouton">
+      + Nouvelle prestation
+    </button>
+  </div>
+
+  @if (formulaireOuvert()) {
+    <div class="mt-6 admin-carte space-y-4">
+      <h2 class="font-display text-lg font-semibold">
+        {{ editionId() != null ? 'Modifier' : 'Nouvelle prestation' }}
+      </h2>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+            >Nom *</label
+          >
+          <input [value]="nom()" (input)="nom.set($any($event.target).value)" class="admin-champ" />
+        </div>
+        <div>
+          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+            >Tarif (FCFA) — vide = sur devis</label
+          >
+          <input
+            type="number"
+            min="0"
+            [value]="tarif()"
+            (input)="
+              tarif.set($any($event.target).value === '' ? null : +$any($event.target).value)
+            "
+            class="admin-champ"
+          />
+        </div>
+        <div>
+          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+            >Durée estimée</label
+          >
+          <input
+            [value]="dureeEstimee()"
+            (input)="dureeEstimee.set($any($event.target).value)"
+            placeholder="24-48h, 1 semaine…"
+            class="admin-champ"
+          />
+        </div>
+        <div>
+          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+            >Ordre</label
+          >
+          <input
+            type="number"
+            [value]="ordre()"
+            (input)="ordre.set(+$any($event.target).value)"
+            class="admin-champ"
+          />
+        </div>
+      </div>
+      <div>
+        <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+          >Description</label
+        >
+        <textarea
+          rows="2"
+          [value]="description()"
+          (input)="description.set($any($event.target).value)"
+          class="admin-champ"
+        ></textarea>
+      </div>
+      <label class="flex items-center gap-2 font-corps text-sm">
+        <input
+          type="checkbox"
+          [checked]="actif()"
+          (change)="actif.set($any($event.target).checked)"
+        />
+        Active
+      </label>
+      @if (erreur()) {
+        <p class="font-corps text-sm text-orange">{{ erreur() }}</p>
+      }
+      <div class="flex gap-3">
+        <button
+          type="button"
+          (click)="enregistrer()"
+          [disabled]="envoi()"
+          class="admin-bouton disabled:opacity-50"
+        >
+          {{ envoi() ? 'Enregistrement…' : 'Enregistrer' }}
+        </button>
+        <button type="button" (click)="fermer()" class="admin-bouton-fantome">Annuler</button>
+      </div>
+    </div>
+  }
+
+  @if (chargement()) {
+    <p class="mt-8 font-corps text-sm text-encre-attenue">Chargement…</p>
+  } @else if (prestations().length === 0) {
+    <p class="mt-8 font-corps text-sm text-encre-attenue">Aucune prestation.</p>
+  } @else {
+    <div class="mt-6 admin-carte !p-0 overflow-hidden">
+      <table class="w-full text-left text-sm">
+        <thead
+          class="border-b border-bordure/70 font-corps text-xs uppercase tracking-wide text-encre-attenue"
+        >
+          <tr>
+            <th class="p-3">Nom</th>
+            <th class="p-3">Tarif</th>
+            <th class="p-3 hidden sm:table-cell">Durée</th>
+            <th class="p-3">État</th>
+            <th class="p-3 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of prestations(); track p.id) {
+            <tr class="border-b border-bordure/40 last:border-0 hover:bg-surface-2/40">
+              <td class="p-3 font-corps font-medium">{{ p.nom }}</td>
+              <td class="p-3 font-mono">{{ p.tarif != null ? (p.tarif | fcfa) : 'Sur devis' }}</td>
+              <td class="p-3 hidden sm:table-cell font-corps text-encre-attenue">
+                {{ p.duree_estimee ?? '—' }}
+              </td>
+              <td class="p-3">
+                @if (p.actif) {
+                  <span class="admin-badge !border-vert/50 !text-vert">active</span>
+                } @else {
+                  <span class="admin-badge">inactive</span>
+                }
+              </td>
+              <td class="p-3">
+                <div class="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    (click)="ouvrirEdition(p)"
+                    class="admin-bouton-fantome !py-1"
+                  >
+                    Éditer
+                  </button>
+                  <button
+                    type="button"
+                    (click)="supprimer(p)"
+                    class="admin-bouton-fantome !py-1 hover:!border-orange/60 hover:!text-orange"
+                  >
+                    Suppr.
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
