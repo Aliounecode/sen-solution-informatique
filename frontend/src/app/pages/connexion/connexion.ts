@@ -27,8 +27,12 @@ export class Connexion {
     this.erreur.set(null);
     try {
       await this.auth.connexion(this.email().trim(), this.motDePasse());
-      const cible = this.auth.estAdmin() ? '/admin' : '/mon-compte';
-      this.routeur.navigateByUrl(cible);
+      if (this.auth.estAdmin()) {
+        this.auth.deconnexion(false);
+        this.erreur.set('E-mail ou mot de passe incorrect.');
+        return;
+      }
+      this.routeur.navigateByUrl('/mon-compte');
     } catch (erreur: any) {
       this.erreur.set(erreur?.error?.detail ?? 'E-mail ou mot de passe incorrect.');
     } finally {

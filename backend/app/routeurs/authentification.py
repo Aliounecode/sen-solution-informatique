@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-
+from ..limiteur import LimiteurDebit, limiter
 from ..base_donnees import obtenir_session
 from ..modeles import Utilisateur
 from ..schemas.authentification import Jeton, RafraichirRequete
@@ -15,14 +15,22 @@ from ..securite import (
 from ..services import service_authentification
 
 routeur = APIRouter(prefix="/api/auth", tags=["Authentification"])
+# Anti force brute : par adresse IP, fenêtre glissante.
+limiteur_connexion = LimiteurDebit(maximum=8, fenetre_secondes=300)  # 8 essais / 5 min
+limiteur_inscription = LimiteurDebit(maximum=5, fenetre_secondes=600)  # 5 comptes / 10 min
 
 
-@routeur.post("/inscription", response_model=UtilisateurPublic, status_code=status.HTTP_201_CREATED)
+@routeur.post(
+    "/inscription",
+    response_model=UtilisateurPublic,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[limiter(limiteur_inscription)],
+)
 def inscription(donnees: UtilisateurCreer, session: Session = Depends(obtenir_session)):
     return service_authentification.inscrire(session, donnees)
 
 
-@routeur.post("/connexion", response_model=Jeton)
+@routeur.post("/connexion", response_model=Jeton, dependencies=[limiter(limiteur_connexion)])
 def connexion(donnees: UtilisateurConnexion, session: Session = Depends(obtenir_session)):
     utilisateur = service_authentification.authentifier(session, donnees.email, donnees.mot_de_passe)
     return Jeton(

@@ -32,13 +32,7 @@
         class="border-2 border-transparent px-3 py-2 font-mono text-xs uppercase tracking-wide text-encre transition hover:text-cyan"
         >Suivi</a
       >
-      @if (auth.estAdmin()) {
-        <a
-          routerLink="/admin"
-          class="border-2 border-orange px-3 py-2 font-mono text-xs uppercase tracking-wide text-orange transition hover:bg-orange hover:text-fond"
-          >Admin</a
-        >
-      }
+
       @if (auth.estConnecte()) {
         <a routerLink="/mon-compte" class="bouton-fantome !px-3 !py-2">Mon compte</a>
         <button type="button" (click)="auth.deconnexion()" class="bouton-fantome !px-3 !py-2">
@@ -112,16 +106,7 @@
             >Suivi de commande</a
           >
         </li>
-        @if (auth.estAdmin()) {
-          <li>
-            <a
-              routerLink="/admin"
-              (click)="fermerMenu()"
-              class="block px-2 py-3 font-mono text-sm uppercase tracking-wide text-orange"
-              >Admin</a
-            >
-          </li>
-        }
+
         @if (auth.estConnecte()) {
           <li>
             <a

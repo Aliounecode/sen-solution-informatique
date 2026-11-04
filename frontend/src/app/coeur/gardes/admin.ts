@@ -3,10 +3,14 @@ import { CanActivateFn, Router } from '@angular/router';
 
 import { AuthentificationService } from '../services/authentification';
 
-export const gardeAdmin: CanActivateFn = async () => {
+export const gardeAdmin: CanActivateFn = async (_route, etat) => {
   const auth = inject(AuthentificationService);
   const routeur = inject(Router);
-  if (!auth.estConnecte()) return routeur.createUrlTree(['/connexion']);
+  const versConnexion = () =>
+    routeur.createUrlTree(['/admin/connexion'], { queryParams: { retour: etat.url } });
+
+  if (!auth.estConnecte()) return versConnexion();
   const utilisateur = await auth.assurerUtilisateur();
-  return utilisateur?.role === 'admin' ? true : routeur.createUrlTree(['/']);
+  if (!utilisateur) return versConnexion(); // jeton expiré
+  return utilisateur.role === 'admin' ? true : routeur.createUrlTree(['/']);
 };

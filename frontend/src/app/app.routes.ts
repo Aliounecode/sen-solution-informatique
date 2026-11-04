@@ -66,6 +66,11 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'admin/connexion',
+    loadComponent: () =>
+      import('./pages/admin/connexion-admin/connexion-admin').then((m) => m.ConnexionAdmin),
+  },
+  {
     path: 'admin',
     canActivate: [gardeAdmin],
     loadComponent: () =>

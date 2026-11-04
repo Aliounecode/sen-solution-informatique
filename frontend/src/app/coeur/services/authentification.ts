@@ -24,7 +24,7 @@ export class AuthentificationService {
 
   constructor() {
     if (this._jetonAcces()) {
-      this.chargerMoi().catch(() => this.deconnexion());
+      this.chargerMoi().catch(() => this.deconnexion(false));
     }
   }
 
@@ -58,17 +58,17 @@ export class AuthentificationService {
     try {
       return await this.chargerMoi();
     } catch {
-      this.deconnexion();
+      this.deconnexion(false);
       return null;
     }
   }
 
-  deconnexion(): void {
+  deconnexion(redirection = true): void {
     localStorage.removeItem(CLE_ACCES);
     localStorage.removeItem(CLE_RAFRAICHISSEMENT);
     this._jetonAcces.set(null);
     this._utilisateur.set(null);
-    void this.router.navigateByUrl('/');
+    if (redirection) void this.router.navigateByUrl('/');
   }
 
   private _enregistrerJetons(jeton: Jeton): void {

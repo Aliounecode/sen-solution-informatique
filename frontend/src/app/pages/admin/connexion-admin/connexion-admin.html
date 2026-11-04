@@ -1,0 +1,59 @@
+<div class="flex min-h-screen items-center justify-center bg-fond px-4">
+  <div class="w-full max-w-sm">
+    <div class="mb-6 flex items-center justify-center gap-2">
+      <span class="rounded-lg bg-cyan px-2 py-1 font-display text-sm font-bold text-fond">SSI</span>
+      <span class="font-corps text-sm font-semibold">Espace administration</span>
+    </div>
+
+    <form class="admin-carte space-y-4" (submit)="$event.preventDefault(); connecter()">
+      <div>
+        <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+          >E-mail</label
+        >
+        <input
+          type="email"
+          autocomplete="username"
+          [value]="email()"
+          (input)="email.set($any($event.target).value)"
+          class="admin-champ"
+        />
+      </div>
+
+      <div>
+        <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+          >Mot de passe</label
+        >
+        <div class="relative">
+          <input
+            [type]="voirMdp() ? 'text' : 'password'"
+            autocomplete="current-password"
+            [value]="motDePasse()"
+            (input)="motDePasse.set($any($event.target).value)"
+            class="admin-champ pr-16"
+          />
+          <button
+            type="button"
+            (click)="voirMdp.set(!voirMdp())"
+            class="absolute right-3 top-1/2 -translate-y-1/2 font-corps text-xs text-encre-attenue hover:text-cyan"
+          >
+            {{ voirMdp() ? 'Cacher' : 'Voir' }}
+          </button>
+        </div>
+      </div>
+
+      @if (erreur()) {
+        <p class="font-corps text-sm text-orange" role="alert">{{ erreur() }}</p>
+      }
+
+      <button type="submit" [disabled]="envoi()" class="admin-bouton w-full disabled:opacity-50">
+        {{ envoi() ? 'Connexion…' : 'Se connecter' }}
+      </button>
+    </form>
+
+    <p class="mt-4 text-center">
+      <a routerLink="/" class="font-corps text-xs text-encre-attenue hover:text-cyan"
+        >← Retour au site</a
+      >
+    </p>
+  </div>
+</div>
