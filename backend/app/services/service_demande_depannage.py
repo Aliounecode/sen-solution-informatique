@@ -7,8 +7,10 @@ from sqlalchemy.orm import Session, selectinload
 from ..modeles import (
     DemandeDepannage,
     Prestation,
+    RoleUtilisateur,
     StatutDemande,
     Technicien,
+    Utilisateur,
 )
 from ..schemas.demande_depannage import DemandeCreer, DemandeModifierAdmin
 
@@ -160,8 +162,20 @@ def changer_statut(session: Session, demande_id: int, cible: StatutDemande) -> D
     return obtenir(session, demande_id)
 
 
-def repondre_devis(session: Session, reference: str, accepte: bool) -> DemandeDepannage:
+def obtenir_par_reference_pour(
+    session: Session, reference: str, utilisateur: Utilisateur
+) -> DemandeDepannage:
+    """Renvoie la demande seulement si elle appartient à l'utilisateur (ou s'il est admin)."""
     demande = obtenir_par_reference(session, reference)
+    if utilisateur.role != RoleUtilisateur.admin and demande.client_id != utilisateur.id:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Demande introuvable")
+    return demande
+
+
+def repondre_devis(
+    session: Session, reference: str, accepte: bool, utilisateur: Utilisateur
+) -> DemandeDepannage:
+    demande = obtenir_par_reference_pour(session, reference, utilisateur)
     if demande.statut != StatutDemande.devis:
         raise HTTPException(
             status.HTTP_409_CONFLICT,

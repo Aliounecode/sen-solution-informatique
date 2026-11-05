@@ -1,6 +1,6 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-
+import { environnement } from '../../../environnements/environnement';
 import { CarteProduit } from '../../composants/carte-produit/carte-produit';
 import { ProduitComplet, ProduitResume } from '../../coeur/modeles/produit';
 import { Specification } from '../../coeur/modeles/specification';
@@ -41,6 +41,21 @@ export class ProduitDetail {
   });
   protected readonly enRupture = computed(() => (this.produit()?.quantite_stock ?? 0) <= 0);
 
+  protected readonly onglet = signal<'description' | 'caracteristiques'>('description');
+
+  protected readonly reduction = computed(() => {
+    const p = this.produit();
+    if (!p || !this.enPromo() || p.prix <= 0) return 0;
+    return Math.round((1 - (p.prix_promo as number) / p.prix) * 100);
+  });
+
+  protected readonly lienWhatsapp = computed(() => {
+    const p = this.produit();
+    if (!p || !environnement.whatsapp) return null;
+    const texte = `Bonjour, je suis intéressé par « ${p.nom} » (réf. ${p.reference}).`;
+    return `https://wa.me/${environnement.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(texte)}`;
+  });
+
   protected readonly imageActive = computed(() => {
     const p = this.produit();
     if (!p || p.images.length === 0) return null;
@@ -75,6 +90,7 @@ export class ProduitDetail {
     this.chargement.set(true);
     this.erreur.set(null);
     this.quantite.set(1);
+    this.onglet.set('description');
     this.similaires.set([]);
     window.scrollTo({ top: 0 });
     try {

@@ -1,73 +1,97 @@
-<section class="mx-auto max-w-4xl px-4 py-10 md:px-6">
-  <span class="puce">// Panier</span>
-  <h1 class="mt-4 font-display text-3xl font-bold md:text-4xl">Votre panier</h1>
+<section class="mx-auto max-w-6xl px-4 py-8 md:px-6">
+  <app-etapes-achat [etape]="1" />
+  <h1 class="mt-5 font-display text-3xl font-bold">Votre panier</h1>
 
   @if (panier.articles().length === 0) {
-    <p class="mt-8 font-mono text-sm text-encre-attenue">Votre panier est vide.</p>
-    <a routerLink="/boutique" class="bouton-primaire mt-6">Aller à la boutique →</a>
-  } @else {
-    <div class="mt-8 space-y-3">
-      @for (article of panier.articles(); track article.produit_id) {
-        <div class="carte flex items-center gap-4 !p-3">
-          <div class="h-20 w-20 shrink-0 overflow-hidden border-2 border-bordure bg-surface-2">
-            @if (article.image) {
-              <img [src]="article.image" [alt]="article.nom" class="h-full w-full object-cover" />
-            }
-          </div>
-
-          <div class="min-w-0 flex-1">
-            <a
-              [routerLink]="['/produit', article.slug]"
-              class="line-clamp-1 font-display font-semibold hover:text-cyan"
-            >
-              {{ article.nom }}
-            </a>
-            <p class="mt-1 font-mono text-sm text-cyan">{{ article.prix | fcfa }}</p>
-          </div>
-
-          <div class="flex items-center border-2 border-bordure">
-            <button
-              type="button"
-              (click)="panier.modifierQuantite(article.produit_id, article.quantite - 1)"
-              class="px-3 py-1 font-mono text-lg hover:text-cyan"
-            >
-              −
-            </button>
-            <span class="w-10 text-center font-mono">{{ article.quantite }}</span>
-            <button
-              type="button"
-              (click)="panier.modifierQuantite(article.produit_id, article.quantite + 1)"
-              class="px-3 py-1 font-mono text-lg hover:text-cyan"
-            >
-              +
-            </button>
-          </div>
-
-          <div class="hidden w-28 text-right font-mono sm:block">
-            {{ article.prix * article.quantite | fcfa }}
-          </div>
-
-          <button
-            type="button"
-            (click)="panier.retirer(article.produit_id)"
-            class="px-2 font-mono text-lg text-encre-attenue hover:text-orange"
-            title="Retirer"
-          >
-            ✕
-          </button>
-        </div>
-      }
+    <div class="mt-8 rounded-xl border border-bordure bg-surface p-10 text-center">
+      <p class="font-display text-xl font-semibold">Votre panier est vide</p>
+      <p class="mt-1 text-sm text-encre-attenue">Découvrez nos ordinateurs et accessoires.</p>
+      <a routerLink="/boutique" class="bouton-primaire mt-5">Aller à la boutique →</a>
     </div>
+  } @else {
+    <div class="mt-8 grid gap-6 lg:grid-cols-[1fr_340px]">
+      <div class="space-y-3">
+        @for (article of panier.articles(); track article.produit_id) {
+          <div class="flex items-center gap-4 rounded-xl border border-bordure bg-surface p-3">
+            <div class="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-surface-2">
+              @if (article.image) {
+                <img
+                  [src]="article.image"
+                  [alt]="article.nom"
+                  class="h-full w-full object-contain p-1"
+                />
+              }
+            </div>
 
-    <div class="mt-8 flex flex-col items-end gap-4 border-t-2 border-bordure pt-6">
-      <div class="font-mono text-lg">
-        Total :
-        <span class="font-display text-2xl font-bold text-cyan">{{ panier.total() | fcfa }}</span>
+            <div class="min-w-0 flex-1">
+              <a
+                [routerLink]="['/produit', article.slug]"
+                class="line-clamp-2 font-display font-semibold hover:text-cyan"
+                >{{ article.nom }}</a
+              >
+              <p class="mt-1 font-mono text-sm text-cyan">{{ article.prix | fcfa }}</p>
+              <div class="mt-2 flex items-center gap-3 sm:hidden">
+                <span class="font-mono text-sm">{{ article.prix * article.quantite | fcfa }}</span>
+              </div>
+            </div>
+
+            <div class="flex items-center rounded-lg border border-bordure">
+              <button
+                type="button"
+                (click)="panier.modifierQuantite(article.produit_id, article.quantite - 1)"
+                aria-label="Diminuer"
+                class="px-3 py-1.5 font-mono text-lg hover:text-cyan"
+              >
+                −
+              </button>
+              <span class="w-8 text-center font-mono">{{ article.quantite }}</span>
+              <button
+                type="button"
+                (click)="panier.modifierQuantite(article.produit_id, article.quantite + 1)"
+                aria-label="Augmenter"
+                class="px-3 py-1.5 font-mono text-lg hover:text-cyan"
+              >
+                +
+              </button>
+            </div>
+
+            <div class="hidden w-28 text-right font-mono sm:block">
+              {{ article.prix * article.quantite | fcfa }}
+            </div>
+
+            <button
+              type="button"
+              (click)="panier.retirer(article.produit_id)"
+              class="rounded-lg px-2 py-1 font-mono text-lg text-encre-attenue hover:text-orange"
+              title="Retirer"
+              aria-label="Retirer"
+            >
+              ✕
+            </button>
+          </div>
+        }
+        <a
+          routerLink="/boutique"
+          class="inline-block pt-2 font-corps text-sm font-semibold text-cyan hover:underline"
+          >← Continuer mes achats</a
+        >
       </div>
-      <div class="flex gap-3">
-        <a routerLink="/boutique" class="bouton-fantome">← Continuer mes achats</a>
-        <a routerLink="/commande" class="bouton-primaire">Passer la commande →</a>
-      </div>
+
+      <aside class="h-fit rounded-xl border border-bordure bg-surface p-5 lg:sticky lg:top-40">
+        <h2 class="font-display text-lg font-semibold">Récapitulatif</h2>
+        <div class="mt-4 flex justify-between text-sm">
+          <span class="text-encre-attenue">Sous-total</span>
+          <span class="font-mono">{{ panier.total() | fcfa }}</span>
+        </div>
+        <p class="mt-2 text-xs text-encre-attenue">
+          Retrait en boutique ou livraison : choisi à l'étape suivante.
+        </p>
+        <div class="mt-4 flex items-baseline justify-between border-t border-bordure pt-4">
+          <span class="font-mono text-xs uppercase tracking-wider text-encre-attenue">Total</span>
+          <span class="font-display text-2xl font-bold text-cyan">{{ panier.total() | fcfa }}</span>
+        </div>
+        <a routerLink="/commande" class="bouton-primaire mt-5 w-full">Passer la commande →</a>
+      </aside>
     </div>
   }
 </section>

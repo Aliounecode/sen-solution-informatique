@@ -1,101 +1,254 @@
-<section class="mx-auto max-w-7xl px-4 py-10 md:px-6">
-  <span class="puce"> Boutique</span>
-  <h1 class="mt-4 font-display text-3xl font-bold md:text-4xl">Matériel informatique</h1>
-  <p class="mt-2 max-w-2xl text-encre-attenue">
-    Ordinateurs, accessoires et composants. Filtrez, comparez, et retrouvez les caractéristiques
-    complètes sur chaque fiche.
-  </p>
+<section class="mx-auto max-w-7xl px-4 py-8 md:px-6">
+  <nav class="font-mono text-xs text-encre-attenue" aria-label="Fil d'Ariane">
+    <a routerLink="/" class="hover:text-cyan">Accueil</a> / <span class="text-encre">Boutique</span>
+  </nav>
 
-  <!-- Filtres -->
-  <div
-    class="mt-8 flex flex-col gap-3 border-2 border-bordure bg-surface p-4 md:flex-row md:items-center"
-  >
-    <div class="flex flex-1 gap-2">
-      <input
-        type="search"
-        placeholder="Rechercher un produit…"
-        [value]="recherche()"
-        (input)="recherche.set($any($event.target).value)"
-        (keyup.enter)="appliquer()"
-        class="w-full border-2 border-bordure bg-fond px-3 py-2 text-sm outline-none focus:border-cyan"
-      />
-      <button type="button" (click)="appliquer()" class="bouton-primaire !px-4 !py-2">OK</button>
-    </div>
-
-    <select
-      (change)="surCategorie($any($event.target).value)"
-      class="border-2 border-bordure bg-fond px-3 py-2 font-mono text-xs uppercase text-encre outline-none focus:border-cyan"
-    >
-      <option value="">Toutes catégories</option>
-      @for (categorie of categoriesArbre(); track categorie.id) {
-        <option [value]="categorie.id">{{ categorie.label }}</option>
-      }
-    </select>
-
-    <select
-      (change)="surType($any($event.target).value)"
-      class="border-2 border-bordure bg-fond px-3 py-2 font-mono text-xs uppercase text-encre outline-none focus:border-cyan"
-    >
-      <option value="">Tous types</option>
-      <option value="ordinateur">Ordinateurs</option>
-      <option value="accessoire">Accessoires</option>
-    </select>
-
-    <select
-      (change)="surTri($any($event.target).value)"
-      class="border-2 border-bordure bg-fond px-3 py-2 font-mono text-xs uppercase text-encre outline-none focus:border-cyan"
-    >
-      <option value="recent">Plus récents</option>
-      <option value="prix_asc">Prix croissant</option>
-      <option value="prix_desc">Prix décroissant</option>
-      <option value="nom">Nom (A→Z)</option>
-    </select>
-  </div>
-
-  <!-- États -->
-  @if (chargement()) {
-    <p class="mt-10 font-mono text-sm text-encre-attenue">Chargement…</p>
-  } @else if (erreur()) {
-    <p class="mt-10 border-2 border-orange bg-surface p-4 font-mono text-sm text-orange">
-      {{ erreur() }}
-    </p>
-  } @else if (produits().length === 0) {
-    <p class="mt-10 font-mono text-sm text-encre-attenue">
-      Aucun produit ne correspond à votre recherche.
-    </p>
-  } @else {
-    <p class="mt-6 font-mono text-xs uppercase tracking-widest text-encre-attenue">
+  <div class="mt-3 flex flex-wrap items-end justify-between gap-3">
+    <h1 class="font-display text-3xl font-bold">Matériel informatique</h1>
+    <p class="font-mono text-xs uppercase tracking-widest text-encre-attenue">
       {{ total() }} produit(s)
     </p>
-    <div class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      @for (produit of produits(); track produit.id) {
-        <app-carte-produit [produit]="produit" />
+  </div>
+
+  <div class="mt-6 grid gap-6 lg:grid-cols-[16rem_1fr]">
+    <!-- Filtres -->
+    <aside>
+      <button
+        type="button"
+        (click)="filtresOuverts.set(!filtresOuverts())"
+        class="bouton-fantome w-full lg:hidden"
+      >
+        {{ filtresOuverts() ? 'Masquer les filtres' : 'Filtres' }}
+        @if (chips().length > 0) {
+          <span class="rounded-full bg-cyan px-2 font-mono text-xs text-surface">{{
+            chips().length
+          }}</span>
+        }
+      </button>
+
+      <div
+        class="mt-3 space-y-6 rounded-xl border border-bordure bg-surface p-4 lg:sticky lg:top-40 lg:mt-0 lg:block"
+        [class.hidden]="!filtresOuverts()"
+        [class.lg:block]="true"
+      >
+        <form (submit)="$event.preventDefault(); soumettreRecherche()" role="search">
+          <label class="font-mono text-[11px] uppercase tracking-widest text-encre-attenue"
+            >Recherche</label
+          >
+          <div class="mt-2 flex">
+            <input
+              type="search"
+              placeholder="Nom, marque, modèle…"
+              [value]="saisieRecherche()"
+              (input)="saisieRecherche.set($any($event.target).value)"
+              class="min-w-0 flex-1 rounded-l-lg border border-r-0 border-bordure bg-fond px-3 py-2 text-sm outline-none focus:border-cyan"
+            />
+            <button
+              type="submit"
+              class="rounded-r-lg bg-cyan px-3 text-sm font-semibold text-surface"
+            >
+              OK
+            </button>
+          </div>
+        </form>
+
+        <div>
+          <p class="font-mono text-[11px] uppercase tracking-widest text-encre-attenue">
+            Catégories
+          </p>
+          <ul class="mt-2 space-y-1 text-sm">
+            <li>
+              <button
+                type="button"
+                (click)="choisirCategorie(null)"
+                class="w-full rounded-lg px-2 py-1.5 text-left hover:bg-fond"
+                [class.font-semibold]="categorieId() === null"
+                [class.text-cyan]="categorieId() === null"
+              >
+                Toutes
+              </button>
+            </li>
+            @for (r of arbre(); track r.id) {
+              <li>
+                <button
+                  type="button"
+                  (click)="choisirCategorie(r.id)"
+                  class="w-full rounded-lg px-2 py-1.5 text-left hover:bg-fond"
+                  [class.font-semibold]="categorieId() === r.id"
+                  [class.text-cyan]="categorieId() === r.id"
+                >
+                  {{ r.nom }}
+                </button>
+                @if (estOuverte(r) && r.enfants.length > 0) {
+                  <ul class="ml-3 border-l border-bordure pl-2">
+                    @for (e of r.enfants; track e.id) {
+                      <li>
+                        <button
+                          type="button"
+                          (click)="choisirCategorie(e.id)"
+                          class="w-full rounded-lg px-2 py-1 text-left text-encre-attenue hover:bg-fond"
+                          [class.font-semibold]="categorieId() === e.id"
+                          [class.text-cyan]="categorieId() === e.id"
+                        >
+                          {{ e.nom }}
+                        </button>
+                      </li>
+                    }
+                  </ul>
+                }
+              </li>
+            }
+          </ul>
+        </div>
+
+        <div>
+          <p class="font-mono text-[11px] uppercase tracking-widest text-encre-attenue">Type</p>
+          <select
+            (change)="choisirType($any($event.target).value)"
+            class="mt-2 w-full rounded-lg border border-bordure bg-fond px-3 py-2 text-sm outline-none focus:border-cyan"
+          >
+            <option value="" [selected]="typeProduit() === null">Tous</option>
+            <option value="ordinateur" [selected]="typeProduit() === 'ordinateur'">
+              Ordinateurs
+            </option>
+            <option value="accessoire" [selected]="typeProduit() === 'accessoire'">
+              Accessoires
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <p class="font-mono text-[11px] uppercase tracking-widest text-encre-attenue">
+            Prix (FCFA)
+          </p>
+          <form
+            class="mt-2 flex items-center gap-2"
+            (submit)="$event.preventDefault(); appliquerPrix()"
+          >
+            <input
+              type="number"
+              min="0"
+              placeholder="Min"
+              [value]="saisiePrixMin()"
+              (input)="saisiePrixMin.set($any($event.target).value)"
+              class="w-full rounded-lg border border-bordure bg-fond px-2 py-2 text-sm outline-none focus:border-cyan"
+            />
+            <span class="text-encre-attenue">–</span>
+            <input
+              type="number"
+              min="0"
+              placeholder="Max"
+              [value]="saisiePrixMax()"
+              (input)="saisiePrixMax.set($any($event.target).value)"
+              class="w-full rounded-lg border border-bordure bg-fond px-2 py-2 text-sm outline-none focus:border-cyan"
+            />
+            <button
+              type="submit"
+              class="rounded-lg bg-cyan px-3 py-2 text-sm font-semibold text-surface"
+            >
+              OK
+            </button>
+          </form>
+        </div>
+
+        <label class="flex cursor-pointer items-center gap-2 text-sm">
+          <input type="checkbox" [checked]="promo()" (change)="basculerPromo()" />
+          Promotions uniquement
+        </label>
+
+        @if (chips().length > 0) {
+          <button
+            type="button"
+            (click)="reinitialiser()"
+            class="text-sm text-orange hover:underline"
+          >
+            Réinitialiser les filtres
+          </button>
+        }
+      </div>
+    </aside>
+
+    <!-- Résultats -->
+    <div>
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap gap-2">
+          @for (c of chips(); track c.libelle) {
+            <button
+              type="button"
+              (click)="retirer(c.cles)"
+              class="inline-flex items-center gap-1 rounded-full border border-cyan px-3 py-1 text-xs text-cyan hover:bg-cyan hover:text-surface"
+            >
+              {{ c.libelle }} <span aria-hidden="true">✕</span>
+            </button>
+          }
+        </div>
+        <label class="ml-auto flex items-center gap-2 text-sm">
+          <span class="font-mono text-[11px] uppercase tracking-widest text-encre-attenue"
+            >Trier</span
+          >
+          <select
+            (change)="choisirTri($any($event.target).value)"
+            class="rounded-lg border border-bordure bg-surface px-3 py-2 text-sm outline-none focus:border-cyan"
+          >
+            <option value="recent" [selected]="tri() === 'recent'">Plus récents</option>
+            <option value="prix_asc" [selected]="tri() === 'prix_asc'">Prix croissant</option>
+            <option value="prix_desc" [selected]="tri() === 'prix_desc'">Prix décroissant</option>
+            <option value="nom" [selected]="tri() === 'nom'">Nom (A→Z)</option>
+          </select>
+        </label>
+      </div>
+
+      @if (chargement()) {
+        <div class="mt-5 grid grid-cols-2 gap-4 xl:grid-cols-3" aria-busy="true">
+          @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+            <div class="aspect-3/4 animate-pulse rounded-xl bg-surface-2"></div>
+          }
+        </div>
+      } @else if (erreur()) {
+        <p class="mt-5 rounded-xl border border-orange bg-surface p-4 text-sm text-orange">
+          {{ erreur() }}
+        </p>
+      } @else if (produits().length === 0) {
+        <div class="mt-5 rounded-xl border border-bordure bg-surface p-8 text-center">
+          <p class="font-display text-lg font-semibold">Aucun produit ne correspond</p>
+          <p class="mt-1 text-sm text-encre-attenue">
+            Essayez d'autres mots-clés ou retirez un filtre.
+          </p>
+          <button type="button" (click)="reinitialiser()" class="bouton-primaire mt-4">
+            Voir tous les produits
+          </button>
+        </div>
+      } @else {
+        <div class="mt-5 grid grid-cols-2 gap-4 xl:grid-cols-3">
+          @for (produit of produits(); track produit.id) {
+            <app-carte-produit [produit]="produit" />
+          }
+        </div>
+
+        @if (nombrePages() > 1) {
+          <div class="mt-10 flex items-center justify-center gap-4">
+            <button
+              type="button"
+              (click)="allerPage(page() - 1)"
+              [disabled]="page() <= 1"
+              class="bouton-fantome !px-4 !py-2 disabled:opacity-40"
+            >
+              ← Précédent
+            </button>
+            <span class="font-mono text-sm text-encre-attenue"
+              >Page {{ page() }} / {{ nombrePages() }}</span
+            >
+            <button
+              type="button"
+              (click)="allerPage(page() + 1)"
+              [disabled]="page() >= nombrePages()"
+              class="bouton-fantome !px-4 !py-2 disabled:opacity-40"
+            >
+              Suivant →
+            </button>
+          </div>
+        }
       }
     </div>
-
-    <!-- Pagination -->
-    @if (nombrePages() > 1) {
-      <div class="mt-10 flex items-center justify-center gap-4">
-        <button
-          type="button"
-          (click)="allerPage(page() - 1)"
-          [disabled]="page() <= 1"
-          class="bouton-fantome !px-4 !py-2 disabled:opacity-40"
-        >
-          ← Précédent
-        </button>
-        <span class="font-mono text-sm text-encre-attenue"
-          >Page {{ page() }} / {{ nombrePages() }}</span
-        >
-        <button
-          type="button"
-          (click)="allerPage(page() + 1)"
-          [disabled]="page() >= nombrePages()"
-          class="bouton-fantome !px-4 !py-2 disabled:opacity-40"
-        >
-          Suivant →
-        </button>
-      </div>
-    }
-  }
+  </div>
 </section>

@@ -48,6 +48,7 @@ def lister(
     type_produit: TypeProduit | None = None,
     recherche: str | None = None,
     en_vedette: bool | None = None,
+    en_promo: bool | None = None,
     prix_min: int | None = None,
     prix_max: int | None = None,
     tri: str = "recent",
@@ -63,8 +64,12 @@ def lister(
         conditions.append(Produit.categorie_id.in_(ids))
     if type_produit is not None:
         conditions.append(Produit.type_produit == type_produit)
+    
     if en_vedette is not None:
         conditions.append(Produit.en_vedette.is_(en_vedette))
+    if en_promo:
+        conditions.append(Produit.promo_active.is_(True))
+        conditions.append(Produit.prix_promo.is_not(None))
     if prix_min is not None:
         conditions.append(Produit.prix >= prix_min)
     if prix_max is not None:

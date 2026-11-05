@@ -1,6 +1,6 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-
+import { EtapesAchat } from '../../composants/etapes-achat/etapes-achat';
 import { AuthentificationService } from '../../coeur/services/authentification';
 import { PanierService } from '../../coeur/services/panier';
 import { CommandeService } from '../../coeur/services/commande';
@@ -9,7 +9,7 @@ import { Fcfa } from '../../coeur/pipes/fcfa';
 
 @Component({
   selector: 'app-commande',
-  imports: [RouterLink, Fcfa],
+  imports: [RouterLink, Fcfa, EtapesAchat],
   templateUrl: './commande.html',
 })
 export class PageCommande {

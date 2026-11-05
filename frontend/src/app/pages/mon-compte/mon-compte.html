@@ -1,7 +1,6 @@
 <section class="mx-auto max-w-4xl px-4 py-10 md:px-6">
-  <span class="puce">// Mon compte</span>
   @if (auth.utilisateur(); as u) {
-    <h1 class="mt-4 font-display text-3xl font-bold md:text-4xl">Bonjour, {{ u.nom_complet }}</h1>
+    <h1 class="font-display text-3xl font-bold md:text-4xl">Bonjour, {{ u.nom_complet }}</h1>
     <p class="mt-2 font-mono text-sm text-encre-attenue">
       {{ u.email }}
       @if (u.telephone) {
@@ -9,15 +8,14 @@
       }
     </p>
   } @else {
-    <h1 class="mt-4 font-display text-3xl font-bold md:text-4xl">Mon compte</h1>
+    <h1 class="font-display text-3xl font-bold md:text-4xl">Mon compte</h1>
   }
 
-  <!-- Onglets -->
-  <div class="mt-8 flex gap-2 border-b-2 border-bordure">
+  <div class="mt-8 flex gap-2 border-b border-bordure">
     <button
       type="button"
       (click)="onglet.set('commandes')"
-      class="border-b-2 px-4 py-3 font-mono text-xs uppercase tracking-wide transition -mb-0.5"
+      class="-mb-px border-b-2 px-4 py-3 font-corps text-sm font-semibold transition"
       [class.border-cyan]="onglet() === 'commandes'"
       [class.text-cyan]="onglet() === 'commandes'"
       [class.border-transparent]="onglet() !== 'commandes'"
@@ -28,7 +26,7 @@
     <button
       type="button"
       (click)="onglet.set('demandes')"
-      class="border-b-2 px-4 py-3 font-mono text-xs uppercase tracking-wide transition -mb-0.5"
+      class="-mb-px border-b-2 px-4 py-3 font-corps text-sm font-semibold transition"
       [class.border-vert]="onglet() === 'demandes'"
       [class.text-vert]="onglet() === 'demandes'"
       [class.border-transparent]="onglet() !== 'demandes'"
@@ -39,14 +37,17 @@
   </div>
 
   @if (chargement()) {
-    <p class="mt-8 font-mono text-sm text-encre-attenue">Chargement…</p>
+    <div class="mt-6 space-y-3" aria-busy="true">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="h-20 animate-pulse rounded-xl bg-surface-2"></div>
+      }
+    </div>
   } @else {
-    <!-- Commandes -->
     @if (onglet() === 'commandes') {
       @if (commandes().length === 0) {
-        <div class="mt-8 text-center">
+        <div class="mt-8 rounded-xl border border-bordure bg-surface p-10 text-center">
           <p class="text-encre-attenue">Vous n'avez pas encore de commande.</p>
-          <a routerLink="/boutique" class="bouton-primaire mt-6">Aller à la boutique →</a>
+          <a routerLink="/boutique" class="bouton-primaire mt-5">Aller à la boutique →</a>
         </div>
       } @else {
         <div class="mt-6 space-y-3">
@@ -54,7 +55,7 @@
             <a
               [routerLink]="['/suivi']"
               [queryParams]="{ ref: commande.reference }"
-              class="carte flex items-center justify-between gap-4 transition hover:border-cyan"
+              class="flex items-center justify-between gap-4 rounded-xl border border-bordure bg-surface p-4 transition hover:border-cyan hover:shadow-md"
             >
               <div>
                 <span class="font-mono font-semibold text-cyan">{{ commande.reference }}</span>
@@ -63,7 +64,7 @@
                 </p>
               </div>
               <div class="text-right">
-                <span class="puce border-cyan text-cyan">{{ commande.statut }}</span>
+                <span class="puce !border-cyan !text-cyan">{{ commande.statut }}</span>
                 <p class="mt-1 font-mono text-sm">{{ commande.montant_total | fcfa }}</p>
               </div>
             </a>
@@ -72,12 +73,11 @@
       }
     }
 
-    <!-- Demandes -->
     @if (onglet() === 'demandes') {
       @if (demandes().length === 0) {
-        <div class="mt-8 text-center">
+        <div class="mt-8 rounded-xl border border-bordure bg-surface p-10 text-center">
           <p class="text-encre-attenue">Vous n'avez pas encore de demande de dépannage.</p>
-          <a routerLink="/depannage/demande" class="bouton-vert mt-6">Faire une demande →</a>
+          <a routerLink="/depannage/demande" class="bouton-vert mt-5">Faire une demande →</a>
         </div>
       } @else {
         <div class="mt-6 space-y-3">
@@ -85,7 +85,7 @@
             <a
               [routerLink]="['/depannage/suivi']"
               [queryParams]="{ ref: demande.reference }"
-              class="carte flex items-center justify-between gap-4 transition hover:border-vert"
+              class="flex items-center justify-between gap-4 rounded-xl border border-bordure bg-surface p-4 transition hover:border-vert hover:shadow-md"
             >
               <div>
                 <span class="font-mono font-semibold text-vert">{{ demande.reference }}</span>
@@ -94,7 +94,7 @@
                 </p>
               </div>
               <div class="text-right">
-                <span class="puce border-vert text-vert">{{ demande.statut }}</span>
+                <span class="puce !border-vert !text-vert">{{ demande.statut }}</span>
                 @if (demande.montant_devis != null) {
                   <p class="mt-1 font-mono text-sm">{{ demande.montant_devis | fcfa }}</p>
                 }

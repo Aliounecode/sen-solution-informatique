@@ -12,6 +12,7 @@ export interface FiltresProduits {
   type_produit?: TypeProduit;
   recherche?: string;
   en_vedette?: boolean;
+  en_promo?: boolean;
   prix_min?: number;
   prix_max?: number;
   tri?: string;

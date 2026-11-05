@@ -1,5 +1,5 @@
 <section class="mx-auto max-w-3xl px-4 py-10 md:px-6">
-  <span class="puce border-vert text-vert">// Suivi dépannage</span>
+  <span class="puce !border-vert !text-vert">// Suivi dépannage</span>
   <h1 class="mt-4 font-display text-3xl font-bold md:text-4xl">Suivre une demande</h1>
   <p class="mt-2 text-encre-attenue">Saisissez la référence reçue (ex. DEP-2026-00001).</p>
 
@@ -9,24 +9,24 @@
       (input)="reference.set($any($event.target).value)"
       (keyup.enter)="rechercher()"
       placeholder="DEP-…"
-      class="w-full border-2 border-bordure bg-fond px-3 py-2 font-mono outline-none focus:border-vert"
+      class="champ font-mono focus:border-vert"
     />
     <button type="button" (click)="rechercher()" class="bouton-vert">Rechercher</button>
   </div>
 
   @if (chargement()) {
-    <p class="mt-8 font-mono text-sm text-encre-attenue">Recherche…</p>
-  } @else if (erreur()) {
-    <p class="mt-8 border-2 border-orange bg-surface p-4 font-mono text-sm text-orange">
+    <div class="mt-8 h-48 animate-pulse rounded-xl bg-surface-2" aria-busy="true"></div>
+  } @else if (erreur() && !demande()) {
+    <p class="mt-8 rounded-xl border border-orange bg-surface p-4 text-sm text-orange" role="alert">
       {{ erreur() }}
     </p>
   } @else if (demande(); as d) {
-    <div class="carte-relief mt-8" style="box-shadow: 6px 6px 0 0 rgba(61, 220, 132, 0.18)">
+    <div class="mt-8 rounded-xl border border-bordure bg-surface p-5 shadow-sm">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <span class="font-mono text-lg font-bold text-vert">{{ d.reference }}</span>
-        <span class="font-mono text-xs text-encre-attenue">
-          Ouverte le {{ d.cree_le | date: 'short' }}
-        </span>
+        <span class="font-mono text-xs text-encre-attenue"
+          >Ouverte le {{ d.cree_le | date: 'short' }}</span
+        >
       </div>
       <p class="mt-1 font-mono text-sm">
         {{ d.type_appareil }}
@@ -40,20 +40,19 @@
 
       @if (estAnnulee()) {
         <p
-          class="mt-5 border-2 border-orange bg-surface p-3 font-mono text-sm uppercase text-orange"
+          class="mt-5 rounded-lg border border-orange px-3 py-2 font-mono text-sm uppercase text-orange"
         >
           Demande annulée
         </p>
       } @else {
-        <!-- Timeline -->
         <ol class="mt-6 space-y-3">
           @for (etape of etapes; track etape.cle; let i = $index) {
             <li class="flex items-center gap-3">
               <span
-                class="flex h-7 w-7 shrink-0 items-center justify-center border-2 font-mono text-xs"
+                class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border font-mono text-xs"
                 [class.border-vert]="etatEtape(i) !== 'avenir'"
                 [class.bg-vert]="etatEtape(i) === 'fait'"
-                [class.text-fond]="etatEtape(i) === 'fait'"
+                [class.text-surface]="etatEtape(i) === 'fait'"
                 [class.text-vert]="etatEtape(i) === 'courant'"
                 [class.border-bordure]="etatEtape(i) === 'avenir'"
                 [class.text-encre-attenue]="etatEtape(i) === 'avenir'"
@@ -61,14 +60,13 @@
                 {{ etatEtape(i) === 'fait' ? '✓' : i + 1 }}
               </span>
               <span
-                class="font-mono text-sm"
-                [class.text-encre]="etatEtape(i) !== 'avenir'"
+                class="text-sm"
                 [class.text-encre-attenue]="etatEtape(i) === 'avenir'"
                 [class.font-semibold]="etatEtape(i) === 'courant'"
               >
                 {{ etape.libelle }}
                 @if (etatEtape(i) === 'courant') {
-                  <span class="text-vert">— en cours</span>
+                  <span class="font-mono text-xs text-vert">— en cours</span>
                 }
               </span>
             </li>
@@ -77,21 +75,20 @@
       }
 
       @if (d.diagnostic) {
-        <div class="mt-6 border-t-2 border-bordure pt-4">
+        <div class="mt-6 border-t border-bordure pt-4">
           <span class="puce">Diagnostic</span>
           <p class="mt-2 whitespace-pre-line text-encre-attenue">{{ d.diagnostic }}</p>
         </div>
       }
 
-      <!-- Devis -->
       @if (d.statut === 'devis' && d.montant_devis != null) {
-        <div class="mt-6 border-2 border-cyan bg-surface p-4">
-          <span class="puce border-cyan text-cyan">Devis en attente de votre réponse</span>
+        <div class="mt-6 rounded-xl border border-cyan bg-surface-2 p-4">
+          <span class="puce !border-cyan !text-cyan">Devis en attente de votre réponse</span>
           <p class="mt-3 font-display text-2xl font-bold text-cyan">{{ d.montant_devis | fcfa }}</p>
           @if (erreur()) {
-            <p class="mt-2 font-mono text-sm text-orange">{{ erreur() }}</p>
+            <p class="mt-2 text-sm text-orange">{{ erreur() }}</p>
           }
-          <div class="mt-4 flex gap-3">
+          <div class="mt-4 flex flex-wrap gap-3">
             <button
               type="button"
               (click)="repondre(true)"
@@ -111,8 +108,8 @@
           </div>
         </div>
       } @else if (d.montant_devis != null) {
-        <div class="mt-6 flex items-center justify-between border-t-2 border-bordure pt-4">
-          <span class="font-mono uppercase text-encre-attenue">Devis</span>
+        <div class="mt-6 flex items-center justify-between border-t border-bordure pt-4">
+          <span class="font-mono text-xs uppercase tracking-wider text-encre-attenue">Devis</span>
           <span class="font-mono">
             {{ d.montant_devis | fcfa }}
             @if (d.devis_accepte === true) {

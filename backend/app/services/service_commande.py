@@ -9,6 +9,8 @@ from ..modeles import (
     LigneCommande,
     Produit,
     StatutCommande,
+    RoleUtilisateur,
+    Utilisateur,
 )
 from ..schemas.commande import CommandeCreer, CommandeModifierAdmin
 
@@ -200,8 +202,15 @@ def changer_statut(session: Session, commande_id: int, cible: StatutCommande) ->
     return obtenir(session, commande_id)
 
 
-def annuler_par_reference(session: Session, reference: str) -> Commande:
+def obtenir_par_reference_pour(session: Session, reference: str, utilisateur: Utilisateur) -> Commande:
     commande = obtenir_par_reference(session, reference)
+    if utilisateur.role != RoleUtilisateur.admin and commande.client_id != utilisateur.id:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Commande introuvable")
+    return commande
+
+
+def annuler_par_reference(session: Session, reference: str, utilisateur: Utilisateur) -> Commande:
+    commande = obtenir_par_reference_pour(session, reference, utilisateur)
     if commande.statut != StatutCommande.nouvelle:
         raise HTTPException(
             status.HTTP_409_CONFLICT,

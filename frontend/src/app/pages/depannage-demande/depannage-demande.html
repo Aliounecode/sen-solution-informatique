@@ -1,132 +1,128 @@
 <section class="mx-auto max-w-3xl px-4 py-10 md:px-6">
   @if (resultat(); as demande) {
-    <div class="carte-relief text-center" style="box-shadow: 6px 6px 0 0 rgba(61, 220, 132, 0.2)">
-      <span class="puce border-vert text-vert">Demande enregistrée</span>
+    <div class="rounded-xl border border-bordure bg-surface p-8 text-center shadow-sm">
+      <span
+        class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-vert text-2xl text-surface"
+        >✓</span
+      >
       <h1 class="mt-4 font-display text-3xl font-bold">C'est noté !</h1>
       <p class="mt-2 text-encre-attenue">
         Votre demande a bien été reçue. Conservez votre référence :
       </p>
-      <p class="mt-4 font-mono text-2xl font-bold text-vert">{{ demande.reference }}</p>
+      <p class="mt-4 rounded-lg bg-surface-2 py-3 font-mono text-2xl font-bold text-vert">
+        {{ demande.reference }}
+      </p>
       <div class="mt-6 flex flex-wrap justify-center gap-3">
         <a
           [routerLink]="['/depannage/suivi']"
           [queryParams]="{ ref: demande.reference }"
           class="bouton-vert"
+          >Suivre ma demande</a
         >
-          Suivre ma demande
-        </a>
         <a routerLink="/depannage" class="bouton-fantome">Retour au dépannage</a>
       </div>
     </div>
   } @else {
-    <span class="puce border-vert text-vert">// Demande de dépannage</span>
+    <span class="puce !border-vert !text-vert">// Demande de dépannage</span>
     <h1 class="mt-4 font-display text-3xl font-bold md:text-4xl">Décrivez votre panne</h1>
     <p class="mt-2 text-encre-attenue">On vous recontacte avec un diagnostic et un devis.</p>
 
-    <div class="mt-8 space-y-5">
-      <div class="grid gap-5 sm:grid-cols-2">
-        <div>
-          <label class="mb-1 block font-mono text-xs uppercase tracking-wide text-encre-attenue"
-            >Nom complet *</label
-          >
-          <input
-            [value]="nom()"
-            (input)="nom.set($any($event.target).value)"
-            class="w-full border-2 border-bordure bg-fond px-3 py-2 outline-none focus:border-vert"
-          />
+    <div class="mt-8 space-y-6">
+      <div class="space-y-5 rounded-xl border border-bordure bg-surface p-5">
+        <h2 class="font-display text-lg font-semibold">Vos coordonnées</h2>
+        <div class="grid gap-5 sm:grid-cols-2">
+          <div>
+            <label class="etiquette">Nom complet *</label>
+            <input
+              [value]="nom()"
+              (input)="nom.set($any($event.target).value)"
+              autocomplete="name"
+              class="champ focus:border-vert"
+            />
+          </div>
+          <div>
+            <label class="etiquette">Téléphone *</label>
+            <input
+              [value]="telephone()"
+              (input)="telephone.set($any($event.target).value)"
+              autocomplete="tel"
+              class="champ focus:border-vert"
+            />
+          </div>
         </div>
         <div>
-          <label class="mb-1 block font-mono text-xs uppercase tracking-wide text-encre-attenue"
-            >Téléphone *</label
-          >
+          <label class="etiquette">E-mail (facultatif)</label>
           <input
-            [value]="telephone()"
-            (input)="telephone.set($any($event.target).value)"
-            class="w-full border-2 border-bordure bg-fond px-3 py-2 outline-none focus:border-vert"
-          />
-        </div>
-      </div>
-
-      <div>
-        <label class="mb-1 block font-mono text-xs uppercase tracking-wide text-encre-attenue"
-          >E-mail (facultatif)</label
-        >
-        <input
-          type="email"
-          [value]="email()"
-          (input)="email.set($any($event.target).value)"
-          class="w-full border-2 border-bordure bg-fond px-3 py-2 outline-none focus:border-vert"
-        />
-      </div>
-
-      <div class="grid gap-5 sm:grid-cols-3">
-        <div>
-          <label class="mb-1 block font-mono text-xs uppercase tracking-wide text-encre-attenue"
-            >Type d'appareil *</label
-          >
-          <input
-            [value]="typeAppareil()"
-            (input)="typeAppareil.set($any($event.target).value)"
-            placeholder="PC portable, imprimante…"
-            class="w-full border-2 border-bordure bg-fond px-3 py-2 outline-none focus:border-vert"
-          />
-        </div>
-        <div>
-          <label class="mb-1 block font-mono text-xs uppercase tracking-wide text-encre-attenue"
-            >Marque</label
-          >
-          <input
-            [value]="marque()"
-            (input)="marque.set($any($event.target).value)"
-            class="w-full border-2 border-bordure bg-fond px-3 py-2 outline-none focus:border-vert"
-          />
-        </div>
-        <div>
-          <label class="mb-1 block font-mono text-xs uppercase tracking-wide text-encre-attenue"
-            >Modèle</label
-          >
-          <input
-            [value]="modele()"
-            (input)="modele.set($any($event.target).value)"
-            class="w-full border-2 border-bordure bg-fond px-3 py-2 outline-none focus:border-vert"
+            type="email"
+            [value]="email()"
+            (input)="email.set($any($event.target).value)"
+            autocomplete="email"
+            class="champ focus:border-vert"
           />
         </div>
       </div>
 
-      @if (prestations().length > 0) {
-        <div>
-          <label class="mb-1 block font-mono text-xs uppercase tracking-wide text-encre-attenue"
-            >Prestation concernée (facultatif)</label
-          >
-          <select
-            (change)="
-              prestationId.set($any($event.target).value ? +$any($event.target).value : null)
-            "
-            class="w-full border-2 border-bordure bg-fond px-3 py-2 font-mono text-sm outline-none focus:border-vert"
-          >
-            <option value="">Je ne sais pas encore</option>
-            @for (prestation of prestations(); track prestation.id) {
-              <option [value]="prestation.id">{{ prestation.nom }}</option>
-            }
-          </select>
+      <div class="space-y-5 rounded-xl border border-bordure bg-surface p-5">
+        <h2 class="font-display text-lg font-semibold">Votre appareil</h2>
+        <div class="grid gap-5 sm:grid-cols-3">
+          <div>
+            <label class="etiquette">Type d'appareil *</label>
+            <input
+              [value]="typeAppareil()"
+              (input)="typeAppareil.set($any($event.target).value)"
+              placeholder="PC portable, imprimante…"
+              class="champ focus:border-vert"
+            />
+          </div>
+          <div>
+            <label class="etiquette">Marque</label>
+            <input
+              [value]="marque()"
+              (input)="marque.set($any($event.target).value)"
+              class="champ focus:border-vert"
+            />
+          </div>
+          <div>
+            <label class="etiquette">Modèle</label>
+            <input
+              [value]="modele()"
+              (input)="modele.set($any($event.target).value)"
+              class="champ focus:border-vert"
+            />
+          </div>
         </div>
-      }
 
-      <div>
-        <label class="mb-1 block font-mono text-xs uppercase tracking-wide text-encre-attenue"
-          >Description de la panne *</label
-        >
-        <textarea
-          rows="4"
-          [value]="description()"
-          (input)="description.set($any($event.target).value)"
-          placeholder="Que se passe-t-il ? Depuis quand ? Messages d'erreur ?"
-          class="w-full border-2 border-bordure bg-fond px-3 py-2 outline-none focus:border-vert"
-        ></textarea>
+        @if (prestations().length > 0) {
+          <div>
+            <label class="etiquette">Prestation concernée (facultatif)</label>
+            <select
+              (change)="
+                prestationId.set($any($event.target).value ? +$any($event.target).value : null)
+              "
+              class="champ focus:border-vert"
+            >
+              <option value="">Je ne sais pas encore</option>
+              @for (prestation of prestations(); track prestation.id) {
+                <option [value]="prestation.id">{{ prestation.nom }}</option>
+              }
+            </select>
+          </div>
+        }
+
+        <div>
+          <label class="etiquette">Description de la panne *</label>
+          <textarea
+            rows="4"
+            [value]="description()"
+            (input)="description.set($any($event.target).value)"
+            placeholder="Que se passe-t-il ? Depuis quand ? Messages d'erreur ?"
+            class="champ focus:border-vert"
+          ></textarea>
+        </div>
       </div>
 
       @if (erreur()) {
-        <p class="border-2 border-orange bg-surface p-3 font-mono text-sm text-orange">
+        <p class="rounded-xl border border-orange bg-surface p-3 text-sm text-orange" role="alert">
           {{ erreur() }}
         </p>
       }
@@ -135,7 +131,7 @@
         type="button"
         (click)="envoyer()"
         [disabled]="envoi()"
-        class="bouton-vert w-full justify-center disabled:opacity-50"
+        class="bouton-vert w-full disabled:opacity-50"
       >
         {{ envoi() ? 'Envoi…' : 'Envoyer la demande' }}
       </button>

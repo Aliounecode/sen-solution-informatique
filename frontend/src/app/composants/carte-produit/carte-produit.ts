@@ -20,4 +20,9 @@ export class CarteProduit {
     () => this.produit().promo_active && this.produit().prix_promo != null,
   );
   readonly enRupture = computed(() => this.produit().quantite_stock <= 0);
+  readonly reduction = computed(() => {
+    const p = this.produit();
+    if (!this.enPromo() || p.prix <= 0) return 0;
+    return Math.round((1 - (p.prix_promo as number) / p.prix) * 100);
+  });
 }

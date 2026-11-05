@@ -1,7 +1,13 @@
 <!-- Héros -->
-<section class="border-b-2 border-bordure">
-  <div class="mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-20">
-    <span class="puce border-vert text-vert">// Dépannage</span>
+<section class="theme-sombre motif-grille relative overflow-hidden">
+  <div
+    class="pointer-events-none absolute inset-0"
+    style="
+      background: radial-gradient(60% 70% at 85% 15%, rgba(61, 220, 132, 0.2), transparent 70%);
+    "
+  ></div>
+  <div class="relative mx-auto max-w-7xl px-4 py-14 md:px-6 md:py-20">
+    <span class="puce !border-vert !text-vert">// Dépannage</span>
     <h1 class="mt-5 max-w-3xl font-display text-4xl font-bold leading-tight md:text-5xl">
       Un souci matériel ? <span class="text-vert">On le répare.</span>
     </h1>
@@ -9,7 +15,7 @@
       Décrivez la panne, on établit un diagnostic et un devis, puis vous suivez la réparation étape
       par étape jusqu'à la récupération de votre appareil.
     </p>
-    <div class="mt-8 flex flex-wrap gap-4">
+    <div class="mt-8 flex flex-wrap gap-3">
       <a routerLink="/depannage/demande" class="bouton-vert">Faire une demande →</a>
       <a routerLink="/depannage/suivi" class="bouton-fantome">Suivre ma demande</a>
     </div>
@@ -18,7 +24,8 @@
 
 <!-- Déroulé -->
 <section class="mx-auto max-w-7xl px-4 py-12 md:px-6">
-  <div class="grid gap-4 md:grid-cols-5">
+  <h2 class="font-display text-2xl font-semibold">Comment ça marche</h2>
+  <div class="mt-6 grid gap-4 md:grid-cols-5">
     @for (
       etape of [
         { n: '01', t: 'Demande', d: 'Vous décrivez la panne' },
@@ -29,8 +36,8 @@
       ];
       track etape.n
     ) {
-      <div class="carte">
-        <span class="font-mono text-sm text-vert">{{ etape.n }}</span>
+      <div class="rounded-xl border border-bordure bg-surface p-4">
+        <span class="font-mono text-sm font-bold text-vert">{{ etape.n }}</span>
         <h3 class="mt-2 font-display text-lg font-semibold">{{ etape.t }}</h3>
         <p class="mt-1 text-sm text-encre-attenue">{{ etape.d }}</p>
       </div>
@@ -43,7 +50,11 @@
   <h2 class="font-display text-2xl font-semibold">Nos prestations</h2>
 
   @if (chargement()) {
-    <p class="mt-6 font-mono text-sm text-encre-attenue">Chargement…</p>
+    <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="h-40 animate-pulse rounded-xl bg-surface-2"></div>
+      }
+    </div>
   } @else if (prestations().length === 0) {
     <p class="mt-6 text-encre-attenue">
       Les prestations seront bientôt disponibles. Vous pouvez déjà
@@ -52,7 +63,9 @@
   } @else {
     <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
       @for (prestation of prestations(); track prestation.id) {
-        <div class="carte flex flex-col" style="box-shadow: 6px 6px 0 0 rgba(61, 220, 132, 0.15)">
+        <div
+          class="flex flex-col rounded-xl border border-bordure border-t-4 border-t-vert bg-surface p-5 shadow-sm"
+        >
           <h3 class="font-display text-lg font-semibold">{{ prestation.nom }}</h3>
           @if (prestation.description) {
             <p class="mt-2 text-sm text-encre-attenue">{{ prestation.description }}</p>

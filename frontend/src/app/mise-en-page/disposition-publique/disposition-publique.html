@@ -1,9 +1,14 @@
-<div class="flex min-h-screen flex-col">
+<div
+  class="flex min-h-screen flex-col"
+  [class.theme-clair]="!theme.estSombre()"
+  [class.theme-sombre]="theme.estSombre()"
+>
   <app-entete />
   <main class="flex-1">
     <router-outlet />
   </main>
   <app-pied />
+  <app-bouton-defilement />
   <app-bouton-whatsapp />
   <app-chatbot />
   <app-toasts />

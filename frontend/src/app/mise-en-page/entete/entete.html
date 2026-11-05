@@ -1,141 +1,267 @@
-<header class="sticky top-0 z-40 border-b-2 border-bordure bg-fond/95 backdrop-blur">
-  <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 md:px-6">
-    <a routerLink="/" (click)="fermerMenu()" class="flex items-center gap-3">
-      <span class="border-2 border-cyan px-2 py-1 font-display text-lg font-bold text-cyan"
+<!-- Niveau 1 : barre d'infos -->
+<div class="theme-sombre hidden md:block">
+  <div
+    class="mx-auto flex max-w-7xl items-center justify-between px-6 py-2 font-mono text-[11px] tracking-wide text-encre-attenue"
+  >
+    <span>
+      <a [href]="lienTel" class="hover:text-cyan">Tél. {{ infos.telephone }}</a>
+      <span class="mx-2">·</span>{{ infos.horaires }}
+    </span>
+    <span>Retrait en boutique ou livraison · Suivi par référence</span>
+  </div>
+</div>
+
+<!-- Niveaux 2 et 3 : collés en haut au défilement -->
+<div class="sticky top-0 z-40 border-b border-bordure bg-surface shadow-sm">
+  <!-- Niveau 2 : logo, recherche, actions -->
+  <div
+    class="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3 md:flex-nowrap md:px-6"
+  >
+    <a routerLink="/" (click)="fermerTout()" class="flex items-center gap-3">
+      <span class="rounded-lg bg-cyan px-2.5 py-1.5 font-display text-lg font-bold text-surface"
         >SSI</span
       >
-      <span class="hidden leading-tight sm:block">
+      <span class="hidden leading-tight lg:block">
         <span class="block font-display text-base font-semibold">Sen Solution Informatique</span>
-        <span class="block font-mono text-[11px] uppercase tracking-widest text-encre-attenue">
-          // vente &amp; dépannage
-        </span>
+        <span class="block font-mono text-[10px] uppercase tracking-widest text-encre-attenue"
+          >// vente &amp; dépannage</span
+        >
       </span>
     </a>
 
-    <!-- Navigation desktop -->
-    <nav class="hidden items-center gap-3 md:flex">
-      <a
-        routerLink="/boutique"
-        routerLinkActive="text-cyan border-cyan"
-        class="border-2 border-transparent px-3 py-2 font-mono text-xs uppercase tracking-wide text-encre transition hover:text-cyan"
-        >Boutique</a
+    <form
+      (submit)="chercher($event)"
+      role="search"
+      class="order-last flex w-full md:order-none md:max-w-2xl md:flex-1"
+    >
+      <input
+        type="search"
+        placeholder="Rechercher un ordinateur, une marque, un accessoire…"
+        aria-label="Rechercher un produit"
+        [value]="recherche()"
+        (input)="recherche.set($any($event.target).value)"
+        class="min-w-0 flex-1 rounded-l-lg border border-r-0 border-bordure bg-fond px-4 py-2.5 text-sm outline-none focus:border-cyan"
+      />
+      <button
+        type="submit"
+        class="rounded-r-lg border border-cyan bg-cyan px-4 font-corps text-sm font-semibold text-surface hover:brightness-110"
       >
-      <a
-        routerLink="/depannage"
-        routerLinkActive="text-vert border-vert"
-        class="border-2 border-transparent px-3 py-2 font-mono text-xs uppercase tracking-wide text-encre transition hover:text-vert"
-        >Dépannage</a
-      >
-      <a
-        routerLink="/suivi"
-        routerLinkActive="text-cyan border-cyan"
-        class="border-2 border-transparent px-3 py-2 font-mono text-xs uppercase tracking-wide text-encre transition hover:text-cyan"
-        >Suivi</a
-      >
+        Rechercher
+      </button>
+    </form>
 
+    <div class="ml-auto flex items-center gap-2">
       @if (auth.estConnecte()) {
-        <a routerLink="/mon-compte" class="bouton-fantome !px-3 !py-2">Mon compte</a>
-        <button type="button" (click)="auth.deconnexion()" class="bouton-fantome !px-3 !py-2">
+        <a routerLink="/mon-compte" class="bouton-fantome hidden !px-3 !py-2 md:inline-flex"
+          >Mon compte</a
+        >
+        <button
+          type="button"
+          (click)="deconnexion()"
+          class="bouton-fantome hidden !px-3 !py-2 md:inline-flex"
+        >
           Quitter
         </button>
       } @else {
-        <a routerLink="/connexion" class="bouton-primaire !px-3 !py-2">Connexion</a>
+        <a routerLink="/connexion" class="bouton-fantome hidden !px-3 !py-2 md:inline-flex"
+          >Connexion</a
+        >
       }
-    </nav>
-
-    <div class="flex items-center gap-2">
-      <!-- Panier (toujours visible) -->
+      <app-bascule-theme />
       <a
         routerLink="/panier"
-        (click)="fermerMenu()"
+        (click)="fermerTout()"
         aria-label="Panier"
-        class="relative border-2 px-3 py-2 font-mono text-xs uppercase tracking-wide transition hover:border-cyan hover:text-cyan"
+        class="relative inline-flex items-center gap-2 rounded-lg border px-3 py-2 font-corps text-sm font-semibold transition hover:border-cyan hover:text-cyan"
         [class.border-cyan]="panier.nombreArticles() > 0"
         [class.text-cyan]="panier.nombreArticles() > 0"
         [class.border-bordure]="panier.nombreArticles() === 0"
-        [class.text-encre]="panier.nombreArticles() === 0"
       >
         Panier
         @if (panier.nombreArticles() > 0) {
           <span
-            class="ml-1 inline-flex h-5 min-w-5 items-center justify-center bg-cyan px-1 font-mono text-[11px] font-bold text-fond"
+            class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-cyan px-1 font-mono text-[11px] font-bold text-surface"
           >
             {{ panier.nombreArticles() }}
           </span>
         }
       </a>
 
-      <!-- Bouton menu mobile -->
       <button
         type="button"
         (click)="menuOuvert.set(!menuOuvert())"
         [attr.aria-expanded]="menuOuvert()"
         aria-label="Menu"
-        class="border-2 border-bordure px-3 py-2 font-mono text-xs uppercase md:hidden"
+        class="rounded-lg border border-bordure px-3 py-2 font-mono text-xs uppercase md:hidden"
       >
         {{ menuOuvert() ? '✕' : 'Menu' }}
       </button>
     </div>
   </div>
 
+  <!-- Niveau 3 : navigation + catégories (desktop) -->
+  <nav class="hidden border-t border-bordure md:block" aria-label="Navigation principale">
+    <div class="relative z-40 mx-auto flex max-w-7xl items-center gap-1 px-6">
+      <button
+        type="button"
+        (click)="categoriesOuvert.set(!categoriesOuvert())"
+        [attr.aria-expanded]="categoriesOuvert()"
+        class="my-2 mr-3 inline-flex items-center gap-2 rounded-lg bg-fond-sombre px-4 py-2 font-corps text-sm font-semibold text-white transition hover:bg-cyan"
+        style="background-color: #0a0e12"
+      >
+        <span aria-hidden="true">☰</span> Toutes les catégories
+        <span class="text-xs" aria-hidden="true">{{ categoriesOuvert() ? '▴' : '▾' }}</span>
+      </button>
+
+      <a routerLink="/boutique" class="px-3 py-3 font-corps text-sm font-medium hover:text-cyan"
+        >Boutique</a
+      >
+      <a
+        routerLink="/boutique"
+        [queryParams]="{ promo: 1 }"
+        class="px-3 py-3 font-corps text-sm font-medium hover:text-orange"
+        >Promotions</a
+      >
+      <a
+        routerLink="/depannage"
+        routerLinkActive="border-vert"
+        class="border-b-2 border-transparent px-3 py-3 font-corps text-sm font-semibold text-vert"
+      >
+        Dépannage
+      </a>
+      <a routerLink="/suivi" class="px-3 py-3 font-corps text-sm font-medium hover:text-cyan"
+        >Suivi</a
+      >
+
+      @if (categoriesOuvert()) {
+        <div
+          class="absolute left-6 top-full z-50 w-[min(56rem,calc(100vw-3rem))] rounded-b-xl border border-t-0 border-bordure bg-surface p-5 shadow-xl"
+        >
+          @if (racines().length === 0) {
+            <p class="font-corps text-sm text-encre-attenue">Aucune catégorie pour le moment.</p>
+          } @else {
+            <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              @for (r of racines(); track r.id) {
+                <div>
+                  <a
+                    routerLink="/boutique"
+                    [queryParams]="{ categorie: r.id }"
+                    (click)="fermerTout()"
+                    class="font-display text-sm font-semibold hover:text-cyan"
+                    >{{ r.nom }}</a
+                  >
+                  <ul class="mt-2 space-y-1">
+                    @for (e of r.enfants; track e.id) {
+                      <li>
+                        <a
+                          routerLink="/boutique"
+                          [queryParams]="{ categorie: e.id }"
+                          (click)="fermerTout()"
+                          class="text-sm text-encre-attenue hover:text-cyan"
+                          >{{ e.nom }}</a
+                        >
+                      </li>
+                    }
+                  </ul>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </nav>
+
+  @if (categoriesOuvert()) {
+    <div
+      class="fixed inset-0 z-30 hidden md:block"
+      (click)="categoriesOuvert.set(false)"
+      aria-hidden="true"
+    ></div>
+  }
+
   <!-- Menu mobile -->
   @if (menuOuvert()) {
-    <nav class="border-t-2 border-bordure bg-surface px-4 py-3 md:hidden">
+    <nav
+      class="max-h-[70vh] overflow-y-auto border-t border-bordure bg-surface px-4 py-3 md:hidden"
+      aria-label="Menu mobile"
+    >
       <ul class="space-y-1">
         <li>
           <a
             routerLink="/boutique"
-            (click)="fermerMenu()"
-            class="block px-2 py-3 font-mono text-sm uppercase tracking-wide hover:text-cyan"
+            (click)="fermerTout()"
+            class="block rounded-lg px-3 py-3 font-corps text-sm font-semibold hover:bg-fond"
             >Boutique</a
           >
         </li>
         <li>
           <a
+            routerLink="/boutique"
+            [queryParams]="{ promo: 1 }"
+            (click)="fermerTout()"
+            class="block rounded-lg px-3 py-3 font-corps text-sm font-semibold text-orange hover:bg-fond"
+            >Promotions</a
+          >
+        </li>
+        <li>
+          <a
             routerLink="/depannage"
-            (click)="fermerMenu()"
-            class="block px-2 py-3 font-mono text-sm uppercase tracking-wide hover:text-vert"
+            (click)="fermerTout()"
+            class="block rounded-lg px-3 py-3 font-corps text-sm font-semibold text-vert hover:bg-fond"
             >Dépannage</a
           >
         </li>
         <li>
           <a
             routerLink="/suivi"
-            (click)="fermerMenu()"
-            class="block px-2 py-3 font-mono text-sm uppercase tracking-wide hover:text-cyan"
+            (click)="fermerTout()"
+            class="block rounded-lg px-3 py-3 font-corps text-sm font-semibold hover:bg-fond"
             >Suivi de commande</a
           >
         </li>
-
-        @if (auth.estConnecte()) {
-          <li>
-            <a
-              routerLink="/mon-compte"
-              (click)="fermerMenu()"
-              class="block px-2 py-3 font-mono text-sm uppercase tracking-wide hover:text-cyan"
-              >Mon compte</a
-            >
-          </li>
-          <li>
-            <button
-              type="button"
-              (click)="deconnexion()"
-              class="block w-full px-2 py-3 text-left font-mono text-sm uppercase tracking-wide text-encre-attenue"
-            >
-              Quitter
-            </button>
-          </li>
-        } @else {
-          <li>
-            <a
-              routerLink="/connexion"
-              (click)="fermerMenu()"
-              class="bouton-primaire mt-2 w-full text-center"
-              >Connexion</a
-            >
-          </li>
-        }
       </ul>
+
+      @if (racines().length > 0) {
+        <p class="mt-4 px-3 font-mono text-[11px] uppercase tracking-widest text-encre-attenue">
+          Catégories
+        </p>
+        <ul class="mt-1 space-y-1">
+          @for (r of racines(); track r.id) {
+            <li>
+              <a
+                routerLink="/boutique"
+                [queryParams]="{ categorie: r.id }"
+                (click)="fermerTout()"
+                class="block rounded-lg px-3 py-2 font-corps text-sm hover:bg-fond"
+                >{{ r.nom }}</a
+              >
+            </li>
+          }
+        </ul>
+      }
+
+      <div class="mt-4 border-t border-bordure pt-3">
+        @if (auth.estConnecte()) {
+          <a
+            routerLink="/mon-compte"
+            (click)="fermerTout()"
+            class="block rounded-lg px-3 py-3 font-corps text-sm font-semibold hover:bg-fond"
+            >Mon compte</a
+          >
+          <button
+            type="button"
+            (click)="deconnexion()"
+            class="block w-full rounded-lg px-3 py-3 text-left font-corps text-sm text-encre-attenue hover:bg-fond"
+          >
+            Quitter
+          </button>
+        } @else {
+          <a routerLink="/connexion" (click)="fermerTout()" class="bouton-primaire w-full"
+            >Connexion</a
+          >
+        }
+      </div>
     </nav>
   }
-</header>
+</div>

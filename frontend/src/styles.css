@@ -141,3 +141,101 @@ html {
     scroll-behavior: auto !important;
   }
 }
+/* ===== Refonte v3 : thème clair e-commerce + bandeaux sombres ===== */
+.theme-clair {
+  --color-fond: #f4f6f9;
+  --color-surface: #ffffff;
+  --color-surface-2: #eaeff4;
+  --color-bordure: #d9e0e8;
+  --color-encre: #0f1b2a;
+  --color-encre-attenue: #566475;
+  --color-cyan: #0e7490;
+  --color-vert: #15803d;
+  --color-orange: #c2410c;
+  background-color: var(--color-fond);
+  color: var(--color-encre);
+}
+
+.theme-sombre {
+  --color-fond: #0a0e12;
+  --color-surface: #111a24;
+  --color-surface-2: #0d141c;
+  --color-bordure: #1e2a38;
+  --color-encre: #e6edf3;
+  --color-encre-attenue: #8b97a6;
+  --color-cyan: #22d3ee;
+  --color-vert: #3ddc84;
+  --color-orange: #ff7a1a;
+  background-color: var(--color-fond);
+  color: var(--color-encre);
+}
+
+.motif-grille {
+  background-image:
+    linear-gradient(rgba(34, 211, 238, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.07) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.halo-cyan {
+  background: radial-gradient(60% 70% at 85% 15%, rgba(34, 211, 238, 0.22), transparent 70%);
+}
+
+@layer components {
+  .carte {
+    @apply rounded-xl border border-bordure bg-surface p-6;
+    box-shadow: 0 1px 2px rgba(15, 27, 42, 0.06);
+  }
+
+  .carte-relief {
+    @apply rounded-xl border border-bordure bg-surface p-6;
+    box-shadow:
+      0 1px 2px rgba(15, 27, 42, 0.06),
+      0 12px 28px -16px rgba(15, 27, 42, 0.25);
+  }
+
+  .bouton-primaire {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-cyan bg-cyan px-5 py-3
+      font-corps text-sm font-semibold normal-case tracking-normal text-surface transition;
+    box-shadow: none;
+  }
+
+  .bouton-primaire:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 8px 18px -8px rgba(14, 116, 144, 0.55);
+  }
+
+  .bouton-vert {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-vert bg-vert px-5 py-3
+      font-corps text-sm font-semibold normal-case tracking-normal text-surface transition;
+    box-shadow: none;
+  }
+
+  .bouton-vert:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 8px 18px -8px rgba(21, 128, 61, 0.55);
+  }
+
+  .bouton-fantome {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-bordure bg-transparent px-5 py-3
+      font-corps text-sm font-semibold normal-case tracking-normal text-encre transition;
+  }
+
+  .puce {
+    @apply inline-block rounded-full border border-bordure px-3 py-1
+      font-mono text-[11px] uppercase tracking-wider text-encre-attenue;
+  }
+}
+@layer components {
+  .champ {
+    @apply w-full rounded-lg border border-bordure bg-surface px-3 py-2.5 text-sm text-encre outline-none transition focus:border-cyan;
+  }
+
+  .champ:focus {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-cyan) 20%, transparent);
+  }
+
+  .etiquette {
+    @apply mb-1.5 block font-mono text-[11px] uppercase tracking-wider text-encre-attenue;
+  }
+}

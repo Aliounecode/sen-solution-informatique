@@ -23,10 +23,9 @@ def creer(
     donnees: CommandeCreer,
     background: BackgroundTasks,
     session: Session = Depends(obtenir_session),
-    utilisateur: Utilisateur | None = Depends(utilisateur_courant_optionnel),
+    utilisateur: Utilisateur = Depends(utilisateur_courant),
 ):
-    client_id = utilisateur.id if utilisateur else None
-    commande = service_commande.creer(session, donnees, client_id=client_id)
+    commande = service_commande.creer(session, donnees, client_id=utilisateur.id)
     if commande.email_client:
         background.add_task(
             service_email.confirmation_commande,
@@ -38,13 +37,21 @@ def creer(
 
 
 @routeur.get("/suivi/{reference}", response_model=CommandePublic)
-def suivi(reference: str, session: Session = Depends(obtenir_session)):
-    return service_commande.obtenir_par_reference(session, reference)
+def suivi(
+    reference: str,
+    session: Session = Depends(obtenir_session),
+    utilisateur: Utilisateur = Depends(utilisateur_courant),
+):
+    return service_commande.obtenir_par_reference_pour(session, reference, utilisateur)
 
 
 @routeur.post("/{reference}/annuler", response_model=CommandePublic)
-def annuler(reference: str, session: Session = Depends(obtenir_session)):
-    return service_commande.annuler_par_reference(session, reference)
+def annuler(
+    reference: str,
+    session: Session = Depends(obtenir_session),
+    utilisateur: Utilisateur = Depends(utilisateur_courant),
+):
+    return service_commande.annuler_par_reference(session, reference, utilisateur)
 
 
 # ----- Espace client connecté -----

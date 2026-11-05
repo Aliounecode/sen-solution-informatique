@@ -1,62 +1,201 @@
 <!-- Héros -->
-<section class="relative overflow-hidden border-b-2 border-bordure">
-  <div class="mx-auto max-w-7xl px-4 py-20 md:px-6 md:py-28">
-    <span class="puce">// Dakar · informatique</span>
-    <h1 class="mt-5 max-w-3xl font-display text-4xl font-bold leading-tight md:text-6xl">
-      On vous <span class="text-cyan">équipe</span>. On vous <span class="text-vert">dépanne</span>.
-    </h1>
-    <p class="mt-5 max-w-xl text-lg text-encre-attenue">
-      Sen Solution Informatique, c'est deux métiers sous un même toit : la vente d'ordinateurs et
-      d'accessoires, et le service de dépannage de vos appareils.
-    </p>
-    <div class="mt-8 flex flex-wrap gap-4">
-      <a routerLink="/boutique" class="bouton-primaire">Explorer la boutique →</a>
-      <a routerLink="/depannage" class="bouton-vert">Demander un dépannage →</a>
+<section class="theme-sombre motif-grille relative overflow-hidden">
+  <div class="halo-cyan pointer-events-none absolute inset-0"></div>
+  <div
+    class="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 md:px-6 md:py-20 lg:grid-cols-5 lg:items-center"
+  >
+    <div class="lg:col-span-3">
+      <span class="puce">// Dakar · informatique</span>
+      <h1 class="mt-5 font-display text-4xl font-bold leading-tight md:text-6xl">
+        On vous <span class="text-cyan">équipe</span>.<br />
+        On vous <span class="text-vert">dépanne</span>.
+      </h1>
+      <p class="mt-5 max-w-xl text-lg text-encre-attenue">
+        Ordinateurs, accessoires et réparation : tout ce qu'il faut pour travailler, étudier et
+        jouer, au même endroit.
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a routerLink="/boutique" class="bouton-primaire">Explorer la boutique →</a>
+        <a routerLink="/depannage" class="bouton-vert">Demander un dépannage →</a>
+      </div>
+    </div>
+
+    <div class="grid gap-4 lg:col-span-2">
+      <a
+        routerLink="/boutique"
+        class="group rounded-xl border border-bordure bg-surface/80 p-5 backdrop-blur transition hover:border-cyan"
+      >
+        <span class="font-mono text-[11px] uppercase tracking-widest text-cyan">Boutique</span>
+        <h2 class="mt-2 font-display text-xl font-semibold">Matériel informatique</h2>
+        <p class="mt-1 text-sm text-encre-attenue">
+          Fiches détaillées, caractéristiques techniques et prix en FCFA.
+        </p>
+        <span class="mt-3 inline-block font-mono text-sm text-cyan group-hover:underline"
+          >Voir le catalogue →</span
+        >
+      </a>
+      <a
+        routerLink="/depannage"
+        class="group rounded-xl border border-bordure bg-surface/80 p-5 backdrop-blur transition hover:border-vert"
+      >
+        <span class="font-mono text-[11px] uppercase tracking-widest text-vert">Dépannage</span>
+        <h2 class="mt-2 font-display text-xl font-semibold">Réparation &amp; interventions</h2>
+        <p class="mt-1 text-sm text-encre-attenue">
+          Diagnostic, devis, et suivi étape par étape jusqu'à la récupération.
+        </p>
+        <span class="mt-3 inline-block font-mono text-sm text-vert group-hover:underline"
+          >Ouvrir une demande →</span
+        >
+      </a>
     </div>
   </div>
 </section>
 
-<!-- Les deux univers -->
-<section class="mx-auto grid max-w-7xl gap-6 px-4 py-16 md:grid-cols-2 md:px-6">
-  <a routerLink="/boutique" class="carte-relief group block transition hover:-translate-y-1">
-    <span class="puce border-cyan text-cyan">Boutique</span>
-    <h2 class="mt-4 font-display text-2xl font-semibold">Matériel informatique</h2>
-    <p class="mt-2 text-encre-attenue">
-      Ordinateurs portables et de bureau, accessoires : fiches détaillées, caractéristiques
-      techniques et prix en FCFA.
-    </p>
-    <span class="mt-5 inline-block font-mono text-sm text-cyan group-hover:underline">
-      Voir le catalogue →
-    </span>
-  </a>
-
-  <a
-    routerLink="/depannage"
-    class="carte-relief group block transition hover:-translate-y-1"
-    style="box-shadow: 6px 6px 0 0 rgba(61, 220, 132, 0.18)"
-  >
-    <span class="puce border-vert text-vert">Dépannage</span>
-    <h2 class="mt-4 font-display text-2xl font-semibold">Réparation & interventions</h2>
-    <p class="mt-2 text-encre-attenue">
-      Décrivez la panne, recevez un diagnostic et un devis, puis suivez la réparation étape par
-      étape jusqu'à la récupération.
-    </p>
-    <span class="mt-5 inline-block font-mono text-sm text-vert group-hover:underline">
-      Ouvrir une demande →
-    </span>
-  </a>
+<!-- Réassurance -->
+<section class="border-b border-bordure bg-surface">
+  <div class="mx-auto grid max-w-7xl grid-cols-2 gap-4 px-4 py-5 md:grid-cols-4 md:px-6">
+    @for (g of garanties; track g.titre) {
+      <div class="flex items-start gap-3">
+        <span class="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full bg-cyan"></span>
+        <div>
+          <p class="font-corps text-sm font-semibold">{{ g.titre }}</p>
+          <p class="text-xs text-encre-attenue">{{ g.texte }}</p>
+        </div>
+      </div>
+    }
+  </div>
 </section>
 
-<!-- En vedette -->
+<!-- Catégories -->
+@if (racines().length > 0) {
+  <section class="mx-auto max-w-7xl px-4 pt-14 md:px-6">
+    <div class="flex items-end justify-between">
+      <h2 class="font-display text-2xl font-semibold">Explorer par catégorie</h2>
+      <a routerLink="/boutique" class="font-mono text-sm text-cyan hover:underline">Tout voir →</a>
+    </div>
+    <div class="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+      @for (c of racines(); track c.id) {
+        <a
+          routerLink="/boutique"
+          [queryParams]="{ categorie: c.id }"
+          class="group rounded-xl border border-bordure bg-surface p-4 text-center transition hover:-translate-y-0.5 hover:border-cyan hover:shadow-md"
+        >
+          <span
+            class="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-surface-2 font-display text-xl font-bold text-cyan group-hover:bg-cyan group-hover:text-surface"
+          >
+            {{ c.nom.charAt(0) }}
+          </span>
+          <p class="mt-3 line-clamp-2 font-corps text-sm font-semibold">{{ c.nom }}</p>
+        </a>
+      }
+    </div>
+  </section>
+}
+
+<!-- Chargement -->
+@if (chargement()) {
+  <section class="mx-auto max-w-7xl px-4 pt-14 md:px-6" aria-busy="true">
+    <div class="h-7 w-56 animate-pulse rounded bg-surface-2"></div>
+    <div class="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      @for (i of [1, 2, 3, 4]; track i) {
+        <div class="aspect-3/4 animate-pulse rounded-xl bg-surface-2"></div>
+      }
+    </div>
+  </section>
+}
+
+<!-- Promotions -->
+@if (promos().length > 0) {
+  <section class="mx-auto max-w-7xl px-4 pt-14 md:px-6">
+    <div class="flex items-end justify-between">
+      <h2 class="font-display text-2xl font-semibold">
+        <span class="mr-2 rounded-md bg-orange px-2 py-1 font-mono text-xs font-bold text-surface"
+          >PROMO</span
+        >Bonnes affaires
+      </h2>
+      <a
+        routerLink="/boutique"
+        [queryParams]="{ promo: 1 }"
+        class="font-mono text-sm text-cyan hover:underline"
+        >Tout voir →</a
+      >
+    </div>
+    <div class="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      @for (p of promos(); track p.id) {
+        <app-carte-produit [produit]="p" />
+      }
+    </div>
+  </section>
+}
+
+<!-- Sélection -->
 @if (vedettes().length > 0) {
-  <section class="mx-auto max-w-7xl px-4 pb-16 md:px-6">
-    <div class="flex items-center justify-between">
+  <section class="mx-auto max-w-7xl px-4 pt-14 md:px-6">
+    <div class="flex items-end justify-between">
       <h2 class="font-display text-2xl font-semibold">Notre sélection</h2>
       <a routerLink="/boutique" class="font-mono text-sm text-cyan hover:underline">Tout voir →</a>
     </div>
-    <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-      @for (produit of vedettes(); track produit.id) {
-        <app-carte-produit [produit]="produit" />
+    <div class="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      @for (p of vedettes(); track p.id) {
+        <app-carte-produit [produit]="p" />
+      }
+    </div>
+  </section>
+}
+
+<!-- Bandeau dépannage -->
+<section class="theme-sombre motif-grille relative mt-14 overflow-hidden">
+  <div class="mx-auto max-w-7xl px-4 py-14 md:px-6">
+    <span class="font-mono text-[11px] uppercase tracking-widest text-vert"
+      >// service de dépannage</span
+    >
+    <h2 class="mt-3 max-w-2xl font-display text-3xl font-bold">
+      Une panne ? On s'en occupe, vous suivez tout en ligne.
+    </h2>
+    <ol class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      @for (e of etapes; track e.titre; let i = $index) {
+        <li class="rounded-xl border border-bordure bg-surface/80 p-4">
+          <span class="font-mono text-xs text-vert">0{{ i + 1 }}</span>
+          <p class="mt-2 font-corps text-sm font-semibold">{{ e.titre }}</p>
+          <p class="mt-1 text-xs text-encre-attenue">{{ e.texte }}</p>
+        </li>
+      }
+    </ol>
+    <a routerLink="/depannage" class="bouton-vert mt-8">Demander un dépannage →</a>
+  </div>
+</section>
+
+<!-- Nouveautés -->
+@if (recents().length > 0) {
+  <section class="mx-auto max-w-7xl px-4 pt-14 md:px-6">
+    <div class="flex items-end justify-between">
+      <h2 class="font-display text-2xl font-semibold">Dernières arrivées</h2>
+      <a routerLink="/boutique" class="font-mono text-sm text-cyan hover:underline">Tout voir →</a>
+    </div>
+    <div class="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      @for (p of recents(); track p.id) {
+        <app-carte-produit [produit]="p" />
+      }
+    </div>
+  </section>
+}
+
+<!-- Marques -->
+@if (marques().length > 0) {
+  <section class="mx-auto max-w-7xl px-4 py-14 md:px-6">
+    <h2 class="font-display text-2xl font-semibold">Nos marques</h2>
+    <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
+      @for (m of marques(); track m.nom) {
+        <a
+          routerLink="/boutique"
+          [queryParams]="{ q: m.nom }"
+          class="rounded-xl border border-bordure bg-surface px-3 py-4 text-center transition hover:border-cyan hover:shadow-md"
+        >
+          <span class="block font-display text-base font-bold">{{ m.nom }}</span>
+          <span class="mt-1 block font-mono text-[11px] text-encre-attenue"
+            >{{ m.nombre }} produit(s)</span
+          >
+        </a>
       }
     </div>
   </section>
