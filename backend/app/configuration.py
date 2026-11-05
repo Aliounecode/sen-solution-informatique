@@ -25,6 +25,8 @@ class Parametres(BaseSettings):
     CHATBOT_MODELE: str = "claude-haiku-5-5"
     BOUTIQUE_TELEPHONE: str = ""
     BOUTIQUE_WHATSAPP: str = ""
+    BOUTIQUE_ADRESSE: str = ""
+    BOUTIQUE_HORAIRES: str = ""
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
