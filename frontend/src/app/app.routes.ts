@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 
-import { gardeAuthentifie } from './coeur/gardes/authentifie';
 import { gardeAdmin } from './coeur/gardes/admin';
+import { gardeAuthentifie } from './coeur/gardes/authentifie';
 
 export const routes: Routes = [
   {
@@ -30,10 +30,12 @@ export const routes: Routes = [
       },
       {
         path: 'commande',
+        canActivate: [gardeAuthentifie],
         loadComponent: () => import('./pages/commande/commande').then((m) => m.PageCommande),
       },
       {
         path: 'suivi',
+        canActivate: [gardeAuthentifie],
         loadComponent: () => import('./pages/suivi/suivi').then((m) => m.Suivi),
       },
       {
@@ -42,11 +44,13 @@ export const routes: Routes = [
       },
       {
         path: 'depannage/demande',
+        canActivate: [gardeAuthentifie],
         loadComponent: () =>
           import('./pages/depannage-demande/depannage-demande').then((m) => m.DepannageDemande),
       },
       {
         path: 'depannage/suivi',
+        canActivate: [gardeAuthentifie],
         loadComponent: () =>
           import('./pages/depannage-suivi/depannage-suivi').then((m) => m.DepannageSuivi),
       },
@@ -62,6 +66,21 @@ export const routes: Routes = [
         path: 'mon-compte',
         canActivate: [gardeAuthentifie],
         loadComponent: () => import('./pages/mon-compte/mon-compte').then((m) => m.MonCompte),
+      },
+      {
+        path: 'mentions-legales',
+        data: { type: 'mentions' },
+        loadComponent: () => import('./pages/legal/page-legale').then((m) => m.PageLegale),
+      },
+      {
+        path: 'politique-confidentialite',
+        data: { type: 'confidentialite' },
+        loadComponent: () => import('./pages/legal/page-legale').then((m) => m.PageLegale),
+      },
+      {
+        path: 'cgv',
+        data: { type: 'cgv' },
+        loadComponent: () => import('./pages/legal/page-legale').then((m) => m.PageLegale),
       },
     ],
   },
@@ -100,6 +119,11 @@ export const routes: Routes = [
         path: 'categories',
         loadComponent: () =>
           import('./pages/admin/categories/categories').then((m) => m.AdminCategories),
+      },
+      {
+        path: 'types',
+        loadComponent: () =>
+          import('./pages/admin/types/types-produits').then((m) => m.AdminTypesProduits),
       },
       {
         path: 'specifications',

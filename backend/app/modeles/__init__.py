@@ -10,9 +10,10 @@ from .commande import (
 from .demande_depannage import DemandeDepannage, StatutDemande
 from .image_produit import ImageProduit
 from .prestation import Prestation
-from .produit import Produit, TypeProduit
+from .produit import Produit
 from .specification import DefinitionSpecification, TypeValeur
 from .technicien import Technicien
+from .type_produit import TypeDeProduit
 from .utilisateur import RoleUtilisateur, Utilisateur
 
 __all__ = [
@@ -21,7 +22,7 @@ __all__ = [
     "RoleUtilisateur",
     "Categorie",
     "Produit",
-    "TypeProduit",
+    "TypeDeProduit",
     "ImageProduit",
     "DefinitionSpecification",
     "TypeValeur",

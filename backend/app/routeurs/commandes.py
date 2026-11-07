@@ -1,4 +1,4 @@
-from fastapi import APIRouter,BackgroundTasks, Depends, Query, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from ..base_donnees import obtenir_session
@@ -11,10 +11,10 @@ from ..schemas.commande import (
     CommandePublic,
     PageCommandes,
 )
-from ..securite import exiger_admin, utilisateur_courant, utilisateur_courant_optionnel
-from ..services import service_commande , service_email
+from ..securite import exiger_admin, utilisateur_courant
+from ..services import service_commande, service_email
 
-# ----- Espace public / client -----
+# ----- Espace client (connexion obligatoire) -----
 routeur = APIRouter(prefix="/api/commandes", tags=["Commandes"])
 
 

@@ -19,6 +19,12 @@
       Suivez vos commandes et vos demandes de dépannage.
     </p>
 
+    @if (retour) {
+      <p class="mt-4 rounded-lg border border-cyan bg-surface-2 px-3 py-2 text-sm" role="status">
+        Connectez-vous ou créez un compte pour continuer.
+      </p>
+    }
+
     <form class="mt-6 space-y-5" (submit)="$event.preventDefault(); inscrire()">
       <div>
         <label class="etiquette">Nom complet</label>
@@ -82,7 +88,12 @@
 
     <p class="mt-6 text-sm text-encre-attenue">
       Déjà inscrit ?
-      <a routerLink="/connexion" class="font-semibold text-cyan hover:underline">Se connecter</a>
+      <a
+        routerLink="/connexion"
+        [queryParams]="retour ? { retour } : {}"
+        class="font-semibold text-cyan hover:underline"
+        >Se connecter</a
+      >
     </p>
   </div>
 </section>

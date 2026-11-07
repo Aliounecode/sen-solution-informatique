@@ -1,0 +1,96 @@
+<div class="mx-auto max-w-5xl">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h1 class="font-display text-2xl font-bold md:text-3xl">Types de produits</h1>
+      <p class="mt-1 max-w-xl text-sm text-encre-attenue">
+        Ordinateurs, accessoires, consoles de jeu… Chaque produit appartient à un type, et les
+        spécifications peuvent être réservées à certains types.
+      </p>
+    </div>
+    <button type="button" (click)="ouvrirCreation()" class="admin-bouton">+ Nouveau type</button>
+  </div>
+
+  @if (formulaireOuvert()) {
+    <div class="admin-carte adm-apparait mt-6 space-y-4">
+      <h2 class="font-display text-lg font-semibold">
+        {{ editionId() != null ? 'Modifier le type' : 'Nouveau type' }}
+      </h2>
+      <div class="grid gap-4 sm:grid-cols-3">
+        <div class="sm:col-span-2">
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-encre-attenue">Libellé *</label>
+          <input [value]="libelle()" (input)="libelle.set($any($event.target).value)"
+                 placeholder="Console de jeu, Téléphone, Imprimante…" class="admin-champ" />
+          @if (editionId() == null) {
+            <p class="mt-1 text-xs text-encre-attenue">L'identifiant technique est généré automatiquement.</p>
+          }
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-encre-attenue">Ordre</label>
+          <input type="number" [value]="ordre()" (input)="ordre.set(+$any($event.target).value)" class="admin-champ" />
+        </div>
+      </div>
+
+      <label class="flex items-center gap-2 text-sm">
+        <input type="checkbox" [checked]="actif()" (change)="actif.set($any($event.target).checked)" />
+        Actif (proposé dans l'éditeur de produits et le chatbot)
+      </label>
+
+      @if (erreur()) {
+        <p class="text-sm text-orange">{{ erreur() }}</p>
+      }
+
+      <div class="flex gap-3">
+        <button type="button" (click)="enregistrer()" [disabled]="envoi()" class="admin-bouton disabled:opacity-50">
+          {{ envoi() ? 'Enregistrement…' : 'Enregistrer' }}
+        </button>
+        <button type="button" (click)="fermer()" class="admin-bouton-fantome">Annuler</button>
+      </div>
+    </div>
+  }
+
+  @if (chargement()) {
+    <div class="adm-squelette mt-6 h-56"></div>
+  } @else if (types().length === 0) {
+    <p class="mt-8 text-sm text-encre-attenue">Aucun type défini.</p>
+  } @else {
+    <div class="admin-carte mt-6 !p-0 overflow-hidden">
+      <table class="w-full text-left text-sm">
+        <thead class="text-xs uppercase tracking-wide text-encre-attenue">
+          <tr>
+            <th class="p-3 pl-5">Libellé</th>
+            <th class="hidden p-3 sm:table-cell">Identifiant</th>
+            <th class="p-3">Ordre</th>
+            <th class="p-3">État</th>
+            <th class="p-3 pr-5 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (t of types(); track t.id) {
+            <tr class="border-t border-bordure/50 hover:bg-surface-2/60">
+              <td class="p-3 pl-5 font-medium">{{ t.libelle }}</td>
+              <td class="hidden p-3 font-mono text-xs text-encre-attenue sm:table-cell">{{ t.slug }}</td>
+              <td class="p-3 text-encre-attenue">{{ t.ordre }}</td>
+              <td class="p-3">
+                <button type="button" (click)="basculer(t)" class="adm-statut cursor-pointer"
+                        [style.--c]="t.actif ? 'var(--adm-c5)' : 'var(--color-encre-attenue)'"
+                        [attr.title]="t.actif ? 'Cliquer pour désactiver' : 'Cliquer pour activer'">
+                  {{ t.actif ? 'Actif' : 'Inactif' }}
+                </button>
+              </td>
+              <td class="p-3 pr-5">
+                <div class="flex justify-end gap-2">
+                  <button type="button" (click)="ouvrirEdition(t)" class="admin-bouton-fantome !py-1">Éditer</button>
+                  <button type="button" (click)="supprimer(t)"
+                          class="admin-bouton-fantome !py-1 hover:!border-orange/60 hover:!text-orange">Suppr.</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="mt-3 text-xs text-encre-attenue">
+      Un type encore utilisé par des produits ne peut pas être supprimé : désactivez-le plutôt.
+    </p>
+  }
+</div>

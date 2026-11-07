@@ -1,10 +1,11 @@
-import { Component, OnInit, inject, input, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
 import { AdministrationService } from '../../../coeur/services/administration';
 import { Categorie } from '../../../coeur/modeles/categorie';
 import { Specification } from '../../../coeur/modeles/specification';
 import { ImageProduit, TypeProduit } from '../../../coeur/modeles/produit';
+import { TypeDeProduit } from '../../../coeur/modeles/type-produit';
 
 @Component({
   selector: 'app-produit-edition',
@@ -21,6 +22,9 @@ export class ProduitEdition implements OnInit {
   protected readonly produitId = signal<number | null>(null);
   protected readonly categories = signal<Categorie[]>([]);
   protected readonly specifications = signal<Specification[]>([]);
+  protected readonly types = signal<TypeDeProduit[]>([]);
+  /** Type du produit au chargement (null à la création) : sert à conserver les valeurs de specs masquées. */
+  private readonly typeInitial = signal<TypeProduit | null>(null);
   protected readonly images = signal<ImageProduit[]>([]);
   protected readonly imagesEnAttente = signal<{ url: string; public_id: string | null }[]>([]);
 
@@ -32,7 +36,7 @@ export class ProduitEdition implements OnInit {
   protected readonly reference = signal('');
   protected readonly nom = signal('');
   protected readonly categorieId = signal<number | null>(null);
-  protected readonly typeProduit = signal<TypeProduit>('ordinateur');
+  protected readonly typeProduit = signal<TypeProduit>('');
   protected readonly marque = signal('');
   protected readonly modele = signal('');
   protected readonly description = signal('');
@@ -45,16 +49,32 @@ export class ProduitEdition implements OnInit {
   protected readonly caracteristiques = signal<Record<string, string>>({});
   protected readonly caracteristiquesLibres = signal<{ nom: string; valeur: string }[]>([]);
 
+  /** Types proposés : les types actifs (+ le type courant du produit s'il a été désactivé depuis). */
+  protected readonly typesProposes = computed(() =>
+    this.types().filter((t) => t.actif || t.slug === this.typeProduit()),
+  );
+
+  protected readonly libelleTypeCourant = computed(
+    () => this.types().find((t) => t.slug === this.typeProduit())?.libelle ?? '',
+  );
+
+  /** Spécifications applicables au type choisi (types vide/null = tous les types). */
+  protected readonly specsVisibles = computed(() =>
+    this.specifications().filter((s) => this._concerne(s, this.typeProduit())),
+  );
+
   protected readonly urlImage = signal('');
   protected readonly publicIdImage = signal('');
 
   async ngOnInit(): Promise<void> {
     try {
-      const [categories, specifications] = await Promise.all([
+      const [categories, specifications, types] = await Promise.all([
         this.admin.listerCategories(),
         this.admin.listerSpecifications(),
+        this.admin.listerTypes(),
       ]);
       this.categories.set(categories);
+      this.types.set(types);
       this.specifications.set(specifications.filter((s) => s.actif));
 
       const parametre = this.id();
@@ -66,6 +86,7 @@ export class ProduitEdition implements OnInit {
         this.nom.set(produit.nom);
         this.categorieId.set(produit.categorie_id);
         this.typeProduit.set(produit.type_produit);
+        this.typeInitial.set(produit.type_produit);
         this.marque.set(produit.marque ?? '');
         this.modele.set(produit.modele ?? '');
         this.description.set(produit.description ?? '');
@@ -90,14 +111,20 @@ export class ProduitEdition implements OnInit {
         }
         this.caracteristiques.set(valeursSpecs);
         this.caracteristiquesLibres.set(libres);
-      } else if (categories.length > 0) {
-        this.categorieId.set(categories[0].id);
+      } else {
+        if (categories.length > 0) this.categorieId.set(categories[0].id);
+        const premier = types.find((t) => t.actif);
+        if (premier) this.typeProduit.set(premier.slug);
       }
     } catch {
       this.erreur.set('Chargement impossible.');
     } finally {
       this.chargement.set(false);
     }
+  }
+
+  private _concerne(spec: Specification, type: TypeProduit): boolean {
+    return !spec.types || spec.types.length === 0 || spec.types.includes(type);
   }
 
   protected majCaracteristique(cle: string, valeur: string): void {
@@ -112,9 +139,7 @@ export class ProduitEdition implements OnInit {
     this.caracteristiquesLibres.update((l) => l.map((x, i) => (i === index ? { ...x, nom } : x)));
   }
   protected majLibreValeur(index: number, valeur: string): void {
-    this.caracteristiquesLibres.update((l) =>
-      l.map((x, i) => (i === index ? { ...x, valeur } : x)),
-    );
+    this.caracteristiquesLibres.update((l) => l.map((x, i) => (i === index ? { ...x, valeur } : x)));
   }
   protected retirerLibre(index: number): void {
     this.caracteristiquesLibres.update((l) => l.filter((_, i) => i !== index));
@@ -123,7 +148,11 @@ export class ProduitEdition implements OnInit {
   private _construireCaracteristiques(): Record<string, unknown> {
     const source = this.caracteristiques();
     const resultat: Record<string, unknown> = {};
+    // On ne garde que les specs du type choisi ; si le type n'a pas changé, on conserve aussi
+    // les valeurs déjà enregistrées pour des specs masquées (aucune perte silencieuse).
+    const typeInchange = this.typeProduit() === this.typeInitial();
     for (const spec of this.specifications()) {
+      if (!typeInchange && !this._concerne(spec, this.typeProduit())) continue;
       const brut = (source[spec.cle] ?? '').trim();
       if (brut === '') continue;
       if (spec.type_valeur === 'nombre') {
@@ -146,9 +175,7 @@ export class ProduitEdition implements OnInit {
   private async _ajouterImageDepuis(url: string, public_id: string | null): Promise<void> {
     if (this.enEdition() && this.produitId() != null) {
       const produit = await this.admin.ajouterImage(this.produitId()!, {
-        url,
-        public_id: public_id ?? undefined,
-        est_principale: this.images().length === 0,
+        url, public_id: public_id ?? undefined, est_principale: this.images().length === 0,
       });
       this.images.set(produit.images);
     } else {
@@ -166,7 +193,7 @@ export class ProduitEdition implements OnInit {
       const { url, public_id } = await this.admin.televerserImageCloudinary(fichier);
       await this._ajouterImageDepuis(url, public_id);
     } catch {
-      this.erreur.set('Téléversement impossible (Cloudinary configuré côté serveur ?).');
+      this.erreur.set("Téléversement impossible (Cloudinary configuré côté serveur ?).");
     } finally {
       this.televersement.set(false);
       input.value = '';
@@ -200,6 +227,10 @@ export class ProduitEdition implements OnInit {
   protected async enregistrer(): Promise<void> {
     if (this.nom().trim().length < 2 || this.categorieId() == null) {
       this.erreur.set('Nom et catégorie sont requis.');
+      return;
+    }
+    if (!this.typeProduit()) {
+      this.erreur.set('Choisissez un type de produit.');
       return;
     }
     if (this.prix() == null || this.prix()! < 0) {

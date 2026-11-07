@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { AdministrationService } from '../../../coeur/services/administration';
 import { Specification, TypeValeur } from '../../../coeur/modeles/specification';
+import { TypeDeProduit } from '../../../coeur/modeles/type-produit';
 
 @Component({
   selector: 'app-admin-specifications',
@@ -12,6 +13,7 @@ export class AdminSpecifications implements OnInit {
   private readonly admin = inject(AdministrationService);
 
   protected readonly specifications = signal<Specification[]>([]);
+  protected readonly types = signal<TypeDeProduit[]>([]);
   protected readonly chargement = signal(true);
   protected readonly erreur = signal<string | null>(null);
 
@@ -26,6 +28,7 @@ export class AdminSpecifications implements OnInit {
   protected readonly typeValeur = signal<TypeValeur>('texte');
   protected readonly unite = signal('');
   protected readonly optionsTexte = signal(''); // options séparées par des virgules
+  protected readonly typesChoisis = signal<string[]>([]); // vide = tous les types
   protected readonly ordre = signal(0);
   protected readonly actif = signal(true);
 
@@ -36,12 +39,31 @@ export class AdminSpecifications implements OnInit {
   private async charger(): Promise<void> {
     this.chargement.set(true);
     try {
-      this.specifications.set(await this.admin.listerSpecifications());
+      const [specs, types] = await Promise.all([
+        this.admin.listerSpecifications(),
+        this.admin.listerTypes(),
+      ]);
+      this.specifications.set(specs);
+      this.types.set(types);
     } catch {
       this.erreur.set('Chargement impossible.');
     } finally {
       this.chargement.set(false);
     }
+  }
+
+  protected libelleType(slug: string): string {
+    return this.types().find((t) => t.slug === slug)?.libelle ?? slug;
+  }
+
+  protected typeCoche(slug: string): boolean {
+    return this.typesChoisis().includes(slug);
+  }
+
+  protected basculerType(slug: string, coche: boolean): void {
+    this.typesChoisis.update((liste) =>
+      coche ? [...liste.filter((s) => s !== slug), slug] : liste.filter((s) => s !== slug),
+    );
   }
 
   protected ouvrirCreation(): void {
@@ -52,6 +74,7 @@ export class AdminSpecifications implements OnInit {
     this.typeValeur.set('texte');
     this.unite.set('');
     this.optionsTexte.set('');
+    this.typesChoisis.set([]);
     this.ordre.set(0);
     this.actif.set(true);
     this.erreur.set(null);
@@ -66,6 +89,7 @@ export class AdminSpecifications implements OnInit {
     this.typeValeur.set(spec.type_valeur);
     this.unite.set(spec.unite ?? '');
     this.optionsTexte.set((spec.options ?? []).join(', '));
+    this.typesChoisis.set([...(spec.types ?? [])]);
     this.ordre.set(spec.ordre);
     this.actif.set(spec.actif);
     this.erreur.set(null);
@@ -96,6 +120,8 @@ export class AdminSpecifications implements OnInit {
     }
     this.envoi.set(true);
     this.erreur.set(null);
+    // Aucun type coché = la spécification s'applique à tous les types (null).
+    const types = this.typesChoisis().length > 0 ? this.typesChoisis() : null;
     try {
       if (this.editionId() != null) {
         // La clé n'est pas modifiable après création (identifiant stable)
@@ -105,6 +131,7 @@ export class AdminSpecifications implements OnInit {
           type_valeur: this.typeValeur(),
           unite: this.unite().trim() || null,
           options: this._options(),
+          types,
           ordre: this.ordre(),
           actif: this.actif(),
         });
@@ -116,6 +143,7 @@ export class AdminSpecifications implements OnInit {
           type_valeur: this.typeValeur(),
           unite: this.unite().trim() || null,
           options: this._options(),
+          types,
           ordre: this.ordre(),
           actif: this.actif(),
         });

@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
+import { retourSecurise } from '../../coeur/retour';
 import { AuthentificationService } from '../../coeur/services/authentification';
 
 @Component({
@@ -11,6 +12,9 @@ import { AuthentificationService } from '../../coeur/services/authentification';
 export class Inscription {
   private readonly auth = inject(AuthentificationService);
   private readonly routeur = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+
+  protected readonly retour = retourSecurise(this.route.snapshot.queryParamMap.get('retour'));
 
   protected readonly nom = signal('');
   protected readonly email = signal('');
@@ -44,7 +48,7 @@ export class Inscription {
         mot_de_passe: this.motDePasse(),
       });
       await this.auth.connexion(this.email().trim(), this.motDePasse());
-      this.routeur.navigateByUrl('/mon-compte');
+      this.routeur.navigateByUrl(this.retour ?? '/mon-compte');
     } catch (erreur: any) {
       this.erreur.set(erreur?.error?.detail ?? "L'inscription a échoué.");
     } finally {

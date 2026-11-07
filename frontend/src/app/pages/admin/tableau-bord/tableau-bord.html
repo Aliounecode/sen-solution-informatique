@@ -1,140 +1,292 @@
-<div>
-  <h1 class="font-display text-2xl font-bold">Tableau de bord</h1>
-  <p class="mt-1 font-corps text-sm text-encre-attenue">
-    Ce qui demande votre attention aujourd'hui.
-  </p>
+<div class="mx-auto max-w-[88rem]">
+  <!-- En-tête de page -->
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h1 class="font-display text-2xl font-bold md:text-3xl">Tableau de bord</h1>
+      <p class="mt-1 text-sm text-encre-attenue">
+        Vue d'ensemble de l'activité · {{ aujourdhui | date: 'dd/MM/yyyy' }}
+      </p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <button type="button" (click)="charger()" class="admin-bouton-fantome" [disabled]="chargement()">
+        <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5" />
+        </svg>
+        Actualiser
+      </button>
+      <a routerLink="/admin/produits/nouveau" class="admin-bouton">
+        <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+          <path [attr.d]="icones.plus" />
+        </svg>
+        Nouveau produit
+      </a>
+    </div>
+  </div>
 
-  @if (chargement()) {
-    <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-busy="true">
-      @for (i of [1, 2, 3, 4]; track i) {
-        <div class="h-28 animate-pulse rounded-xl bg-surface-2"></div>
+  @if (chargement() && !stats()) {
+    <!-- Squelettes de chargement -->
+    <div class="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+      @for (n of [1, 2, 3, 4]; track n) {
+        <div class="adm-squelette h-36"></div>
       }
     </div>
-    <div class="mt-6 h-56 animate-pulse rounded-xl bg-surface-2"></div>
-  } @else if (erreur()) {
-    <p class="mt-8 admin-carte !border-orange/60 text-orange">{{ erreur() }}</p>
-  } @else if (stats(); as s) {
-    <!-- À traiter -->
-    <div class="mt-6 grid gap-4 sm:grid-cols-2">
-      <a
-        routerLink="/admin/commandes"
-        class="admin-carte block transition hover:border-cyan/60"
-        [class.!border-orange/60]="s.commandes_a_traiter > 0"
-      >
-        <span class="font-corps text-xs uppercase tracking-wide text-encre-attenue"
-          >Commandes à traiter</span
-        >
-        <p
-          class="mt-2 font-display text-3xl font-bold"
-          [class.text-orange]="s.commandes_a_traiter > 0"
-        >
-          {{ s.commandes_a_traiter }}
-        </p>
-        <p class="mt-1 font-corps text-xs text-encre-attenue">
-          {{
-            s.commandes_a_traiter > 0
-              ? 'Des clients attendent une validation →'
-              : 'Tout est à jour ✓'
-          }}
-        </p>
-      </a>
-      <a
-        routerLink="/admin/demandes"
-        class="admin-carte block transition hover:border-cyan/60"
-        [class.!border-orange/60]="s.demandes_a_traiter > 0"
-      >
-        <span class="font-corps text-xs uppercase tracking-wide text-encre-attenue"
-          >Dépannages à prendre en charge</span
-        >
-        <p
-          class="mt-2 font-display text-3xl font-bold"
-          [class.text-orange]="s.demandes_a_traiter > 0"
-        >
-          {{ s.demandes_a_traiter }}
-        </p>
-        <p class="mt-1 font-corps text-xs text-encre-attenue">
-          {{
-            s.demandes_a_traiter > 0 ? 'Nouvelles demandes reçues →' : 'Aucune nouvelle demande ✓'
-          }}
-        </p>
-      </a>
+    <div class="mt-5 grid gap-5 xl:grid-cols-3">
+      <div class="adm-squelette h-80 xl:col-span-2"></div>
+      <div class="adm-squelette h-80"></div>
     </div>
+  } @else if (erreur()) {
+    <div class="admin-carte mt-8 flex flex-wrap items-center justify-between gap-3 !border-orange/40">
+      <p class="text-sm text-orange">{{ erreur() }}</p>
+      <button type="button" (click)="charger()" class="admin-bouton-fantome">Réessayer</button>
+    </div>
+  } @else if (stats(); as s) {
+    <!-- Alertes à traiter -->
+    @if (s.commandes_a_traiter > 0 || s.demandes_a_traiter > 0 || s.produits_en_rupture > 0) {
+      <div class="adm-apparait mt-6 flex flex-wrap gap-3">
+        @if (s.commandes_a_traiter > 0) {
+          <a routerLink="/admin/commandes" class="adm-statut !px-3 !py-1.5 !text-xs" style="--c: var(--adm-c3)">
+            {{ s.commandes_a_traiter }} commande(s) à traiter
+          </a>
+        }
+        @if (s.demandes_a_traiter > 0) {
+          <a routerLink="/admin/demandes" class="adm-statut !px-3 !py-1.5 !text-xs" style="--c: var(--adm-c4)">
+            {{ s.demandes_a_traiter }} demande(s) de dépannage reçue(s)
+          </a>
+        }
+        @if (s.produits_en_rupture > 0) {
+          <a routerLink="/admin/produits" class="adm-statut !px-3 !py-1.5 !text-xs" style="--c: var(--color-orange)">
+            {{ s.produits_en_rupture }} produit(s) en rupture
+          </a>
+        }
+      </div>
+    }
 
     <!-- Chiffres clés -->
-    <div class="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      <div class="admin-carte-stat">
-        <span class="font-corps text-xs uppercase tracking-wide text-encre-attenue"
-          >Chiffre d'affaires</span
-        >
-        <p class="mt-2 font-display text-2xl font-bold text-cyan">
-          {{ s.chiffre_affaires | fcfa }}
-        </p>
-        <p class="mt-1 font-corps text-xs text-encre-attenue">commandes validées</p>
+    <div class="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+      <!-- Chiffre d'affaires -->
+      <div class="admin-carte-stat adm-apparait" [style.animation-delay]="delai(0)">
+        <div class="flex items-start justify-between">
+          <span class="adm-icone" style="--c: var(--adm-c1)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path [attr.d]="icones.argent" /></svg>
+          </span>
+          @if (tendanceCa(); as t) {
+            <span class="adm-tendance" [style.--c]="t >= 0 ? 'var(--adm-c5)' : 'var(--color-orange)'">
+              {{ t >= 0 ? '▲' : '▼' }} {{ t >= 0 ? '+' : '' }}{{ t }} %
+            </span>
+          }
+        </div>
+        <p class="mt-4 text-sm text-encre-attenue">Chiffre d'affaires</p>
+        <p class="font-display text-2xl font-bold">{{ s.chiffre_affaires | fcfa }}</p>
+        <p class="mt-1 text-xs text-encre-attenue">{{ s.ca_30_jours | fcfa }} sur 30 jours</p>
+        <div class="mt-2"><app-mini-courbe [valeurs]="sparkVentes()" couleur="var(--adm-c1)" /></div>
       </div>
-      <div class="admin-carte-stat">
-        <span class="font-corps text-xs uppercase tracking-wide text-encre-attenue">Commandes</span>
-        <p class="mt-2 font-display text-2xl font-bold">{{ s.nombre_commandes_total }}</p>
-        <p class="mt-1 font-corps text-xs text-encre-attenue">au total</p>
+
+      <!-- Commandes -->
+      <div class="admin-carte-stat adm-apparait" [style.animation-delay]="delai(1)">
+        <div class="flex items-start justify-between">
+          <span class="adm-icone" style="--c: var(--adm-c2)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path [attr.d]="icones.panier" /></svg>
+          </span>
+          @if (s.commandes_a_traiter > 0) {
+            <span class="adm-tendance" style="--c: var(--adm-c3)">{{ s.commandes_a_traiter }} à traiter</span>
+          }
+        </div>
+        <p class="mt-4 text-sm text-encre-attenue">Commandes</p>
+        <p class="font-display text-2xl font-bold">{{ s.nombre_commandes_total }}</p>
+        <p class="mt-1 text-xs text-encre-attenue">{{ s.commandes_par_statut['validee'] ?? 0 }} validée(s)</p>
+        <div class="mt-2"><app-mini-courbe [valeurs]="sparkCommandes()" couleur="var(--adm-c2)" /></div>
       </div>
-      <div class="admin-carte-stat">
-        <span class="font-corps text-xs uppercase tracking-wide text-encre-attenue"
-          >Dépannages</span
-        >
-        <p class="mt-2 font-display text-2xl font-bold">{{ s.nombre_demandes_total }}</p>
-        <p class="mt-1 font-corps text-xs text-encre-attenue">demandes reçues</p>
+
+      <!-- Dépannages -->
+      <div class="admin-carte-stat adm-apparait" [style.animation-delay]="delai(2)">
+        <div class="flex items-start justify-between">
+          <span class="adm-icone" style="--c: var(--adm-c4)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path [attr.d]="icones.cle" /></svg>
+          </span>
+          @if (s.demandes_a_traiter > 0) {
+            <span class="adm-tendance" style="--c: var(--adm-c3)">{{ s.demandes_a_traiter }} reçue(s)</span>
+          }
+        </div>
+        <p class="mt-4 text-sm text-encre-attenue">Demandes de dépannage</p>
+        <p class="font-display text-2xl font-bold">{{ s.nombre_demandes_total }}</p>
+        <p class="mt-1 text-xs text-encre-attenue">{{ s.demandes_par_statut['livree'] ?? 0 }} livrée(s)</p>
+        <div class="mt-2"><app-mini-courbe [valeurs]="sparkDemandes()" couleur="var(--adm-c4)" /></div>
       </div>
-      <div class="admin-carte-stat">
-        <span class="font-corps text-xs uppercase tracking-wide text-encre-attenue">Clients</span>
-        <p class="mt-2 font-display text-2xl font-bold">{{ s.nombre_clients }}</p>
-        <p class="mt-1 font-corps text-xs text-encre-attenue">comptes clients</p>
+
+      <!-- Catalogue & clients -->
+      <div class="admin-carte-stat adm-apparait" [style.animation-delay]="delai(3)">
+        <div class="flex items-start justify-between">
+          <span class="adm-icone" style="--c: var(--adm-c5)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path [attr.d]="icones.boite" /></svg>
+          </span>
+          @if (s.produits_en_rupture > 0) {
+            <span class="adm-tendance" style="--c: var(--color-orange)">{{ s.produits_en_rupture }} en rupture</span>
+          }
+        </div>
+        <p class="mt-4 text-sm text-encre-attenue">Produits actifs</p>
+        <p class="font-display text-2xl font-bold">{{ s.nombre_produits_actifs }}</p>
+        <div class="mt-3 flex items-center gap-3 rounded-xl bg-surface-2 px-3 py-2">
+          <span class="adm-icone !h-9 !w-9 !rounded-lg" style="--c: var(--adm-c1)">
+            <svg viewBox="0 0 24 24" class="!h-5 !w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path [attr.d]="icones.clients" /></svg>
+          </span>
+          <div class="leading-tight">
+            <p class="text-sm font-semibold">{{ s.nombre_clients }} client(s)</p>
+            <p class="text-xs text-encre-attenue">comptes inscrits</p>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Ventes 7 jours + stock faible -->
-    <div class="mt-6 grid gap-6 lg:grid-cols-3">
-      <div class="admin-carte lg:col-span-2">
-        <div class="flex items-baseline justify-between">
-          <h2 class="font-display text-lg font-semibold">Ventes des 7 derniers jours</h2>
-          <span class="font-mono text-sm text-cyan">{{ totalVentes() | fcfa }}</span>
+    <!-- Ventes + répartition des commandes -->
+    <div class="mt-5 grid gap-5 xl:grid-cols-3">
+      <div class="admin-carte adm-apparait xl:col-span-2" style="animation-delay: 240ms">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 class="font-display text-lg font-semibold">Ventes</h2>
+            <p class="text-xs text-encre-attenue">Commandes validées, jour par jour</p>
+          </div>
+          <div class="adm-onglets" role="tablist" aria-label="Période">
+            <button type="button" role="tab" class="adm-onglet" [class.adm-onglet-actif]="periode() === 7"
+                    [attr.aria-selected]="periode() === 7" (click)="periode.set(7)">7 jours</button>
+            <button type="button" role="tab" class="adm-onglet" [class.adm-onglet-actif]="periode() === 30"
+                    [attr.aria-selected]="periode() === 30" (click)="periode.set(30)">30 jours</button>
+          </div>
         </div>
-        <div
-          class="mt-6 flex h-40 items-end gap-2"
-          role="img"
-          aria-label="Histogramme des ventes sur 7 jours"
-        >
-          @for (v of ventes(); track $index) {
-            <div class="flex h-full flex-1 flex-col items-center justify-end gap-2">
-              <div
-                class="w-full rounded-t-lg bg-cyan/80 transition-all"
-                [class.bg-surface-2]="v.montant === 0"
-                [style.height.%]="v.montant === 0 ? 4 : v.hauteur"
-                [title]="v.montant | fcfa"
-              ></div>
-              <span class="font-mono text-[11px] uppercase text-encre-attenue">{{
-                v.etiquette
-              }}</span>
-            </div>
+
+        <div class="mt-4 flex flex-wrap gap-x-8 gap-y-2">
+          <div>
+            <p class="text-xs text-encre-attenue">Total sur la période</p>
+            <p class="font-display text-xl font-bold">{{ totalPeriode() | fcfa }}</p>
+          </div>
+          @if (meilleurJour(); as m) {
+            @if (m.montant > 0) {
+              <div>
+                <p class="text-xs text-encre-attenue">Meilleur jour</p>
+                <p class="font-display text-xl font-bold">
+                  {{ m.montant | fcfa }}
+                  <span class="text-xs font-normal text-encre-attenue">· {{ m.jour | date: 'dd/MM' }}</span>
+                </p>
+              </div>
+            }
           }
+        </div>
+
+        <div class="mt-4">
+          <app-graphique-aire
+            [etiquettes]="etiquettesVentes()"
+            [series]="seriesVentes()"
+            [formatBulle]="formatFcfa"
+            description="Chiffre d'affaires quotidien"
+          />
         </div>
       </div>
 
-      <div class="admin-carte">
-        <h2 class="font-display text-lg font-semibold">Stock faible</h2>
-        @if (s.stock_faible.length === 0) {
-          <p class="mt-4 font-corps text-sm text-encre-attenue">
-            Aucun produit à réapprovisionner ✓
-          </p>
+      <div class="admin-carte adm-apparait" style="animation-delay: 300ms">
+        <h2 class="font-display text-lg font-semibold">Commandes par statut</h2>
+        <p class="mb-5 text-xs text-encre-attenue">Répartition de toutes les commandes</p>
+        <app-graphique-donut [parts]="partsCommandes()" titreCentre="commandes" description="Commandes par statut" />
+      </div>
+    </div>
+
+    <!-- Activité + catalogue par type -->
+    <div class="mt-5 grid gap-5 xl:grid-cols-3">
+      <div class="admin-carte adm-apparait xl:col-span-2" style="animation-delay: 360ms">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="font-display text-lg font-semibold">Activité</h2>
+            <p class="text-xs text-encre-attenue">Nouvelles commandes et demandes de dépannage (30 jours)</p>
+          </div>
+          <div class="flex items-center gap-4 text-xs text-encre-attenue">
+            <span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full" style="background: var(--adm-c2)"></span>Commandes</span>
+            <span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full" style="background: var(--adm-c4)"></span>Dépannages</span>
+          </div>
+        </div>
+        <div class="mt-4">
+          <app-graphique-aire
+            [etiquettes]="etiquettesActivite()"
+            [series]="seriesActivite()"
+            [hauteur]="240"
+            description="Commandes et dépannages par jour"
+          />
+        </div>
+      </div>
+
+      <div class="admin-carte adm-apparait" style="animation-delay: 420ms">
+        <div class="flex items-start justify-between">
+          <div>
+            <h2 class="font-display text-lg font-semibold">Catalogue par type</h2>
+            <p class="mb-5 text-xs text-encre-attenue">Produits actifs</p>
+          </div>
+          <a routerLink="/admin/types" class="text-xs font-semibold text-cyan hover:underline">Gérer</a>
+        </div>
+        <app-graphique-donut [parts]="partsTypes()" titreCentre="produits" description="Produits par type" />
+      </div>
+    </div>
+
+    <!-- Top produits / dépannages / stock faible -->
+    <div class="mt-5 grid gap-5 xl:grid-cols-3">
+      <div class="admin-carte adm-apparait" style="animation-delay: 480ms">
+        <h2 class="font-display text-lg font-semibold">Produits les plus vendus</h2>
+        <p class="mb-4 text-xs text-encre-attenue">Quantités vendues (commandes validées)</p>
+        @if (topProduits().length === 0) {
+          <p class="text-sm text-encre-attenue">Pas encore de vente.</p>
         } @else {
-          <ul class="mt-4 space-y-2">
+          <ul class="space-y-4">
+            @for (p of topProduits(); track p.nom; let i = $index) {
+              <li>
+                <div class="mb-1.5 flex items-center justify-between gap-3 text-sm">
+                  <span class="flex min-w-0 items-center gap-2">
+                    <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-surface-2 text-xs font-bold text-encre-attenue">{{ i + 1 }}</span>
+                    <span class="truncate">{{ p.nom }}</span>
+                  </span>
+                  <span class="shrink-0 font-semibold">{{ p.quantite }}</span>
+                </div>
+                <div class="adm-barre-progres" [style.--c]="p.couleur"><span [style.width.%]="p.pct"></span></div>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      <div class="admin-carte adm-apparait" style="animation-delay: 540ms">
+        <h2 class="font-display text-lg font-semibold">Dépannages par statut</h2>
+        <p class="mb-4 text-xs text-encre-attenue">Suivi des interventions</p>
+        <ul class="space-y-4">
+          @for (d of demandesParStatut(); track d.libelle) {
+            <li>
+              <div class="mb-1.5 flex items-center justify-between text-sm">
+                <span class="text-encre-attenue">{{ d.libelle }}</span>
+                <span class="font-semibold">{{ d.valeur }}</span>
+              </div>
+              <div class="adm-barre-progres" [style.--c]="d.couleur"><span [style.width.%]="d.pct"></span></div>
+            </li>
+          }
+        </ul>
+      </div>
+
+      <div class="admin-carte adm-apparait" style="animation-delay: 600ms">
+        <div class="flex items-start justify-between">
+          <div>
+            <h2 class="font-display text-lg font-semibold">Stock faible</h2>
+            <p class="mb-4 text-xs text-encre-attenue">3 unités ou moins</p>
+          </div>
+          <span class="adm-icone !h-9 !w-9 !rounded-lg" style="--c: var(--adm-c3)">
+            <svg viewBox="0 0 24 24" class="!h-5 !w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path [attr.d]="icones.alerte" /></svg>
+          </span>
+        </div>
+        @if (s.stock_faible.length === 0) {
+          <p class="text-sm text-encre-attenue">Tout est bien approvisionné.</p>
+        } @else {
+          <ul class="divide-y divide-bordure/60">
             @for (p of s.stock_faible; track p.id) {
               <li>
-                <a
-                  [routerLink]="['/admin/produits', p.id]"
-                  class="flex items-center justify-between gap-2 rounded-lg bg-surface-2/50 px-3 py-2 transition hover:bg-surface-2"
-                >
-                  <span class="min-w-0 truncate font-corps text-sm">{{ p.nom }}</span>
-                  <span class="admin-badge shrink-0" [class.!text-orange]="p.quantite_stock === 0">
-                    {{ p.quantite_stock === 0 ? 'rupture' : p.quantite_stock + ' restant(s)' }}
+                <a [routerLink]="['/admin/produits', p.id]" class="flex items-center justify-between gap-3 py-2.5 text-sm transition hover:text-cyan">
+                  <span class="min-w-0">
+                    <span class="block truncate">{{ p.nom }}</span>
+                    <span class="block font-mono text-xs text-encre-attenue">{{ p.reference }}</span>
+                  </span>
+                  <span class="adm-statut shrink-0" [style.--c]="p.quantite_stock === 0 ? 'var(--color-orange)' : 'var(--adm-c3)'">
+                    {{ p.quantite_stock === 0 ? 'Rupture' : p.quantite_stock + ' en stock' }}
                   </span>
                 </a>
               </li>
@@ -145,115 +297,73 @@
     </div>
 
     <!-- Activité récente -->
-    <div class="mt-6 grid gap-6 lg:grid-cols-2">
-      <div class="admin-carte">
-        <div class="flex items-center justify-between">
-          <h2 class="font-display text-lg font-semibold">Dernières commandes</h2>
-          <a routerLink="/admin/commandes" class="admin-lien !w-auto !px-2 !py-1 text-xs"
-            >Tout voir</a
-          >
+    <div class="mt-5 grid gap-5 xl:grid-cols-2">
+      <div class="admin-carte adm-apparait !p-0 overflow-hidden" style="animation-delay: 660ms">
+        <div class="flex items-center justify-between px-5 pt-5">
+          <h2 class="font-display text-lg font-semibold">Commandes récentes</h2>
+          <a routerLink="/admin/commandes" class="text-xs font-semibold text-cyan hover:underline">Tout voir</a>
         </div>
-        @if (s.commandes_recentes.length === 0) {
-          <p class="mt-4 font-corps text-sm text-encre-attenue">Aucune commande pour le moment.</p>
-        } @else {
-          <ul class="mt-4 space-y-2">
-            @for (c of s.commandes_recentes; track c.reference) {
-              <li
-                class="flex items-center justify-between gap-2 rounded-lg bg-surface-2/50 px-3 py-2"
-              >
-                <span class="min-w-0">
-                  <span class="block truncate font-corps text-sm">{{ c.nom_client }}</span>
-                  <span class="font-mono text-[11px] text-encre-attenue">
-                    {{ c.reference }} · {{ c.cree_le | date: 'dd/MM HH:mm' }}
-                  </span>
-                </span>
-                <span class="text-right">
-                  <span class="block font-mono text-sm text-cyan">{{
-                    c.montant_total | fcfa
-                  }}</span>
-                  <span class="admin-badge">{{ libelleStatut(c.statut) }}</span>
-                </span>
-              </li>
-            }
-          </ul>
-        }
+        <div class="mt-3 overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="text-xs uppercase tracking-wide text-encre-attenue">
+              <tr>
+                <th class="px-5 py-2.5">Référence</th>
+                <th class="px-3 py-2.5">Client</th>
+                <th class="px-3 py-2.5">Statut</th>
+                <th class="px-5 py-2.5 text-right">Montant</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (c of s.commandes_recentes; track c.reference) {
+                <tr class="border-t border-bordure/50 hover:bg-surface-2/60">
+                  <td class="px-5 py-3 font-mono text-xs">{{ c.reference }}</td>
+                  <td class="px-3 py-3">
+                    <span class="block truncate">{{ c.nom_client }}</span>
+                    <span class="block text-xs text-encre-attenue">{{ c.cree_le | date: 'dd/MM HH:mm' }}</span>
+                  </td>
+                  <td class="px-3 py-3"><span class="adm-statut" [style.--c]="couleurStatut(c.statut)">{{ libelleStatut(c.statut) }}</span></td>
+                  <td class="px-5 py-3 text-right font-semibold">{{ c.montant_total | fcfa }}</td>
+                </tr>
+              } @empty {
+                <tr><td colspan="4" class="px-5 py-6 text-center text-encre-attenue">Aucune commande.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <div class="admin-carte">
-        <div class="flex items-center justify-between">
-          <h2 class="font-display text-lg font-semibold">Derniers dépannages</h2>
-          <a routerLink="/admin/demandes" class="admin-lien !w-auto !px-2 !py-1 text-xs"
-            >Tout voir</a
-          >
+      <div class="admin-carte adm-apparait !p-0 overflow-hidden" style="animation-delay: 720ms">
+        <div class="flex items-center justify-between px-5 pt-5">
+          <h2 class="font-display text-lg font-semibold">Demandes de dépannage récentes</h2>
+          <a routerLink="/admin/demandes" class="text-xs font-semibold text-cyan hover:underline">Tout voir</a>
         </div>
-        @if (s.demandes_recentes.length === 0) {
-          <p class="mt-4 font-corps text-sm text-encre-attenue">Aucune demande pour le moment.</p>
-        } @else {
-          <ul class="mt-4 space-y-2">
-            @for (d of s.demandes_recentes; track d.reference) {
-              <li
-                class="flex items-center justify-between gap-2 rounded-lg bg-surface-2/50 px-3 py-2"
-              >
-                <span class="min-w-0">
-                  <span class="block truncate font-corps text-sm"
-                    >{{ d.nom_client }} · {{ d.type_appareil }}</span
-                  >
-                  <span class="font-mono text-[11px] text-encre-attenue">
-                    {{ d.reference }} · {{ d.cree_le | date: 'dd/MM HH:mm' }}
-                  </span>
-                </span>
-                <span class="admin-badge">{{ libelleStatut(d.statut) }}</span>
-              </li>
-            }
-          </ul>
-        }
-      </div>
-    </div>
-
-    <!-- Statuts + meilleures ventes -->
-    <div class="mt-6 grid gap-6 lg:grid-cols-3">
-      <div class="admin-carte">
-        <h2 class="font-display text-lg font-semibold">Commandes par statut</h2>
-        <ul class="mt-4 space-y-2">
-          @for (item of commandes(); track item.libelle) {
-            <li class="flex items-center justify-between">
-              <span class="font-corps text-sm text-encre-attenue">{{ item.libelle }}</span>
-              <span class="admin-badge">{{ item.valeur }}</span>
-            </li>
-          }
-        </ul>
-      </div>
-      <div class="admin-carte">
-        <h2 class="font-display text-lg font-semibold">Dépannages par statut</h2>
-        <ul class="mt-4 space-y-2">
-          @for (item of demandes(); track item.libelle) {
-            <li class="flex items-center justify-between">
-              <span class="font-corps text-sm text-encre-attenue">{{ item.libelle }}</span>
-              <span class="admin-badge">{{ item.valeur }}</span>
-            </li>
-          }
-        </ul>
-      </div>
-      <div class="admin-carte">
-        <h2 class="font-display text-lg font-semibold">Meilleures ventes</h2>
-        @if (s.top_produits.length === 0) {
-          <p class="mt-4 font-corps text-sm text-encre-attenue">
-            Aucune vente validée pour le moment.
-          </p>
-        } @else {
-          <ol class="mt-4 space-y-2">
-            @for (produit of s.top_produits; track produit.nom; let i = $index) {
-              <li
-                class="flex items-center justify-between gap-2 rounded-lg bg-surface-2/50 px-3 py-2"
-              >
-                <span class="min-w-0 truncate font-corps text-sm">
-                  <span class="mr-2 font-mono text-cyan">{{ i + 1 }}.</span>{{ produit.nom }}
-                </span>
-                <span class="admin-badge shrink-0">{{ produit.quantite }}</span>
-              </li>
-            }
-          </ol>
-        }
+        <div class="mt-3 overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="text-xs uppercase tracking-wide text-encre-attenue">
+              <tr>
+                <th class="px-5 py-2.5">Référence</th>
+                <th class="px-3 py-2.5">Client</th>
+                <th class="px-3 py-2.5">Appareil</th>
+                <th class="px-5 py-2.5 text-right">Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (d of s.demandes_recentes; track d.reference) {
+                <tr class="border-t border-bordure/50 hover:bg-surface-2/60">
+                  <td class="px-5 py-3 font-mono text-xs">{{ d.reference }}</td>
+                  <td class="px-3 py-3">
+                    <span class="block truncate">{{ d.nom_client }}</span>
+                    <span class="block text-xs text-encre-attenue">{{ d.cree_le | date: 'dd/MM HH:mm' }}</span>
+                  </td>
+                  <td class="px-3 py-3 text-encre-attenue">{{ d.type_appareil }}</td>
+                  <td class="px-5 py-3 text-right"><span class="adm-statut" [style.--c]="couleurStatut(d.statut)">{{ libelleStatut(d.statut) }}</span></td>
+                </tr>
+              } @empty {
+                <tr><td colspan="4" class="px-5 py-6 text-center text-encre-attenue">Aucune demande.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   }

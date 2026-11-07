@@ -15,6 +15,12 @@
     <h1 class="font-display text-3xl font-bold">Se connecter</h1>
     <p class="mt-2 text-sm text-encre-attenue">Accédez à votre espace et à votre historique.</p>
 
+    @if (retour) {
+      <p class="mt-4 rounded-lg border border-cyan bg-surface-2 px-3 py-2 text-sm" role="status">
+        Connectez-vous ou créez un compte pour continuer.
+      </p>
+    }
+
     <form class="mt-6 space-y-5" (submit)="$event.preventDefault(); connecter()">
       <div>
         <label class="etiquette">E-mail</label>
@@ -59,7 +65,10 @@
 
     <p class="mt-6 text-sm text-encre-attenue">
       Pas encore de compte ?
-      <a routerLink="/inscription" class="font-semibold text-cyan hover:underline"
+      <a
+        routerLink="/inscription"
+        [queryParams]="retour ? { retour } : {}"
+        class="font-semibold text-cyan hover:underline"
         >Créer un compte</a
       >
     </p>

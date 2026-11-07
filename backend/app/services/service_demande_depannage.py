@@ -84,6 +84,16 @@ def obtenir_par_reference(session: Session, reference: str) -> DemandeDepannage:
     return demande
 
 
+def obtenir_par_reference_pour(
+    session: Session, reference: str, utilisateur: Utilisateur
+) -> DemandeDepannage:
+    """Renvoie la demande seulement si elle appartient à l'utilisateur (ou s'il est admin)."""
+    demande = obtenir_par_reference(session, reference)
+    if utilisateur.role != RoleUtilisateur.admin and demande.client_id != utilisateur.id:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Demande introuvable")
+    return demande
+
+
 def lister_pour_client(session: Session, client_id: int) -> list[DemandeDepannage]:
     return list(
         session.scalars(
@@ -160,16 +170,6 @@ def changer_statut(session: Session, demande_id: int, cible: StatutDemande) -> D
     demande.statut = cible
     session.commit()
     return obtenir(session, demande_id)
-
-
-def obtenir_par_reference_pour(
-    session: Session, reference: str, utilisateur: Utilisateur
-) -> DemandeDepannage:
-    """Renvoie la demande seulement si elle appartient à l'utilisateur (ou s'il est admin)."""
-    demande = obtenir_par_reference(session, reference)
-    if utilisateur.role != RoleUtilisateur.admin and demande.client_id != utilisateur.id:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Demande introuvable")
-    return demande
 
 
 def repondre_devis(

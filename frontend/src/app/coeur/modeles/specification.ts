@@ -8,6 +8,8 @@ export interface Specification {
   type_valeur: TypeValeur;
   unite: string | null;
   options: string[] | null;
+  /** Slugs des types concernés ; null ou vide = tous les types. */
+  types: string[] | null;
   ordre: number;
   actif: boolean;
 }

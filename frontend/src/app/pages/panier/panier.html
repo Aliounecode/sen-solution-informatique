@@ -90,7 +90,28 @@
           <span class="font-mono text-xs uppercase tracking-wider text-encre-attenue">Total</span>
           <span class="font-display text-2xl font-bold text-cyan">{{ panier.total() | fcfa }}</span>
         </div>
-        <a routerLink="/commande" class="bouton-primaire mt-5 w-full">Passer la commande →</a>
+
+        @if (auth.estConnecte()) {
+          <a routerLink="/commande" class="bouton-primaire mt-5 w-full">Passer la commande →</a>
+        } @else {
+          <div class="mt-5 rounded-lg border border-cyan bg-surface-2 p-3 text-sm">
+            <p>Connectez-vous ou créez un compte avant de commander.</p>
+            <div class="mt-3 flex gap-2">
+              <a
+                routerLink="/connexion"
+                [queryParams]="{ retour: '/commande' }"
+                class="bouton-primaire flex-1 text-center"
+                >Se connecter</a
+              >
+              <a
+                routerLink="/inscription"
+                [queryParams]="{ retour: '/commande' }"
+                class="flex-1 rounded-lg border border-bordure px-3 py-2 text-center font-semibold hover:border-cyan hover:text-cyan"
+                >Créer un compte</a
+              >
+            </div>
+          </div>
+        }
       </aside>
     </div>
   }

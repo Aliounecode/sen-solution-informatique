@@ -1,0 +1,452 @@
+/* ==========================================================================
+   Habillage du back-office — inspiré des tableaux de bord Envato (ThemeForest)
+   Tout est limité à l'enveloppe .adm : le site public n'est pas touché.
+   Ce fichier est chargé par disposition-admin.ts (ViewEncapsulation.None).
+   ========================================================================== */
+
+/* ---------- Jetons : clair (par défaut) et sombre ---------- */
+.adm {
+  --adm-c1: #4f46e5; /* indigo  */
+  --adm-c2: #06b6d4; /* cyan    */
+  --adm-c3: #f59e0b; /* ambre   */
+  --adm-c4: #ec4899; /* rose    */
+  --adm-c5: #10b981; /* émeraude */
+  --adm-degrade: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  min-height: 100vh;
+  background-color: var(--color-fond);
+  color: var(--color-encre);
+  font-family: var(--font-corps);
+}
+
+.adm.theme-clair {
+  --color-fond: #f3f4f9;
+  --color-surface: #ffffff;
+  --color-surface-2: #f6f7fc;
+  --color-bordure: #e5e8f1;
+  --color-encre: #1b2236;
+  --color-encre-attenue: #6a7390;
+  --color-cyan: #4f46e5;
+  --color-vert: #059669;
+  --color-orange: #e11d48;
+  --adm-ombre: 0 1px 2px rgba(27, 34, 54, 0.04), 0 10px 28px -14px rgba(27, 34, 54, 0.16);
+  --adm-ombre-forte: 0 2px 4px rgba(27, 34, 54, 0.05), 0 18px 40px -16px rgba(79, 70, 229, 0.28);
+  --adm-grille: #e9ebf3;
+}
+
+.adm.theme-sombre {
+  --color-fond: #0e1220;
+  --color-surface: #161b2e;
+  --color-surface-2: #1b2136;
+  --color-bordure: #262d47;
+  --color-encre: #e9ecf7;
+  --color-encre-attenue: #8d96b5;
+  --color-cyan: #818cf8;
+  --color-vert: #34d399;
+  --color-orange: #fb7185;
+  --adm-c1: #818cf8;
+  --adm-c2: #22d3ee;
+  --adm-c3: #fbbf24;
+  --adm-c4: #f472b6;
+  --adm-c5: #34d399;
+  --adm-ombre: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 30px -14px rgba(0, 0, 0, 0.6);
+  --adm-ombre-forte: 0 2px 4px rgba(0, 0, 0, 0.35), 0 18px 40px -16px rgba(129, 140, 248, 0.35);
+  --adm-grille: #232a42;
+}
+
+/* ---------- Barre latérale (toujours sombre, comme les templates Envato) ---------- */
+.adm .adm-lateral {
+  background: linear-gradient(180deg, #151b36 0%, #0c1022 100%);
+  color: #aab2d0;
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
+}
+.adm .adm-lateral .adm-marque {
+  background: var(--adm-degrade);
+  box-shadow: 0 8px 20px -8px rgba(124, 58, 237, 0.7);
+}
+.adm .adm-section-titre {
+  padding: 0 0.75rem;
+  margin: 1.25rem 0 0.4rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6b7499;
+}
+.adm .adm-lateral .admin-lien {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  border-radius: 0.65rem;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #aab2d0;
+  background: transparent;
+  transition:
+    background 0.15s,
+    color 0.15s;
+  text-align: left;
+}
+.adm .adm-lateral .admin-lien:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+}
+.adm .adm-lateral .admin-lien-actif {
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.32), rgba(99, 102, 241, 0.06));
+  color: #ffffff;
+  font-weight: 600;
+}
+.adm .adm-lateral .admin-lien-actif::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 22%;
+  bottom: 22%;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: #a5b4fc;
+}
+.adm .adm-lateral .admin-lien svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+/* ---------- Barre supérieure ---------- */
+.adm .adm-barre {
+  background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--color-bordure);
+}
+.adm .adm-avatar {
+  background: var(--adm-degrade);
+  color: #fff;
+  box-shadow: 0 6px 16px -6px rgba(124, 58, 237, 0.7);
+}
+
+/* ---------- Composants historiques (mêmes noms, nouveau look) ---------- */
+.adm .admin-carte {
+  background: var(--color-surface);
+  border: 1px solid var(--color-bordure);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  box-shadow: var(--adm-ombre);
+  backdrop-filter: none;
+}
+.adm .admin-carte-stat {
+  background: var(--color-surface);
+  border: 1px solid var(--color-bordure);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  box-shadow: var(--adm-ombre);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    border-color 0.2s;
+}
+.adm .admin-carte-stat:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--color-cyan) 45%, var(--color-bordure));
+  box-shadow: var(--adm-ombre-forte);
+}
+
+.adm .admin-bouton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 0;
+  border-radius: 0.7rem;
+  background: var(--adm-degrade);
+  padding: 0.55rem 1.1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 8px 20px -10px rgba(79, 70, 229, 0.8);
+  transition:
+    transform 0.15s,
+    filter 0.15s,
+    box-shadow 0.15s;
+}
+.adm .admin-bouton:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px -10px rgba(79, 70, 229, 0.85);
+}
+.adm .admin-bouton:active {
+  transform: translateY(0);
+}
+.adm .admin-bouton:disabled {
+  cursor: not-allowed;
+}
+
+.adm .admin-bouton-fantome {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid var(--color-bordure);
+  border-radius: 0.7rem;
+  background: var(--color-surface);
+  padding: 0.55rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-encre);
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    color 0.15s,
+    background 0.15s;
+}
+.adm .admin-bouton-fantome:hover {
+  border-color: var(--color-cyan);
+  color: var(--color-cyan);
+  background: color-mix(in srgb, var(--color-cyan) 6%, var(--color-surface));
+}
+
+.adm .admin-champ {
+  /* pas de width ici : la largeur (w-full, sm:w-56…) vient de Tailwind */
+  border: 1px solid var(--color-bordure);
+  border-radius: 0.7rem;
+  background: var(--color-surface);
+  padding: 0.55rem 0.8rem;
+  font-size: 0.875rem;
+  color: var(--color-encre);
+  outline: none;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+.adm .admin-champ::placeholder {
+  color: var(--color-encre-attenue);
+  opacity: 0.7;
+}
+.adm .admin-champ:focus {
+  border-color: var(--color-cyan);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-cyan) 18%, transparent);
+}
+
+.adm .admin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid var(--color-bordure);
+  border-radius: 999px;
+  background: var(--color-surface-2);
+  padding: 0.15rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-encre-attenue);
+}
+
+/* Liens de navigation utilisés hors barre latérale (anciens écrans) */
+.adm .admin-lien {
+  color: var(--color-encre-attenue);
+}
+.adm .admin-lien-actif {
+  color: var(--color-cyan);
+}
+
+/* ---------- Tableaux, cases à cocher, défilement ---------- */
+.adm table {
+  border-collapse: collapse;
+}
+.adm thead {
+  background: var(--color-surface-2);
+}
+.adm tbody tr {
+  transition: background 0.12s;
+}
+.adm input[type='checkbox'],
+.adm input[type='radio'] {
+  accent-color: var(--color-cyan);
+}
+.adm select.admin-champ {
+  appearance: auto;
+}
+
+.adm ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.adm ::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-encre-attenue) 35%, transparent);
+  border-radius: 999px;
+  border: 2px solid var(--color-fond);
+}
+
+/* ---------- Tableau de bord : briques réutilisables ---------- */
+.adm .adm-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.85rem;
+  color: var(--c, var(--color-cyan));
+  background: color-mix(in srgb, var(--c, var(--color-cyan)) 14%, transparent);
+}
+.adm .adm-icone svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.adm .adm-tendance {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--c);
+  background: color-mix(in srgb, var(--c) 13%, transparent);
+}
+
+.adm .adm-statut {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--c, var(--color-encre-attenue));
+  background: color-mix(in srgb, var(--c, var(--color-encre-attenue)) 13%, transparent);
+}
+.adm .adm-statut::before {
+  content: '';
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.adm .adm-onglets {
+  display: inline-flex;
+  padding: 0.2rem;
+  border-radius: 0.7rem;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-bordure);
+}
+.adm .adm-onglet {
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-encre-attenue);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.adm .adm-onglet-actif {
+  background: var(--color-surface);
+  color: var(--color-cyan);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.adm .adm-barre-progres {
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--color-surface-2);
+  overflow: hidden;
+}
+.adm .adm-barre-progres > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--c), color-mix(in srgb, var(--c) 60%, #fff));
+  transition: width 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ---------- Graphiques ---------- */
+.adm .adm-grille {
+  stroke: var(--adm-grille);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+.adm .adm-axe {
+  fill: var(--color-encre-attenue);
+  font-size: 11px;
+  font-family: var(--font-corps);
+}
+.adm .adm-bulle {
+  position: absolute;
+  top: 0;
+  z-index: 5;
+  min-width: 8rem;
+  transform: translateX(-50%);
+  pointer-events: none;
+  border-radius: 0.7rem;
+  background: #111827;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.75rem;
+  color: #f3f4f6;
+  box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.5);
+}
+
+/* ---------- Animations ---------- */
+@keyframes adm-entree {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes adm-trace {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes adm-brillance {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+.adm .adm-apparait {
+  animation: adm-entree 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.adm .adm-squelette {
+  border-radius: 1rem;
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 0,
+    var(--color-surface-2) 100px,
+    var(--color-surface) 200px
+  );
+  background-size: 200px 100%;
+  animation: adm-brillance 1.3s infinite linear;
+  border: 1px solid var(--color-bordure);
+}
+.adm .adm-ligne-animee {
+  stroke-dasharray: 1; /* pathLength="1" sur le tracé : 1 = longueur totale */
+  animation: adm-trace 1.1s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .adm .adm-apparait,
+  .adm .adm-ligne-animee,
+  .adm .adm-squelette {
+    animation: none;
+  }
+  .adm .admin-carte-stat,
+  .adm .admin-bouton {
+    transition: none;
+  }
+}

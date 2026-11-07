@@ -7,6 +7,12 @@ from ..schemas.specification import SpecificationCreer, SpecificationModifier
 from ..utilitaires import slugifier
 
 
+def _types_propres(types: list[str] | None) -> list[str] | None:
+    """Nettoie la liste de types ; vide = la caractéristique s'applique à tous."""
+    propres = [t.strip() for t in (types or []) if t and t.strip()]
+    return propres or None
+
+
 def lister(session: Session, inclure_inactifs: bool = False) -> list[DefinitionSpecification]:
     requete = select(DefinitionSpecification).order_by(
         DefinitionSpecification.ordre, DefinitionSpecification.libelle
@@ -37,6 +43,7 @@ def creer(session: Session, donnees: SpecificationCreer) -> DefinitionSpecificat
         type_valeur=donnees.type_valeur,
         unite=donnees.unite,
         options=donnees.options,
+        types=_types_propres(donnees.types),
         ordre=donnees.ordre,
         actif=donnees.actif,
     )
@@ -51,6 +58,8 @@ def modifier(
 ) -> DefinitionSpecification:
     specification = obtenir(session, specification_id)
     valeurs = donnees.model_dump(exclude_unset=True)
+    if "types" in valeurs:
+        valeurs["types"] = _types_propres(valeurs["types"])
     for champ, valeur in valeurs.items():
         setattr(specification, champ, valeur)
     session.commit()

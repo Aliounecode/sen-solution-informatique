@@ -8,8 +8,8 @@ from ..modeles import (
     Commande,
     LigneCommande,
     Produit,
-    StatutCommande,
     RoleUtilisateur,
+    StatutCommande,
     Utilisateur,
 )
 from ..schemas.commande import CommandeCreer, CommandeModifierAdmin
@@ -102,6 +102,14 @@ def obtenir_par_reference(session: Session, reference: str) -> Commande:
         .options(*_OPTIONS)
     )
     if commande is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Commande introuvable")
+    return commande
+
+
+def obtenir_par_reference_pour(session: Session, reference: str, utilisateur: Utilisateur) -> Commande:
+    """Renvoie la commande seulement si elle appartient à l'utilisateur (ou s'il est admin)."""
+    commande = obtenir_par_reference(session, reference)
+    if utilisateur.role != RoleUtilisateur.admin and commande.client_id != utilisateur.id:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Commande introuvable")
     return commande
 
@@ -200,13 +208,6 @@ def changer_statut(session: Session, commande_id: int, cible: StatutCommande) ->
     commande.statut = cible
     session.commit()
     return obtenir(session, commande_id)
-
-
-def obtenir_par_reference_pour(session: Session, reference: str, utilisateur: Utilisateur) -> Commande:
-    commande = obtenir_par_reference(session, reference)
-    if utilisateur.role != RoleUtilisateur.admin and commande.client_id != utilisateur.id:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Commande introuvable")
-    return commande
 
 
 def annuler_par_reference(session: Session, reference: str, utilisateur: Utilisateur) -> Commande:

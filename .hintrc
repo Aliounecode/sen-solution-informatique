@@ -29,6 +29,15 @@
         "definition-list": "off",
         "list": "off"
       }
+    ],
+    "compat-api/css": [
+      "default",
+      {
+        "ignore": [
+          "backdrop-filter",
+          "border-color: color-mix(in srgb, var(--color-cyan) 45%, var(--color-bordure))"
+        ]
+      }
     ]
   }
 }

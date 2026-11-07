@@ -21,7 +21,8 @@ class DefinitionSpecification(Base, Horodatage):
     """Définition d'une caractéristique technique, gérée par l'admin.
 
     Les produits stockent leurs valeurs dans la colonne JSONB `caracteristiques`
-    en utilisant la `cle` de ces définitions.
+    en utilisant la `cle` de ces définitions. `types` limite la caractéristique à
+    certains types de produits (liste de slugs) ; vide ou NULL = tous les types.
     """
 
     __tablename__ = "definitions_specifications"
@@ -37,5 +38,6 @@ class DefinitionSpecification(Base, Horodatage):
     )
     unite: Mapped[str | None] = mapped_column(String(20), nullable=True)
     options: Mapped[list | None] = mapped_column(JSON_VARIANT, nullable=True)
+    types: Mapped[list | None] = mapped_column(JSON_VARIANT, nullable=True)
     ordre: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     actif: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)

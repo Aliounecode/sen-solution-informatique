@@ -1,11 +1,13 @@
+import secrets
+
 from fastapi import HTTPException, status
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
-from ..modeles import Categorie, ImageProduit, Produit, TypeProduit
+from ..modeles import Categorie, ImageProduit, Produit
 from ..schemas.produit import ImageProduitCreer, ProduitCreer, ProduitModifier
 from ..utilitaires import slug_unique
-import secrets
+from . import service_type_produit
 
 TRIS = {
     "recent": Produit.cree_le.desc(),
@@ -20,12 +22,30 @@ def _valider_categorie(session: Session, categorie_id: int) -> None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Catégorie introuvable")
 
 
+def _valider_type(session: Session, type_produit: str) -> None:
+    if not service_type_produit.existe(session, type_produit):
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Type de produit inconnu")
+
+
 def _reference_disponible(session: Session, reference: str, exclure_id: int | None = None) -> None:
     requete = select(Produit).where(Produit.reference == reference)
     if exclure_id is not None:
         requete = requete.where(Produit.id != exclure_id)
     if session.scalar(requete) is not None:
         raise HTTPException(status.HTTP_409_CONFLICT, "Cette référence produit est déjà utilisée")
+
+
+def _reference_auto(session: Session, produit_id: int) -> str:
+    base = f"SSI-{produit_id:05d}"
+    reference = base
+    suffixe = 2
+    while session.scalar(
+        select(Produit).where(Produit.reference == reference, Produit.id != produit_id)
+    ) is not None:
+        reference = f"{base}-{suffixe}"
+        suffixe += 1
+    return reference
+
 
 def _ids_categorie_et_descendants(session: Session, categorie_id: int) -> list[int]:
     """Renvoie l'id de la catégorie et ceux de toutes ses sous-catégories."""
@@ -41,11 +61,12 @@ def _ids_categorie_et_descendants(session: Session, categorie_id: int) -> list[i
         pile.extend(enfants.get(courant, []))
     return resultat
 
+
 def lister(
     session: Session,
     *,
     categorie_id: int | None = None,
-    type_produit: TypeProduit | None = None,
+    type_produit: str | None = None,
     recherche: str | None = None,
     en_vedette: bool | None = None,
     en_promo: bool | None = None,
@@ -62,9 +83,8 @@ def lister(
     if categorie_id is not None:
         ids = _ids_categorie_et_descendants(session, categorie_id)
         conditions.append(Produit.categorie_id.in_(ids))
-    if type_produit is not None:
+    if type_produit:
         conditions.append(Produit.type_produit == type_produit)
-    
     if en_vedette is not None:
         conditions.append(Produit.en_vedette.is_(en_vedette))
     if en_promo:
@@ -127,20 +147,9 @@ def obtenir(session: Session, produit_id: int) -> Produit:
     return produit
 
 
-def _reference_auto(session: Session, produit_id: int) -> str:
-    base = f"SSI-{produit_id:05d}"
-    reference = base
-    suffixe = 2
-    while session.scalar(
-        select(Produit).where(Produit.reference == reference, Produit.id != produit_id)
-    ) is not None:
-        reference = f"{base}-{suffixe}"
-        suffixe += 1
-    return reference
-
-
 def creer(session: Session, donnees: ProduitCreer) -> Produit:
     _valider_categorie(session, donnees.categorie_id)
+    _valider_type(session, donnees.type_produit)
     reference = (donnees.reference or "").strip()
     if reference:
         _reference_disponible(session, reference)
@@ -155,6 +164,7 @@ def creer(session: Session, donnees: ProduitCreer) -> Produit:
         description=donnees.description,
         prix=donnees.prix,
         prix_promo=donnees.prix_promo,
+        promo_active=donnees.promo_active,
         quantite_stock=donnees.quantite_stock,
         caracteristiques=donnees.caracteristiques or {},
         en_vedette=donnees.en_vedette,
@@ -173,6 +183,8 @@ def modifier(session: Session, produit_id: int, donnees: ProduitModifier) -> Pro
     valeurs = donnees.model_dump(exclude_unset=True)
     if "categorie_id" in valeurs and valeurs["categorie_id"] is not None:
         _valider_categorie(session, valeurs["categorie_id"])
+    if "type_produit" in valeurs and valeurs["type_produit"] is not None:
+        _valider_type(session, valeurs["type_produit"])
     if "reference" in valeurs and valeurs["reference"]:
         _reference_disponible(session, valeurs["reference"].strip(), exclure_id=produit_id)
         produit.reference = valeurs["reference"].strip()
@@ -181,7 +193,7 @@ def modifier(session: Session, produit_id: int, donnees: ProduitModifier) -> Pro
         produit.slug = slug_unique(session, Produit, produit.nom, exclure_id=produit_id)
     for champ in (
         "categorie_id", "type_produit", "marque", "modele", "description",
-        "prix", "prix_promo","promo_active", "quantite_stock", "caracteristiques",
+        "prix", "prix_promo", "promo_active", "quantite_stock", "caracteristiques",
         "en_vedette", "actif",
     ):
         if champ in valeurs:
@@ -224,6 +236,7 @@ def supprimer_image(session: Session, image_id: int) -> str | None:
     session.delete(image)
     session.commit()
     return public_id
+
 
 def prix_effectif(produit: Produit) -> int:
     if produit.promo_active and produit.prix_promo is not None:

@@ -1,7 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field
 
-from ..modeles import TypeProduit
-
 
 class ImageProduitCreer(BaseModel):
     url: str = Field(min_length=5, max_length=500)
@@ -24,7 +22,7 @@ class ProduitCreer(BaseModel):
     reference: str | None = Field(default=None, max_length=60)
     nom: str = Field(min_length=2, max_length=200)
     categorie_id: int
-    type_produit: TypeProduit
+    type_produit: str = Field(min_length=1, max_length=60)
     marque: str | None = Field(default=None, max_length=80)
     modele: str | None = Field(default=None, max_length=120)
     description: str | None = None
@@ -41,7 +39,7 @@ class ProduitModifier(BaseModel):
     reference: str | None = Field(default=None, min_length=1, max_length=60)
     nom: str | None = Field(default=None, min_length=2, max_length=200)
     categorie_id: int | None = None
-    type_produit: TypeProduit | None = None
+    type_produit: str | None = Field(default=None, min_length=1, max_length=60)
     marque: str | None = None
     modele: str | None = None
     description: str | None = None
@@ -62,7 +60,7 @@ class ProduitResume(BaseModel):
     nom: str
     slug: str
     categorie_id: int
-    type_produit: TypeProduit
+    type_produit: str
     marque: str | None
     prix: int
     prix_promo: int | None

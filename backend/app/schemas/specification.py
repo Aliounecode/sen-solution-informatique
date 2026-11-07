@@ -10,6 +10,7 @@ class SpecificationCreer(BaseModel):
     type_valeur: TypeValeur = TypeValeur.texte
     unite: str | None = Field(default=None, max_length=20)
     options: list[str] | None = None
+    types: list[str] | None = None  # slugs de types ; vide = tous
     ordre: int = 0
     actif: bool = True
 
@@ -20,6 +21,7 @@ class SpecificationModifier(BaseModel):
     type_valeur: TypeValeur | None = None
     unite: str | None = None
     options: list[str] | None = None
+    types: list[str] | None = None
     ordre: int | None = None
     actif: bool | None = None
 
@@ -34,5 +36,6 @@ class SpecificationPublic(BaseModel):
     type_valeur: TypeValeur
     unite: str | None
     options: list[str] | None
+    types: list[str] | None
     ordre: int
     actif: bool

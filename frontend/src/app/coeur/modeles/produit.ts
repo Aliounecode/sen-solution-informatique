@@ -1,4 +1,5 @@
-export type TypeProduit = 'ordinateur' | 'accessoire';
+/** Slug d'un type de produit (« ordinateur », « accessoire », « console »…). Géré en base. */
+export type TypeProduit = string;
 
 export interface ImageProduit {
   id: number;

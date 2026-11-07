@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
+import { retourSecurise } from '../../coeur/retour';
 import { AuthentificationService } from '../../coeur/services/authentification';
 
 @Component({
@@ -11,6 +12,9 @@ import { AuthentificationService } from '../../coeur/services/authentification';
 export class Connexion {
   private readonly auth = inject(AuthentificationService);
   private readonly routeur = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+
+  protected readonly retour = retourSecurise(this.route.snapshot.queryParamMap.get('retour'));
 
   protected readonly email = signal('');
   protected readonly motDePasse = signal('');
@@ -27,12 +31,8 @@ export class Connexion {
     this.erreur.set(null);
     try {
       await this.auth.connexion(this.email().trim(), this.motDePasse());
-      if (this.auth.estAdmin()) {
-        this.auth.deconnexion(false);
-        this.erreur.set('E-mail ou mot de passe incorrect.');
-        return;
-      }
-      this.routeur.navigateByUrl('/mon-compte');
+      const cible = this.auth.estAdmin() ? '/admin' : (this.retour ?? '/mon-compte');
+      this.routeur.navigateByUrl(cible);
     } catch (erreur: any) {
       this.erreur.set(erreur?.error?.detail ?? 'E-mail ou mot de passe incorrect.');
     } finally {

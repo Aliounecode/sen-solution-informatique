@@ -1,0 +1,220 @@
+<article
+  class="mx-auto max-w-3xl px-4 py-10 md:px-6 [&_h2]:mt-8 [&_h2]:font-display [&_h2]:text-xl [&_h2]:font-semibold [&_p]:mt-2 [&_p]:text-sm [&_p]:leading-relaxed [&_ul]:mt-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:text-sm [&_li]:mt-1"
+>
+  @switch (type()) {
+    @case ('mentions') {
+      <h1 class="font-display text-3xl font-bold">Mentions légales</h1>
+      <p class="text-encre-attenue">Dernière mise à jour : {{ l.dernierMaj }}</p>
+
+      <h2>Éditeur du site</h2>
+      <p>
+        {{ l.raisonSociale }} — {{ l.formeJuridique }}<br />
+        Adresse : {{ l.adresse }}<br />
+        Téléphone : {{ l.telephone }} · E-mail : {{ l.email }}<br />
+        NINEA : {{ l.ninea }} · RCCM : {{ l.rccm }}
+      </p>
+      <p>Directeur de la publication : {{ l.directeurPublication }}</p>
+
+      <h2>Hébergement</h2>
+      <ul>
+        <li>Site (interface) : {{ l.hebergeurSite }}</li>
+        <li>Serveur applicatif : {{ l.hebergeurApi }}</li>
+        <li>Base de données : {{ l.baseDeDonnees }}</li>
+      </ul>
+
+      <h2>Propriété intellectuelle</h2>
+      <p>
+        Les textes, visuels, logos et le design de ce site sont la propriété de
+        {{ l.raisonSociale }}
+        ou de leurs titulaires respectifs. Toute reproduction sans autorisation écrite est
+        interdite. Les marques citées appartiennent à leurs propriétaires.
+      </p>
+
+      <h2>Responsabilité</h2>
+      <p>
+        Nous veillons à l'exactitude des informations (prix, disponibilité, descriptions) mais ne
+        pouvons garantir l'absence d'erreur. Les photos sont non contractuelles. L'assistant virtuel
+        fournit des réponses automatiques à titre indicatif : seule la confirmation de la boutique
+        fait foi.
+      </p>
+
+      <h2>Données personnelles</h2>
+      <p>
+        Voir notre
+        <a routerLink="/politique-confidentialite" class="text-cyan underline"
+          >politique de confidentialité</a
+        >.
+      </p>
+
+      <h2>Droit applicable</h2>
+      <p>
+        Le présent site est soumis au droit sénégalais. Tout litige relève des tribunaux compétents
+        de Dakar.
+      </p>
+    }
+
+    @case ('confidentialite') {
+      <h1 class="font-display text-3xl font-bold">Politique de confidentialité</h1>
+      <p class="text-encre-attenue">Dernière mise à jour : {{ l.dernierMaj }}</p>
+
+      <h2>Responsable du traitement</h2>
+      <p>{{ l.raisonSociale }}, {{ l.adresse }} — {{ l.email }} — {{ l.telephone }}.</p>
+
+      <h2>Données collectées</h2>
+      <ul>
+        <li>
+          Compte : nom, e-mail, téléphone, mot de passe (stocké uniquement sous forme chiffrée
+          irréversible).
+        </li>
+        <li>Commandes : nom, téléphone, e-mail, adresse de livraison, produits commandés.</li>
+        <li>
+          Dépannage : coordonnées, type d'appareil et description de la panne, devis et suivi.
+        </li>
+        <li>Assistant virtuel : les messages que vous saisissez.</li>
+      </ul>
+
+      <h2>Finalités et base légale</h2>
+      <ul>
+        <li>
+          Exécuter votre commande ou votre demande de dépannage et en assurer le suivi (exécution du
+          contrat).
+        </li>
+        <li>Gérer votre compte et sécuriser l'accès (intérêt légitime).</li>
+        <li>
+          Vous envoyer des e-mails de confirmation et de changement de statut (exécution du
+          contrat).
+        </li>
+        <li>Répondre à vos questions via l'assistant virtuel.</li>
+      </ul>
+      <p>Nous ne vendons pas vos données et ne les utilisons pas à des fins de publicité ciblée.</p>
+
+      <h2>Prestataires (sous-traitants)</h2>
+      <ul>
+        <li>Hébergement : Vercel (interface), Render (serveur), Neon (base de données).</li>
+        <li>Envoi d'e-mails : Brevo.</li>
+        <li>Stockage des images : Cloudinary.</li>
+        <li>
+          Assistant virtuel : Anthropic (vos messages lui sont transmis pour générer la réponse).
+          Évitez d'y saisir des informations personnelles ou sensibles.
+        </li>
+      </ul>
+      <p>
+        Certains de ces prestataires sont situés hors du Sénégal ; ils traitent les données pour
+        notre compte.
+      </p>
+
+      <h2>Cookies et stockage local</h2>
+      <p>
+        Le site n'utilise aucun cookie publicitaire ni outil de mesure d'audience. Il enregistre
+        dans votre navigateur uniquement des données techniques nécessaires à son fonctionnement :
+        session de connexion, contenu du panier et préférence de thème (clair/sombre).
+      </p>
+
+      <h2>Durée de conservation</h2>
+      <p>
+        Les données du compte sont conservées tant que le compte est actif. Les données de commande
+        et de dépannage sont conservées le temps nécessaire au suivi, à la garantie et aux
+        obligations comptables légales. Durées exactes : À COMPLÉTER.
+      </p>
+
+      <h2>Vos droits</h2>
+      <p>
+        Conformément à la loi sénégalaise n° 2008-12 sur la protection des données à caractère
+        personnel, vous disposez d'un droit d'accès, de rectification, d'opposition et de
+        suppression. Pour l'exercer, écrivez à {{ l.email }}. Vous pouvez aussi saisir la
+        {{ l.autoriteDonnees }}.
+      </p>
+
+      <h2>Sécurité</h2>
+      <p>
+        Connexion chiffrée (HTTPS), mots de passe hachés, accès aux demandes et commandes limité à
+        leur propriétaire et au personnel autorisé.
+      </p>
+    }
+
+    @case ('cgv') {
+      <h1 class="font-display text-3xl font-bold">Conditions générales de vente</h1>
+      <p class="text-encre-attenue">Dernière mise à jour : {{ l.dernierMaj }}</p>
+
+      <h2>1. Objet</h2>
+      <p>
+        Les présentes conditions régissent la vente de matériel informatique et d'accessoires et la
+        fourniture de services de dépannage par {{ l.raisonSociale }} via ce site.
+      </p>
+
+      <h2>2. Compte client</h2>
+      <p>
+        La commande d'un produit et la demande de dépannage nécessitent un compte. Vous êtes
+        responsable de la confidentialité de vos identifiants.
+      </p>
+
+      <h2>3. Prix</h2>
+      <p>
+        Les prix sont indiqués en francs CFA (FCFA). Les promotions sont valables dans la limite des
+        stocks ou de la durée indiquée.
+      </p>
+
+      <h2>4. Commande</h2>
+      <p>
+        La commande est enregistrée au statut « nouvelle », puis validée ou refusée par la boutique
+        après vérification de la disponibilité. Un e-mail vous informe des changements de statut.
+        Vous pouvez annuler vous-même une commande tant qu'elle est « nouvelle ».
+      </p>
+
+      <h2>5. Paiement</h2>
+      <p>
+        Modes de paiement acceptés : espèces, Orange Money, Wave (À COMPLÉTER si d'autres). Le
+        paiement est exigible selon les modalités confirmées par la boutique.
+      </p>
+
+      <h2>6. Livraison et retrait</h2>
+      <p>
+        Retrait en boutique ou livraison selon les conditions et frais communiqués lors de la
+        confirmation. Les délais sont indicatifs.
+      </p>
+
+      <h2>7. Retours et garantie</h2>
+      <ul>
+        <li>
+          Délai de retour : {{ l.delaiRetourJours }} jours, produit non utilisé et dans son
+          emballage d'origine.
+        </li>
+        <li>Garantie matériel : {{ l.garantieMateriel }}.</li>
+        <li>
+          La garantie ne couvre pas les dommages liés à une mauvaise utilisation, un choc, un
+          liquide ou une intervention tierce.
+        </li>
+      </ul>
+
+      <h2>8. Services de dépannage</h2>
+      <ul>
+        <li>
+          La demande est suivie par statuts : reçue, diagnostic, devis, en réparation, prête,
+          livrée.
+        </li>
+        <li>
+          Un diagnostic précède tout devis ; les travaux ne commencent qu'après votre acceptation du
+          devis. Vous pouvez le refuser, la demande est alors clôturée.
+        </li>
+        <li>Garantie de réparation : {{ l.garantieReparation }}.</li>
+        <li>
+          Sauvegardez vos données avant le dépôt : nous ne pouvons garantir leur conservation. Un
+          appareil non récupéré après notification peut entraîner des frais de stockage : À
+          COMPLÉTER.
+        </li>
+      </ul>
+
+      <h2>9. Responsabilité</h2>
+      <p>
+        Notre responsabilité est limitée au montant de la commande ou de la prestation concernée,
+        sauf faute lourde ou disposition légale contraire.
+      </p>
+
+      <h2>10. Réclamations et droit applicable</h2>
+      <p>
+        Contact : {{ l.email }} / {{ l.telephone }}. Droit sénégalais ; tribunaux compétents de
+        Dakar.
+      </p>
+    }
+  }
+</article>

@@ -1,148 +1,111 @@
-<div>
-  <div class="flex flex-wrap items-center justify-between gap-4">
+<div class="mx-auto max-w-7xl">
+  <div class="flex flex-wrap items-end justify-between gap-4">
     <div>
-      <h1 class="font-display text-2xl font-bold">Produits</h1>
-      <p class="mt-1 font-corps text-sm text-encre-attenue">
-        {{ total() }} produit(s) au catalogue.
-      </p>
+      <h1 class="font-display text-2xl font-bold md:text-3xl">Produits</h1>
+      <p class="mt-1 text-sm text-encre-attenue">{{ total() }} produit(s) au catalogue</p>
     </div>
     <a routerLink="/admin/produits/nouveau" class="admin-bouton">+ Nouveau produit</a>
   </div>
 
   <!-- Filtres -->
-  <div class="mt-6 flex flex-col gap-3 md:flex-row md:items-center">
-    <div class="flex flex-1 gap-2">
-      <input
-        type="search"
-        placeholder="Rechercher (nom, référence, marque…)"
-        [value]="recherche()"
-        (input)="recherche.set($any($event.target).value)"
-        (keyup.enter)="appliquer()"
-        class="admin-champ"
-      />
-      <button type="button" (click)="appliquer()" class="admin-bouton">OK</button>
-    </div>
-    <select (change)="surCategorie($any($event.target).value)" class="admin-champ md:w-56">
-      <option value="">Toutes catégories</option>
+  <div class="admin-carte mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <input type="search" placeholder="Rechercher (nom, référence, marque)…" [value]="recherche()"
+           (input)="recherche.set($any($event.target).value)" (keydown.enter)="appliquer()"
+           class="admin-champ lg:col-span-2" />
+    <select [value]="categorieId() ?? ''" (change)="surCategorie($any($event.target).value)" class="admin-champ">
+      <option value="">Toutes les catégories</option>
       @for (c of categories(); track c.id) {
         <option [value]="c.id">{{ c.nom }}</option>
       }
     </select>
-    <select (change)="surType($any($event.target).value)" class="admin-champ md:w-48">
-      <option value="">Tous types</option>
-      <option value="ordinateur">Ordinateurs</option>
-      <option value="accessoire">Accessoires</option>
+    <select [value]="typeProduit()" (change)="surType($any($event.target).value)" class="admin-champ">
+      <option value="">Tous les types</option>
+      @for (t of types(); track t.slug) {
+        <option [value]="t.slug">{{ t.libelle }}</option>
+      }
     </select>
   </div>
 
-  <!-- Tableau -->
-  @if (chargement()) {
-    <p class="mt-8 font-corps text-sm text-encre-attenue">Chargement…</p>
+  @if (chargement() && produits().length === 0) {
+    <div class="adm-squelette mt-6 h-80"></div>
   } @else if (produits().length === 0) {
-    <p class="mt-8 font-corps text-sm text-encre-attenue">Aucun produit.</p>
+    <div class="admin-carte mt-6 text-center text-sm text-encre-attenue">Aucun produit trouvé.</div>
   } @else {
-    <div class="mt-6 admin-carte !p-0 overflow-hidden">
-      <table class="w-full text-left text-sm">
-        <thead
-          class="border-b border-bordure/70 font-corps text-xs uppercase tracking-wide text-encre-attenue"
-        >
-          <tr>
-            <th class="p-3">Produit</th>
-            <th class="p-3 hidden md:table-cell">Type</th>
-            <th class="p-3">Prix</th>
-            <th class="p-3">Stock</th>
-            <th class="p-3">État</th>
-            <th class="p-3 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (produit of produits(); track produit.id) {
-            <tr class="border-b border-bordure/40 last:border-0 hover:bg-surface-2/40">
-              <td class="p-3">
-                <div class="flex items-center gap-3">
-                  <div
-                    class="h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-bordure bg-surface-2"
-                  >
-                    @if (imagePrincipale(produit); as url) {
-                      <img [src]="url" [alt]="produit.nom" class="h-full w-full object-cover" />
-                    }
-                  </div>
-                  <div class="min-w-0">
-                    <p class="truncate font-corps font-medium">{{ produit.nom }}</p>
-                    <p class="font-mono text-xs text-encre-attenue">{{ produit.reference }}</p>
-                  </div>
-                </div>
-              </td>
-              <td class="p-3 hidden md:table-cell font-corps text-encre-attenue">
-                {{ produit.type_produit }}
-              </td>
-              <td class="p-3 font-mono">
-                {{
-                  (produit.promo_active && produit.prix_promo != null
-                    ? produit.prix_promo
-                    : produit.prix
-                  ) | fcfa
-                }}
-                @if (produit.promo_active && produit.prix_promo != null) {
-                  <span class="text-xs text-cyan">promo</span>
-                }
-              </td>
-              <td class="p-3">
-                <span [class.text-orange]="produit.quantite_stock === 0">{{
-                  produit.quantite_stock
-                }}</span>
-              </td>
-              <td class="p-3">
-                @if (produit.actif) {
-                  <span class="admin-badge !border-vert/50 !text-vert">actif</span>
-                } @else {
-                  <span class="admin-badge">masqué</span>
-                }
-              </td>
-              <td class="p-3">
-                <div class="flex justify-end gap-2">
-                  <a
-                    [routerLink]="['/admin/produits', produit.id]"
-                    class="admin-bouton-fantome !py-1"
-                    >Éditer</a
-                  >
-                  <button
-                    type="button"
-                    (click)="supprimer(produit)"
-                    class="admin-bouton-fantome !py-1 hover:!border-orange/60 hover:!text-orange"
-                  >
-                    Suppr.
-                  </button>
-                </div>
-              </td>
+    <div class="admin-carte mt-6 !p-0 overflow-hidden" [class.opacity-60]="chargement()">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="text-xs uppercase tracking-wide text-encre-attenue">
+            <tr>
+              <th class="p-3 pl-5">Produit</th>
+              <th class="hidden p-3 md:table-cell">Type</th>
+              <th class="p-3">Prix</th>
+              <th class="p-3">Stock</th>
+              <th class="hidden p-3 sm:table-cell">État</th>
+              <th class="p-3 pr-5 text-right">Actions</th>
             </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            @for (produit of produits(); track produit.id) {
+              <tr class="border-t border-bordure/50 hover:bg-surface-2/60">
+                <td class="p-3 pl-5">
+                  <div class="flex items-center gap-3">
+                    @if (imagePrincipale(produit); as url) {
+                      <img [src]="url" alt="" class="h-12 w-12 shrink-0 rounded-lg border border-bordure object-cover" />
+                    } @else {
+                      <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-surface-2 text-xs text-encre-attenue">—</span>
+                    }
+                    <div class="min-w-0">
+                      <p class="truncate font-medium">{{ produit.nom }}</p>
+                      <p class="font-mono text-xs text-encre-attenue">{{ produit.reference }}</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="hidden p-3 md:table-cell">
+                  <span class="admin-badge">{{ libelleType(produit.type_produit) }}</span>
+                </td>
+                <td class="p-3 font-mono">
+                  {{ ((produit.promo_active && produit.prix_promo != null) ? produit.prix_promo : produit.prix) | fcfa }}
+                  @if (produit.promo_active && produit.prix_promo != null) {
+                    <span class="adm-statut ml-1" style="--c: var(--adm-c4)">promo</span>
+                  }
+                </td>
+                <td class="p-3">
+                  <span class="adm-statut"
+                        [style.--c]="produit.quantite_stock === 0 ? 'var(--color-orange)' : (produit.quantite_stock <= 3 ? 'var(--adm-c3)' : 'var(--adm-c5)')">
+                    {{ produit.quantite_stock === 0 ? 'Rupture' : produit.quantite_stock }}
+                  </span>
+                </td>
+                <td class="hidden p-3 sm:table-cell">
+                  <span class="adm-statut" [style.--c]="produit.actif ? 'var(--adm-c5)' : 'var(--color-encre-attenue)'">
+                    {{ produit.actif ? 'Actif' : 'Masqué' }}
+                  </span>
+                  @if (produit.en_vedette) {
+                    <span class="adm-statut ml-1" style="--c: var(--adm-c1)">vedette</span>
+                  }
+                </td>
+                <td class="p-3 pr-5">
+                  <div class="flex justify-end gap-2">
+                    <a [routerLink]="['/admin/produits', produit.id]" class="admin-bouton-fantome !py-1">Éditer</a>
+                    <button type="button" (click)="supprimer(produit)"
+                            class="admin-bouton-fantome !py-1 hover:!border-orange/60 hover:!text-orange">Suppr.</button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
 
-    @if (nombrePages() > 1) {
-      <div class="mt-6 flex items-center justify-center gap-4">
-        <button
-          type="button"
-          (click)="allerPage(page() - 1)"
-          [disabled]="page() <= 1"
-          class="admin-bouton-fantome disabled:opacity-40"
-        >
-          ← Précédent
-        </button>
-        <span class="font-corps text-sm text-encre-attenue"
-          >Page {{ page() }} / {{ nombrePages() }}</span
-        >
-        <button
-          type="button"
-          (click)="allerPage(page() + 1)"
-          [disabled]="page() >= nombrePages()"
-          class="admin-bouton-fantome disabled:opacity-40"
-        >
-          Suivant →
-        </button>
+    <!-- Pagination -->
+    <div class="mt-4 flex items-center justify-between text-sm text-encre-attenue">
+      <span>Page {{ page() }} / {{ nombrePages() }}</span>
+      <div class="flex gap-2">
+        <button type="button" (click)="allerPage(page() - 1)" [disabled]="page() <= 1"
+                class="admin-bouton-fantome disabled:opacity-40">← Précédent</button>
+        <button type="button" (click)="allerPage(page() + 1)" [disabled]="page() >= nombrePages()"
+                class="admin-bouton-fantome disabled:opacity-40">Suivant →</button>
       </div>
-    }
+    </div>
   }
 </div>

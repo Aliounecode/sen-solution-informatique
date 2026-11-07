@@ -1,9 +1,6 @@
-import enum
-
 from sqlalchemy import (
     JSON,
     Boolean,
-    Enum,
     ForeignKey,
     Integer,
     String,
@@ -18,11 +15,6 @@ from .base import Base, Horodatage
 JSON_VARIANT = JSON().with_variant(JSONB(), "postgresql")
 
 
-class TypeProduit(str, enum.Enum):
-    ordinateur = "ordinateur"
-    accessoire = "accessoire"
-
-
 class Produit(Base, Horodatage):
     __tablename__ = "produits"
 
@@ -33,16 +25,14 @@ class Produit(Base, Horodatage):
     categorie_id: Mapped[int] = mapped_column(
         ForeignKey("categories.id", ondelete="RESTRICT"), nullable=False, index=True
     )
-    type_produit: Mapped[TypeProduit] = mapped_column(
-        Enum(TypeProduit, name="type_produit"), nullable=False
-    )
+    # Slug d'un TypeDeProduit (ordinateur, accessoire, console…)
+    type_produit: Mapped[str] = mapped_column(String(60), index=True, nullable=False)
     marque: Mapped[str | None] = mapped_column(String(80), nullable=True)
     modele: Mapped[str | None] = mapped_column(String(120), nullable=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     prix: Mapped[int] = mapped_column(Integer, nullable=False)  # en FCFA (entier)
     prix_promo: Mapped[int | None] = mapped_column(Integer, nullable=True)
     promo_active: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-
     quantite_stock: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     caracteristiques: Mapped[dict] = mapped_column(
         JSON_VARIANT, default=dict, server_default=text("'{}'"), nullable=False

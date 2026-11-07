@@ -8,9 +8,25 @@ class ProduitPopulaire(BaseModel):
     quantite: int
 
 
+# Ancien nom conservé au cas où un autre fichier l'importerait encore
+TopProduit = ProduitPopulaire
+
+
 class VenteJour(BaseModel):
     jour: date
     montant: int
+
+
+class ActiviteJour(BaseModel):
+    jour: date
+    commandes: int
+    demandes: int
+
+
+class RepartitionType(BaseModel):
+    slug: str
+    libelle: str
+    nombre: int
 
 
 class ProduitStockFaible(BaseModel):
@@ -52,3 +68,9 @@ class StatistiquesResume(BaseModel):
     stock_faible: list[ProduitStockFaible]
     commandes_recentes: list[CommandeRecente]
     demandes_recentes: list[DemandeRecente]
+    # --- Ajouts pour le nouveau tableau de bord ---
+    ventes_30_jours: list[VenteJour]
+    activite_30_jours: list[ActiviteJour]
+    ca_30_jours: int
+    ca_30_jours_precedents: int
+    repartition_types: list[RepartitionType]

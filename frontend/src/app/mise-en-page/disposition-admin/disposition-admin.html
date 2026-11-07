@@ -1,65 +1,97 @@
-<div class="min-h-screen bg-fond md:flex">
+<div class="adm md:flex" [class.theme-sombre]="theme.estSombre()" [class.theme-clair]="!theme.estSombre()">
+  <!-- Voile mobile -->
+  @if (menuOuvert()) {
+    <button type="button" aria-label="Fermer le menu" (click)="menuOuvert.set(false)"
+            class="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm md:hidden"></button>
+  }
+
   <!-- Barre latérale -->
-  <aside
-    class="md:sticky md:top-0 md:h-screen md:w-64 md:shrink-0 border-b border-bordure/70 md:border-b-0 md:border-r bg-surface-2/60 backdrop-blur"
-  >
-    <div class="flex items-center justify-between p-4">
-      <a routerLink="/admin" class="flex items-center gap-2">
-        <span class="rounded-lg bg-cyan px-2 py-1 font-display text-sm font-bold text-fond"
-          >SSI</span
-        >
-        <span class="font-corps text-sm font-semibold">Back-office</span>
+  <aside class="adm-lateral fixed inset-y-0 left-0 z-40 flex w-72 flex-col overflow-y-auto transition-transform duration-300 md:sticky md:top-0 md:h-screen md:w-64 md:shrink-0 md:translate-x-0"
+         [class.-translate-x-full]="!menuOuvert()">
+    <div class="flex items-center justify-between px-5 py-5">
+      <a routerLink="/admin" class="flex items-center gap-3" (click)="menuOuvert.set(false)">
+        <span class="adm-marque flex h-10 w-10 items-center justify-center rounded-xl font-display text-sm font-bold text-white">SSI</span>
+        <span class="leading-tight">
+          <span class="block font-display text-base font-bold text-white">Sen Solution</span>
+          <span class="block text-xs text-[#8f98bd]">Back-office</span>
+        </span>
       </a>
-      <button
-        type="button"
-        (click)="menuOuvert.set(!menuOuvert())"
-        class="rounded-lg border border-bordure px-3 py-1 font-corps text-sm md:hidden"
-      >
-        Menu
+      <button type="button" (click)="menuOuvert.set(false)" aria-label="Fermer"
+              class="rounded-lg p-1 text-[#aab2d0] hover:text-white md:hidden">
+        <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path [attr.d]="icones.fermer" />
+        </svg>
       </button>
     </div>
 
-    <nav class="px-3 pb-4" [class.hidden]="!menuOuvert()" [class.md:block]="true">
-      <ul class="space-y-1">
-        @for (lien of liens; track lien.chemin) {
-          <li>
-            <a
-              [routerLink]="lien.chemin"
-              (click)="menuOuvert.set(false)"
-              routerLinkActive="admin-lien-actif"
-              [routerLinkActiveOptions]="{ exact: lien.chemin === '/admin' }"
-              class="admin-lien"
-            >
-              <span class="w-5 text-center">{{ lien.icone }}</span>
-              {{ lien.libelle }}
-            </a>
-          </li>
-        }
-      </ul>
-
-      <div class="mt-6 border-t border-bordure/70 pt-4">
-        <a routerLink="/" class="admin-lien"><span class="w-5 text-center">↩</span> Voir le site</a>
-        <button type="button" (click)="auth.deconnexion()" class="admin-lien w-full">
-          <span class="w-5 text-center">⏻</span> Déconnexion
-        </button>
-      </div>
+    <nav class="flex-1 px-3 pb-4" aria-label="Navigation de l'administration">
+      @for (section of sections; track section.titre) {
+        <p class="adm-section-titre">{{ section.titre }}</p>
+        <ul class="space-y-0.5">
+          @for (lien of section.liens; track lien.chemin) {
+            <li>
+              <a [routerLink]="lien.chemin" (click)="menuOuvert.set(false)"
+                 routerLinkActive="admin-lien-actif"
+                 [routerLinkActiveOptions]="{ exact: exact(lien.chemin) }"
+                 class="admin-lien">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path [attr.d]="lien.icone" />
+                </svg>
+                {{ lien.libelle }}
+              </a>
+            </li>
+          }
+        </ul>
+      }
     </nav>
+
+    <div class="border-t border-white/5 p-3">
+      <a routerLink="/" class="admin-lien">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path [attr.d]="icones.site" />
+        </svg>
+        Voir le site
+      </a>
+      <button type="button" (click)="auth.deconnexion()" class="admin-lien">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path [attr.d]="icones.sortie" />
+        </svg>
+        Déconnexion
+      </button>
+    </div>
   </aside>
 
   <!-- Contenu -->
-  <div class="flex-1">
-    <header
-      class="flex items-center justify-between border-b border-bordure/70 bg-surface/60 px-6 py-4 backdrop-blur"
-    >
-      <span class="font-corps text-sm text-encre-attenue"
-        >Administration · Sen Solution Informatique</span
-      >
-      @if (auth.utilisateur(); as u) {
-        <span class="admin-badge">{{ u.nom_complet }}</span>
-      }
+  <div class="min-w-0 flex-1">
+    <header class="adm-barre sticky top-0 z-20 flex items-center justify-between gap-4 px-4 py-3 md:px-8">
+      <div class="flex items-center gap-3">
+        <button type="button" (click)="menuOuvert.set(true)" aria-label="Ouvrir le menu"
+                class="flex h-10 w-10 items-center justify-center rounded-lg border border-bordure text-encre md:hidden">
+          <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <path [attr.d]="icones.menu" />
+          </svg>
+        </button>
+        <div class="leading-tight">
+          <p class="font-display text-lg font-bold">{{ titrePage() }}</p>
+          <p class="hidden text-xs text-encre-attenue sm:block">Administration · Sen Solution Informatique</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <app-bascule-theme />
+        @if (auth.utilisateur(); as u) {
+          <div class="flex items-center gap-2.5">
+            <span class="adm-avatar flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold">{{ initiales() }}</span>
+            <span class="hidden leading-tight sm:block">
+              <span class="block text-sm font-semibold">{{ u.nom_complet }}</span>
+              <span class="block text-xs text-encre-attenue">Administrateur</span>
+            </span>
+          </div>
+        }
+      </div>
     </header>
 
-    <main class="p-6">
+    <main class="p-4 md:p-8">
       <router-outlet />
     </main>
   </div>

@@ -13,4 +13,7 @@ export class Pied {
   protected readonly infos = environnement;
   protected readonly lienTel = `tel:${environnement.telephone.replace(/[^\d+]/g, '')}`;
   protected readonly lienWhatsapp = `https://wa.me/${environnement.whatsapp.replace(/\D/g, '')}`;
+  protected readonly lienCarte =
+    environnement.lienCarte ||
+    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(environnement.adresse)}`;
 }

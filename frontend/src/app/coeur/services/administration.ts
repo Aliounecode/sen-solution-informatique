@@ -5,49 +5,39 @@ import { firstValueFrom } from 'rxjs';
 import { environnement } from '../../../environnements/environnement';
 import { StatistiquesResume } from '../modeles/statistiques';
 import { Categorie } from '../modeles/categorie';
+import { Commande } from '../modeles/commande';
 import { PageProduits, ProduitComplet } from '../modeles/produit';
 import { Specification } from '../modeles/specification';
-import { Commande } from '../modeles/commande';
-import { Demande } from '../modeles/depannage';
+import { TypeDeProduit } from '../modeles/type-produit';
 
 @Injectable({ providedIn: 'root' })
 export class AdministrationService {
   private readonly http = inject(HttpClient);
   private readonly base = environnement.urlApi;
 
-  signatureCloudinary(): Promise<{
-    timestamp: number;
-    signature: string;
-    api_key: string;
-    cloud_name: string;
-    dossier: string;
-  }> {
-    return firstValueFrom(
-      this.http.post<any>(`${this.base}/admin/produits/signature-cloudinary`, {}),
-    );
-  }
-
-  async televerserImageCloudinary(fichier: File): Promise<{ url: string; public_id: string }> {
-    const sig = await this.signatureCloudinary();
-    const form = new FormData();
-    form.append('file', fichier);
-    form.append('api_key', sig.api_key);
-    form.append('timestamp', String(sig.timestamp));
-    form.append('signature', sig.signature);
-    form.append('folder', sig.dossier);
-    // Appel direct à Cloudinary (hors intercepteur : on n'envoie pas notre JWT)
-    const reponse = await fetch(`https://api.cloudinary.com/v1_1/${sig.cloud_name}/image/upload`, {
-      method: 'POST',
-      body: form,
-    });
-    if (!reponse.ok) throw new Error('Téléversement Cloudinary échoué');
-    const data = await reponse.json();
-    return { url: data.secure_url, public_id: data.public_id };
-  }
-
   // ---- Statistiques ----
   statistiques(): Promise<StatistiquesResume> {
     return firstValueFrom(this.http.get<StatistiquesResume>(`${this.base}/admin/statistiques`));
+  }
+
+  // ---- Types de produits (ordinateur, accessoire, console…) ----
+  listerTypes(): Promise<TypeDeProduit[]> {
+    return firstValueFrom(this.http.get<TypeDeProduit[]>(`${this.base}/admin/types`));
+  }
+
+  creerType(donnees: { libelle: string; ordre?: number; actif?: boolean }): Promise<TypeDeProduit> {
+    return firstValueFrom(this.http.post<TypeDeProduit>(`${this.base}/admin/types`, donnees));
+  }
+
+  modifierType(
+    id: number,
+    donnees: { libelle?: string; ordre?: number; actif?: boolean },
+  ): Promise<TypeDeProduit> {
+    return firstValueFrom(this.http.put<TypeDeProduit>(`${this.base}/admin/types/${id}`, donnees));
+  }
+
+  supprimerType(id: number): Promise<void> {
+    return firstValueFrom(this.http.delete<void>(`${this.base}/admin/types/${id}`));
   }
 
   // ---- Catégories ----
@@ -55,11 +45,6 @@ export class AdministrationService {
     return firstValueFrom(this.http.get<Categorie[]>(`${this.base}/admin/categories`));
   }
 
-  // ---- Spécifications (définitions) ----
-  listerSpecifications(): Promise<Specification[]> {
-    return firstValueFrom(this.http.get<Specification[]>(`${this.base}/admin/specifications`));
-  }
-  // ---- Catégories (CRUD) ----
   creerCategorie(donnees: Record<string, unknown>): Promise<Categorie> {
     return firstValueFrom(this.http.post<Categorie>(`${this.base}/admin/categories`, donnees));
   }
@@ -72,7 +57,11 @@ export class AdministrationService {
     return firstValueFrom(this.http.delete<void>(`${this.base}/admin/categories/${id}`));
   }
 
-  // ---- Spécifications (CRUD) ----
+  // ---- Spécifications (définitions) ----
+  listerSpecifications(): Promise<Specification[]> {
+    return firstValueFrom(this.http.get<Specification[]>(`${this.base}/admin/specifications`));
+  }
+
   creerSpecification(donnees: Record<string, unknown>): Promise<Specification> {
     return firstValueFrom(
       this.http.post<Specification>(`${this.base}/admin/specifications`, donnees),
@@ -88,183 +77,24 @@ export class AdministrationService {
   supprimerSpecification(id: number): Promise<void> {
     return firstValueFrom(this.http.delete<void>(`${this.base}/admin/specifications/${id}`));
   }
-  // ---- Commandes ----
-  listerCommandes(
-    filtres: { statut?: string; recherche?: string; page?: number; taille?: number } = {},
-  ): Promise<{
-    total: number;
-    page: number;
-    taille: number;
-    elements: Commande[];
-  }> {
-    let params = new HttpParams();
-    for (const [cle, valeur] of Object.entries(filtres)) {
-      if (valeur !== undefined && valeur !== null && valeur !== '')
-        params = params.set(cle, String(valeur));
-    }
-    return firstValueFrom(
-      this.http.get<{ total: number; page: number; taille: number; elements: Commande[] }>(
-        `${this.base}/admin/commandes`,
-        { params },
-      ),
-    );
-  }
-
-  obtenirCommande(id: number): Promise<
-    Commande & {
-      id: number;
-      nom_client: string;
-      telephone_client: string;
-      email_client: string | null;
-      note_interne: string | null;
-      client_id: number | null;
-    }
-  > {
-    return firstValueFrom(this.http.get<any>(`${this.base}/admin/commandes/${id}`));
-  }
-
-  changerStatutCommande(id: number, statut: string): Promise<any> {
-    return firstValueFrom(
-      this.http.post<any>(`${this.base}/admin/commandes/${id}/statut`, { statut }),
-    );
-  }
-
-  modifierCommande(
-    id: number,
-    donnees: { moyen_paiement?: string | null; note_interne?: string | null },
-  ): Promise<any> {
-    return firstValueFrom(this.http.put<any>(`${this.base}/admin/commandes/${id}`, donnees));
-  }
-
-  // ---- Demandes de dépannage ----
-  listerDemandes(
-    filtres: {
-      statut?: string;
-      technicien_id?: number;
-      recherche?: string;
-      page?: number;
-      taille?: number;
-    } = {},
-  ): Promise<{
-    total: number;
-    page: number;
-    taille: number;
-    elements: any[];
-  }> {
-    let params = new HttpParams();
-    for (const [cle, valeur] of Object.entries(filtres)) {
-      if (valeur !== undefined && valeur !== null && valeur !== '')
-        params = params.set(cle, String(valeur));
-    }
-    return firstValueFrom(
-      this.http.get<{ total: number; page: number; taille: number; elements: any[] }>(
-        `${this.base}/admin/demandes`,
-        { params },
-      ),
-    );
-  }
-
-  obtenirDemande(id: number): Promise<any> {
-    return firstValueFrom(this.http.get<any>(`${this.base}/admin/demandes/${id}`));
-  }
-
-  changerStatutDemande(id: number, statut: string): Promise<any> {
-    return firstValueFrom(
-      this.http.post<any>(`${this.base}/admin/demandes/${id}/statut`, { statut }),
-    );
-  }
-
-  modifierDemande(id: number, donnees: Record<string, unknown>): Promise<any> {
-    return firstValueFrom(this.http.put<any>(`${this.base}/admin/demandes/${id}`, donnees));
-  }
-
-  // ---- Techniciens (liste, pour l'affectation) ----
-  listerTechniciens(): Promise<any[]> {
-    return firstValueFrom(this.http.get<any[]>(`${this.base}/admin/techniciens`));
-  }
-  // ---- Prestations (CRUD) ----
-  listerPrestationsAdmin(): Promise<any[]> {
-    return firstValueFrom(this.http.get<any[]>(`${this.base}/admin/prestations`));
-  }
-  creerPrestation(donnees: Record<string, unknown>): Promise<any> {
-    return firstValueFrom(this.http.post<any>(`${this.base}/admin/prestations`, donnees));
-  }
-  modifierPrestation(id: number, donnees: Record<string, unknown>): Promise<any> {
-    return firstValueFrom(this.http.put<any>(`${this.base}/admin/prestations/${id}`, donnees));
-  }
-  supprimerPrestation(id: number): Promise<void> {
-    return firstValueFrom(this.http.delete<void>(`${this.base}/admin/prestations/${id}`));
-  }
-
-  // ---- Techniciens (CRUD) ----
-  creerTechnicien(donnees: Record<string, unknown>): Promise<any> {
-    return firstValueFrom(this.http.post<any>(`${this.base}/admin/techniciens`, donnees));
-  }
-  modifierTechnicien(id: number, donnees: Record<string, unknown>): Promise<any> {
-    return firstValueFrom(this.http.put<any>(`${this.base}/admin/techniciens/${id}`, donnees));
-  }
-  supprimerTechnicien(id: number): Promise<void> {
-    return firstValueFrom(this.http.delete<void>(`${this.base}/admin/techniciens/${id}`));
-  }
-
-  // ---- Utilisateurs ----
-  listerUtilisateurs(
-    filtres: {
-      role?: string;
-      recherche?: string;
-      actif?: boolean;
-      page?: number;
-      taille?: number;
-    } = {},
-  ): Promise<{
-    total: number;
-    page: number;
-    taille: number;
-    elements: any[];
-  }> {
-    let params = new HttpParams();
-    for (const [cle, valeur] of Object.entries(filtres)) {
-      if (valeur !== undefined && valeur !== null && valeur !== '')
-        params = params.set(cle, String(valeur));
-    }
-    return firstValueFrom(
-      this.http.get<{ total: number; page: number; taille: number; elements: any[] }>(
-        `${this.base}/admin/utilisateurs`,
-        { params },
-      ),
-    );
-  }
-  creerUtilisateur(donnees: Record<string, unknown>): Promise<any> {
-    return firstValueFrom(this.http.post<any>(`${this.base}/admin/utilisateurs`, donnees));
-  }
-  modifierUtilisateur(id: number, donnees: Record<string, unknown>): Promise<any> {
-    return firstValueFrom(this.http.put<any>(`${this.base}/admin/utilisateurs/${id}`, donnees));
-  }
-  reinitialiserMotDePasse(id: number, nouveau: string): Promise<any> {
-    return firstValueFrom(
-      this.http.post<any>(`${this.base}/admin/utilisateurs/${id}/reinitialiser-mot-de-passe`, {
-        nouveau_mot_de_passe: nouveau,
-      }),
-    );
-  }
 
   // ---- Produits ----
-  listerProduits(
-    filtres: {
-      categorie_id?: number;
-      type_produit?: string;
-      recherche?: string;
-      page?: number;
-      taille?: number;
-    } = {},
-  ): Promise<PageProduits> {
+  listerProduits(filtres: {
+    categorie_id?: number;
+    type_produit?: string;
+    recherche?: string;
+    page?: number;
+    taille?: number;
+  } = {}): Promise<PageProduits> {
     let params = new HttpParams();
     for (const [cle, valeur] of Object.entries(filtres)) {
       if (valeur !== undefined && valeur !== null && valeur !== '') {
         params = params.set(cle, String(valeur));
       }
     }
-    return firstValueFrom(this.http.get<PageProduits>(`${this.base}/admin/produits`, { params }));
+    return firstValueFrom(
+      this.http.get<PageProduits>(`${this.base}/admin/produits`, { params }),
+    );
   }
 
   obtenirProduit(id: number): Promise<ProduitComplet> {
@@ -272,7 +102,9 @@ export class AdministrationService {
   }
 
   creerProduit(donnees: Record<string, unknown>): Promise<ProduitComplet> {
-    return firstValueFrom(this.http.post<ProduitComplet>(`${this.base}/admin/produits`, donnees));
+    return firstValueFrom(
+      this.http.post<ProduitComplet>(`${this.base}/admin/produits`, donnees),
+    );
   }
 
   modifierProduit(id: number, donnees: Record<string, unknown>): Promise<ProduitComplet> {
@@ -295,6 +127,149 @@ export class AdministrationService {
   }
 
   supprimerImage(imageId: number): Promise<void> {
-    return firstValueFrom(this.http.delete<void>(`${this.base}/admin/produits/images/${imageId}`));
+    return firstValueFrom(
+      this.http.delete<void>(`${this.base}/admin/produits/images/${imageId}`),
+    );
+  }
+
+  signatureCloudinary(): Promise<{ timestamp: number; signature: string; api_key: string; cloud_name: string; dossier: string }> {
+    return firstValueFrom(this.http.post<any>(`${this.base}/admin/produits/signature-cloudinary`, {}));
+  }
+
+  async televerserImageCloudinary(fichier: File): Promise<{ url: string; public_id: string }> {
+    const sig = await this.signatureCloudinary();
+    const form = new FormData();
+    form.append('file', fichier);
+    form.append('api_key', sig.api_key);
+    form.append('timestamp', String(sig.timestamp));
+    form.append('signature', sig.signature);
+    form.append('folder', sig.dossier);
+    // Appel direct à Cloudinary (hors intercepteur : on n'envoie pas notre JWT)
+    const reponse = await fetch(`https://api.cloudinary.com/v1_1/${sig.cloud_name}/image/upload`, {
+      method: 'POST',
+      body: form,
+    });
+    if (!reponse.ok) throw new Error('Téléversement Cloudinary échoué');
+    const data = await reponse.json();
+    return { url: data.secure_url, public_id: data.public_id };
+  }
+
+  // ---- Commandes ----
+  listerCommandes(filtres: { statut?: string; recherche?: string; page?: number; taille?: number } = {}): Promise<{
+    total: number; page: number; taille: number; elements: Commande[];
+  }> {
+    let params = new HttpParams();
+    for (const [cle, valeur] of Object.entries(filtres)) {
+      if (valeur !== undefined && valeur !== null && valeur !== '') params = params.set(cle, String(valeur));
+    }
+    return firstValueFrom(
+      this.http.get<{ total: number; page: number; taille: number; elements: Commande[] }>(
+        `${this.base}/admin/commandes`, { params },
+      ),
+    );
+  }
+
+  obtenirCommande(id: number): Promise<Commande & { id: number; nom_client: string; telephone_client: string; email_client: string | null; note_interne: string | null; client_id: number | null }> {
+    return firstValueFrom(this.http.get<any>(`${this.base}/admin/commandes/${id}`));
+  }
+
+  changerStatutCommande(id: number, statut: string): Promise<any> {
+    return firstValueFrom(this.http.post<any>(`${this.base}/admin/commandes/${id}/statut`, { statut }));
+  }
+
+  modifierCommande(id: number, donnees: { moyen_paiement?: string | null; note_interne?: string | null }): Promise<any> {
+    return firstValueFrom(this.http.put<any>(`${this.base}/admin/commandes/${id}`, donnees));
+  }
+
+  // ---- Demandes de dépannage ----
+  listerDemandes(filtres: { statut?: string; technicien_id?: number; recherche?: string; page?: number; taille?: number } = {}): Promise<{
+    total: number; page: number; taille: number; elements: any[];
+  }> {
+    let params = new HttpParams();
+    for (const [cle, valeur] of Object.entries(filtres)) {
+      if (valeur !== undefined && valeur !== null && valeur !== '') params = params.set(cle, String(valeur));
+    }
+    return firstValueFrom(
+      this.http.get<{ total: number; page: number; taille: number; elements: any[] }>(
+        `${this.base}/admin/demandes`, { params },
+      ),
+    );
+  }
+
+  obtenirDemande(id: number): Promise<any> {
+    return firstValueFrom(this.http.get<any>(`${this.base}/admin/demandes/${id}`));
+  }
+
+  changerStatutDemande(id: number, statut: string): Promise<any> {
+    return firstValueFrom(this.http.post<any>(`${this.base}/admin/demandes/${id}/statut`, { statut }));
+  }
+
+  modifierDemande(id: number, donnees: Record<string, unknown>): Promise<any> {
+    return firstValueFrom(this.http.put<any>(`${this.base}/admin/demandes/${id}`, donnees));
+  }
+
+  // ---- Techniciens ----
+  listerTechniciens(): Promise<any[]> {
+    return firstValueFrom(this.http.get<any[]>(`${this.base}/admin/techniciens`));
+  }
+
+  creerTechnicien(donnees: Record<string, unknown>): Promise<any> {
+    return firstValueFrom(this.http.post<any>(`${this.base}/admin/techniciens`, donnees));
+  }
+
+  modifierTechnicien(id: number, donnees: Record<string, unknown>): Promise<any> {
+    return firstValueFrom(this.http.put<any>(`${this.base}/admin/techniciens/${id}`, donnees));
+  }
+
+  supprimerTechnicien(id: number): Promise<void> {
+    return firstValueFrom(this.http.delete<void>(`${this.base}/admin/techniciens/${id}`));
+  }
+
+  // ---- Prestations (CRUD) ----
+  listerPrestationsAdmin(): Promise<any[]> {
+    return firstValueFrom(this.http.get<any[]>(`${this.base}/admin/prestations`));
+  }
+
+  creerPrestation(donnees: Record<string, unknown>): Promise<any> {
+    return firstValueFrom(this.http.post<any>(`${this.base}/admin/prestations`, donnees));
+  }
+
+  modifierPrestation(id: number, donnees: Record<string, unknown>): Promise<any> {
+    return firstValueFrom(this.http.put<any>(`${this.base}/admin/prestations/${id}`, donnees));
+  }
+
+  supprimerPrestation(id: number): Promise<void> {
+    return firstValueFrom(this.http.delete<void>(`${this.base}/admin/prestations/${id}`));
+  }
+
+  // ---- Utilisateurs ----
+  listerUtilisateurs(filtres: { role?: string; recherche?: string; actif?: boolean; page?: number; taille?: number } = {}): Promise<{
+    total: number; page: number; taille: number; elements: any[];
+  }> {
+    let params = new HttpParams();
+    for (const [cle, valeur] of Object.entries(filtres)) {
+      if (valeur !== undefined && valeur !== null && valeur !== '') params = params.set(cle, String(valeur));
+    }
+    return firstValueFrom(
+      this.http.get<{ total: number; page: number; taille: number; elements: any[] }>(
+        `${this.base}/admin/utilisateurs`, { params },
+      ),
+    );
+  }
+
+  creerUtilisateur(donnees: Record<string, unknown>): Promise<any> {
+    return firstValueFrom(this.http.post<any>(`${this.base}/admin/utilisateurs`, donnees));
+  }
+
+  modifierUtilisateur(id: number, donnees: Record<string, unknown>): Promise<any> {
+    return firstValueFrom(this.http.put<any>(`${this.base}/admin/utilisateurs/${id}`, donnees));
+  }
+
+  reinitialiserMotDePasse(id: number, nouveau: string): Promise<any> {
+    return firstValueFrom(
+      this.http.post<any>(`${this.base}/admin/utilisateurs/${id}/reinitialiser-mot-de-passe`, {
+        nouveau_mot_de_passe: nouveau,
+      }),
+    );
   }
 }

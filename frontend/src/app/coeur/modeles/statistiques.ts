@@ -4,8 +4,20 @@ export interface TopProduit {
 }
 
 export interface VenteJour {
-  jour: string;
+  jour: string; // « 2026-11-05 »
   montant: number;
+}
+
+export interface ActiviteJour {
+  jour: string;
+  commandes: number;
+  demandes: number;
+}
+
+export interface RepartitionType {
+  slug: string;
+  libelle: string;
+  nombre: number;
 }
 
 export interface ProduitStockFaible {
@@ -47,4 +59,9 @@ export interface StatistiquesResume {
   stock_faible: ProduitStockFaible[];
   commandes_recentes: CommandeRecente[];
   demandes_recentes: DemandeRecente[];
+  ventes_30_jours: VenteJour[];
+  activite_30_jours: ActiviteJour[];
+  ca_30_jours: number;
+  ca_30_jours_precedents: number;
+  repartition_types: RepartitionType[];
 }

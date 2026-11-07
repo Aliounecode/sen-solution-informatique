@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { AdministrationService } from '../../../coeur/services/administration';
 import { Categorie } from '../../../coeur/modeles/categorie';
 import { ProduitResume } from '../../../coeur/modeles/produit';
+import { TypeDeProduit } from '../../../coeur/modeles/type-produit';
 import { Fcfa } from '../../../coeur/pipes/fcfa';
 
 @Component({
@@ -16,6 +17,7 @@ export class ProduitsListe implements OnInit {
 
   protected readonly produits = signal<ProduitResume[]>([]);
   protected readonly categories = signal<Categorie[]>([]);
+  protected readonly types = signal<TypeDeProduit[]>([]);
   protected readonly total = signal(0);
   protected readonly chargement = signal(false);
 
@@ -31,7 +33,12 @@ export class ProduitsListe implements OnInit {
 
   async ngOnInit(): Promise<void> {
     try {
-      this.categories.set(await this.admin.listerCategories());
+      const [categories, types] = await Promise.all([
+        this.admin.listerCategories(),
+        this.admin.listerTypes(),
+      ]);
+      this.categories.set(categories);
+      this.types.set(types);
     } catch {
       /* non bloquant */
     }
@@ -76,6 +83,10 @@ export class ProduitsListe implements OnInit {
     if (cible < 1 || cible > this.nombrePages()) return;
     this.page.set(cible);
     await this.charger();
+  }
+
+  protected libelleType(slug: string): string {
+    return this.types().find((t) => t.slug === slug)?.libelle ?? slug;
   }
 
   protected imagePrincipale(produit: ProduitResume): string | null {

@@ -2,7 +2,6 @@ from fastapi import APIRouter, BackgroundTasks, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from ..base_donnees import obtenir_session
-from ..modeles import TypeProduit
 from ..schemas.produit import (
     ImageProduitCreer,
     PageProduits,
@@ -21,7 +20,7 @@ routeur = APIRouter(prefix="/api/produits", tags=["Produits"])
 def liste_publique(
     session: Session = Depends(obtenir_session),
     categorie_id: int | None = None,
-    type_produit: TypeProduit | None = None,
+    type_produit: str | None = None,
     recherche: str | None = None,
     en_vedette: bool | None = None,
     en_promo: bool | None = None,
@@ -51,6 +50,7 @@ def liste_publique(
 def detail_public(slug: str, session: Session = Depends(obtenir_session)):
     return service_produit.obtenir_par_slug(session, slug, actif_seulement=True)
 
+
 @routeur.get("/{slug}/similaires", response_model=list[ProduitResume])
 def produits_similaires(
     slug: str,
@@ -58,11 +58,15 @@ def produits_similaires(
     limite: int = Query(default=4, ge=1, le=12),
 ):
     return service_produit.similaires(session, slug, limite)
+
+
 routeur_admin = APIRouter(
     prefix="/api/admin/produits",
     tags=["Admin · Produits"],
     dependencies=[Depends(exiger_admin)],
 )
+
+
 @routeur_admin.post("/signature-cloudinary")
 def signature_cloudinary():
     """Signature à usage unique pour téléverser une image directement vers Cloudinary."""
@@ -73,7 +77,7 @@ def signature_cloudinary():
 def liste_admin(
     session: Session = Depends(obtenir_session),
     categorie_id: int | None = None,
-    type_produit: TypeProduit | None = None,
+    type_produit: str | None = None,
     recherche: str | None = None,
     page: int = Query(default=1, ge=1),
     taille: int = Query(default=20, ge=1, le=100),

@@ -1,68 +1,44 @@
-<div>
-  <div class="flex flex-wrap items-center justify-between gap-4">
+<div class="mx-auto max-w-6xl">
+  <div class="flex flex-wrap items-end justify-between gap-4">
     <div>
-      <h1 class="font-display text-2xl font-bold">Spécifications</h1>
-      <p class="mt-1 font-corps text-sm text-encre-attenue">
-        Les caractéristiques techniques proposées dans l'éditeur de produit.
+      <h1 class="font-display text-2xl font-bold md:text-3xl">Spécifications</h1>
+      <p class="mt-1 max-w-xl text-sm text-encre-attenue">
+        Les caractéristiques techniques proposées dans l'éditeur de produit, éventuellement réservées à certains types
+        (ex. « Stockage » pour les consoles, « Processeur » pour les ordinateurs).
       </p>
     </div>
-    <button type="button" (click)="ouvrirCreation()" class="admin-bouton">
-      + Nouvelle spécification
-    </button>
+    <button type="button" (click)="ouvrirCreation()" class="admin-bouton">+ Nouvelle spécification</button>
   </div>
 
   @if (formulaireOuvert()) {
-    <div class="mt-6 admin-carte space-y-4">
+    <div class="admin-carte adm-apparait mt-6 space-y-4">
       <h2 class="font-display text-lg font-semibold">
         {{ editionId() != null ? 'Modifier la spécification' : 'Nouvelle spécification' }}
       </h2>
       <div class="grid gap-4 sm:grid-cols-2">
         <div>
-          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue">
-            Clé (identifiant) *
-          </label>
-          <input
-            [value]="cle()"
-            (input)="cle.set($any($event.target).value)"
-            [disabled]="editionId() != null"
-            placeholder="processeur, ram, stockage…"
-            class="admin-champ disabled:opacity-50"
-          />
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-encre-attenue">Clé (identifiant) *</label>
+          <input [value]="cle()" (input)="cle.set($any($event.target).value)"
+                 [disabled]="editionId() != null"
+                 placeholder="processeur, ram, stockage…"
+                 class="admin-champ disabled:opacity-50" />
           @if (editionId() != null) {
-            <p class="mt-1 font-corps text-xs text-encre-attenue">La clé n'est pas modifiable.</p>
+            <p class="mt-1 text-xs text-encre-attenue">La clé n'est pas modifiable.</p>
           }
         </div>
         <div>
-          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
-            >Libellé *</label
-          >
-          <input
-            [value]="libelle()"
-            (input)="libelle.set($any($event.target).value)"
-            placeholder="Processeur, Mémoire vive…"
-            class="admin-champ"
-          />
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-encre-attenue">Libellé *</label>
+          <input [value]="libelle()" (input)="libelle.set($any($event.target).value)"
+                 placeholder="Processeur, Mémoire vive…" class="admin-champ" />
         </div>
         <div>
-          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
-            >Groupe</label
-          >
-          <input
-            [value]="groupe()"
-            (input)="groupe.set($any($event.target).value)"
-            placeholder="Performance, Affichage…"
-            class="admin-champ"
-          />
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-encre-attenue">Groupe</label>
+          <input [value]="groupe()" (input)="groupe.set($any($event.target).value)"
+                 placeholder="Performance, Affichage…" class="admin-champ" />
         </div>
         <div>
-          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
-            >Type de valeur</label
-          >
-          <select
-            [value]="typeValeur()"
-            (change)="typeValeur.set($any($event.target).value)"
-            class="admin-champ"
-          >
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-encre-attenue">Type de valeur</label>
+          <select [value]="typeValeur()" (change)="typeValeur.set($any($event.target).value)" class="admin-champ">
             <option value="texte">Texte</option>
             <option value="nombre">Nombre</option>
             <option value="booleen">Oui / Non</option>
@@ -70,63 +46,58 @@
           </select>
         </div>
         <div>
-          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
-            >Unité</label
-          >
-          <input
-            [value]="unite()"
-            (input)="unite.set($any($event.target).value)"
-            placeholder="Go, GHz, pouces…"
-            class="admin-champ"
-          />
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-encre-attenue">Unité</label>
+          <input [value]="unite()" (input)="unite.set($any($event.target).value)"
+                 placeholder="Go, GHz, pouces…" class="admin-champ" />
         </div>
         <div>
-          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
-            >Ordre</label
-          >
-          <input
-            type="number"
-            [value]="ordre()"
-            (input)="ordre.set(+$any($event.target).value)"
-            class="admin-champ"
-          />
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-encre-attenue">Ordre</label>
+          <input type="number" [value]="ordre()" (input)="ordre.set(+$any($event.target).value)" class="admin-champ" />
         </div>
       </div>
 
       @if (typeValeur() === 'liste') {
         <div>
-          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue">
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-encre-attenue">
             Options (séparées par des virgules)
           </label>
-          <input
-            [value]="optionsTexte()"
-            (input)="optionsTexte.set($any($event.target).value)"
-            placeholder="Windows, Linux, Sans OS"
-            class="admin-champ"
-          />
+          <input [value]="optionsTexte()" (input)="optionsTexte.set($any($event.target).value)"
+                 placeholder="Windows, Linux, Sans OS" class="admin-champ" />
         </div>
       }
 
-      <label class="flex items-center gap-2 font-corps text-sm">
-        <input
-          type="checkbox"
-          [checked]="actif()"
-          (change)="actif.set($any($event.target).checked)"
-        />
+      <fieldset>
+        <legend class="mb-2 text-xs font-semibold uppercase tracking-wide text-encre-attenue">
+          Types de produits concernés
+        </legend>
+        <div class="flex flex-wrap gap-2">
+          @for (t of types(); track t.id) {
+            <label class="flex cursor-pointer items-center gap-2 rounded-lg border border-bordure bg-surface-2 px-3 py-1.5 text-sm transition hover:border-cyan"
+                   [class.!border-cyan]="typeCoche(t.slug)">
+              <input type="checkbox" [checked]="typeCoche(t.slug)"
+                     (change)="basculerType(t.slug, $any($event.target).checked)" />
+              {{ t.libelle }}
+            </label>
+          }
+        </div>
+        <p class="mt-2 text-xs text-encre-attenue">
+          {{ typesChoisis().length === 0
+              ? 'Aucun type coché : la spécification est proposée pour tous les types.'
+              : 'Proposée uniquement pour les types cochés.' }}
+        </p>
+      </fieldset>
+
+      <label class="flex items-center gap-2 text-sm">
+        <input type="checkbox" [checked]="actif()" (change)="actif.set($any($event.target).checked)" />
         Active (proposée dans l'éditeur produit)
       </label>
 
       @if (erreur()) {
-        <p class="font-corps text-sm text-orange">{{ erreur() }}</p>
+        <p class="text-sm text-orange">{{ erreur() }}</p>
       }
 
       <div class="flex gap-3">
-        <button
-          type="button"
-          (click)="enregistrer()"
-          [disabled]="envoi()"
-          class="admin-bouton disabled:opacity-50"
-        >
+        <button type="button" (click)="enregistrer()" [disabled]="envoi()" class="admin-bouton disabled:opacity-50">
           {{ envoi() ? 'Enregistrement…' : 'Enregistrer' }}
         </button>
         <button type="button" (click)="fermer()" class="admin-bouton-fantome">Annuler</button>
@@ -135,69 +106,61 @@
   }
 
   @if (chargement()) {
-    <p class="mt-8 font-corps text-sm text-encre-attenue">Chargement…</p>
+    <div class="adm-squelette mt-6 h-64"></div>
   } @else if (specifications().length === 0) {
-    <p class="mt-8 font-corps text-sm text-encre-attenue">Aucune spécification définie.</p>
+    <p class="mt-8 text-sm text-encre-attenue">Aucune spécification définie.</p>
   } @else {
-    <div class="mt-6 admin-carte !p-0 overflow-hidden">
-      <table class="w-full text-left text-sm">
-        <thead
-          class="border-b border-bordure/70 font-corps text-xs uppercase tracking-wide text-encre-attenue"
-        >
-          <tr>
-            <th class="p-3">Libellé</th>
-            <th class="p-3 hidden sm:table-cell">Clé</th>
-            <th class="p-3 hidden md:table-cell">Groupe</th>
-            <th class="p-3">Type</th>
-            <th class="p-3">État</th>
-            <th class="p-3 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (spec of specifications(); track spec.id) {
-            <tr class="border-b border-bordure/40 last:border-0 hover:bg-surface-2/40">
-              <td class="p-3 font-corps font-medium">
-                {{ spec.libelle }}
-                @if (spec.unite) {
-                  <span class="text-encre-attenue">({{ spec.unite }})</span>
-                }
-              </td>
-              <td class="p-3 hidden sm:table-cell font-mono text-xs text-encre-attenue">
-                {{ spec.cle }}
-              </td>
-              <td class="p-3 hidden md:table-cell font-corps text-encre-attenue">
-                {{ spec.groupe ?? '—' }}
-              </td>
-              <td class="p-3 font-corps text-encre-attenue">{{ spec.type_valeur }}</td>
-              <td class="p-3">
-                @if (spec.actif) {
-                  <span class="admin-badge !border-vert/50 !text-vert">active</span>
-                } @else {
-                  <span class="admin-badge">inactive</span>
-                }
-              </td>
-              <td class="p-3">
-                <div class="flex justify-end gap-2">
-                  <button
-                    type="button"
-                    (click)="ouvrirEdition(spec)"
-                    class="admin-bouton-fantome !py-1"
-                  >
-                    Éditer
-                  </button>
-                  <button
-                    type="button"
-                    (click)="supprimer(spec)"
-                    class="admin-bouton-fantome !py-1 hover:!border-orange/60 hover:!text-orange"
-                  >
-                    Suppr.
-                  </button>
-                </div>
-              </td>
+    <div class="admin-carte mt-6 !p-0 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="text-xs uppercase tracking-wide text-encre-attenue">
+            <tr>
+              <th class="p-3 pl-5">Libellé</th>
+              <th class="hidden p-3 sm:table-cell">Clé</th>
+              <th class="hidden p-3 md:table-cell">Groupe</th>
+              <th class="p-3">Valeur</th>
+              <th class="hidden p-3 lg:table-cell">Types</th>
+              <th class="p-3">État</th>
+              <th class="p-3 pr-5 text-right">Actions</th>
             </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            @for (spec of specifications(); track spec.id) {
+              <tr class="border-t border-bordure/50 hover:bg-surface-2/60">
+                <td class="p-3 pl-5 font-medium">
+                  {{ spec.libelle }}@if (spec.unite) { <span class="text-encre-attenue"> ({{ spec.unite }})</span> }
+                </td>
+                <td class="hidden p-3 font-mono text-xs text-encre-attenue sm:table-cell">{{ spec.cle }}</td>
+                <td class="hidden p-3 text-encre-attenue md:table-cell">{{ spec.groupe ?? '—' }}</td>
+                <td class="p-3 text-encre-attenue">{{ spec.type_valeur }}</td>
+                <td class="hidden p-3 lg:table-cell">
+                  @if (spec.types && spec.types.length > 0) {
+                    <div class="flex flex-wrap gap-1">
+                      @for (slug of spec.types; track slug) {
+                        <span class="admin-badge">{{ libelleType(slug) }}</span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="text-xs text-encre-attenue">Tous</span>
+                  }
+                </td>
+                <td class="p-3">
+                  <span class="adm-statut" [style.--c]="spec.actif ? 'var(--adm-c5)' : 'var(--color-encre-attenue)'">
+                    {{ spec.actif ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <td class="p-3 pr-5">
+                  <div class="flex justify-end gap-2">
+                    <button type="button" (click)="ouvrirEdition(spec)" class="admin-bouton-fantome !py-1">Éditer</button>
+                    <button type="button" (click)="supprimer(spec)"
+                            class="admin-bouton-fantome !py-1 hover:!border-orange/60 hover:!text-orange">Suppr.</button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
   }
 </div>
