@@ -64,11 +64,13 @@ const PALETTE = [
 ];
 
 const ICONES = {
-  argent: 'M12 2v20M17 6.5C16 5 14.2 4 12 4c-2.8 0-5 1.5-5 3.5S9.2 11 12 11s5 1.5 5 3.5-2.2 3.5-5 3.5c-2.3 0-4.2-1-5.2-2.5',
+  argent:
+    'M12 2v20M17 6.5C16 5 14.2 4 12 4c-2.8 0-5 1.5-5 3.5S9.2 11 12 11s5 1.5 5 3.5-2.2 3.5-5 3.5c-2.3 0-4.2-1-5.2-2.5',
   panier: 'M3 4h2l2.4 11h10.2L20 7H6M9 20h.01M17 20h.01',
   cle: 'M14.7 6.3a4 4 0 0 0-5 5L3 18l3 3 6.7-6.7a4 4 0 0 0 5-5l-2.5 2.5-2.5-.7-.7-2.5 2.7-2.3z',
   boite: 'M21 8 12 3 3 8v8l9 5 9-5V8zM3 8l9 5 9-5M12 13v8',
-  clients: 'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21a7 7 0 0 1 14 0M17 3.5a4 4 0 0 1 0 7M22 21a7 7 0 0 0-5-6.7',
+  clients:
+    'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21a7 7 0 0 1 14 0M17 3.5a4 4 0 0 1 0 7M22 21a7 7 0 0 0-5-6.7',
   alerte: 'M12 3 2 20h20L12 3zM12 10v4M12 17h.01',
   plus: 'M12 5v14M5 12h14',
 };
@@ -141,7 +143,9 @@ export class TableauBord implements OnInit {
   protected readonly tendanceCa = computed(() => {
     const s = this.stats();
     if (!s || !s.ca_30_jours_precedents) return null;
-    return Math.round(((s.ca_30_jours - s.ca_30_jours_precedents) / s.ca_30_jours_precedents) * 100);
+    return Math.round(
+      ((s.ca_30_jours - s.ca_30_jours_precedents) / s.ca_30_jours_precedents) * 100,
+    );
   });
 
   // ---------- Activité ----------

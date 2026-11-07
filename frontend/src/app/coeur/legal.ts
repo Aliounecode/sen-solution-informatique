@@ -2,10 +2,10 @@ import { environnement } from '../../environnements/environnement';
 
 export const legal = {
   raisonSociale: 'Sen Solution Informatique',
-  formeJuridique: 'À COMPLÉTER (ex. entreprise individuelle / SARL)',
-  ninea: 'À COMPLÉTER',
-  rccm: 'À COMPLÉTER',
-  directeurPublication: 'À COMPLÉTER',
+  formeJuridique: 'entreprise individuelle ',
+  ninea: '',
+  rccm: '',
+  directeurPublication: '',
   adresse: environnement.adresse,
   email: environnement.email,
   telephone: environnement.telephone,
@@ -14,8 +14,8 @@ export const legal = {
   hebergeurApi: 'Render Services, Inc., San Francisco, CA, États-Unis',
   baseDeDonnees: 'Neon, Inc. (PostgreSQL hébergé)',
   autoriteDonnees: 'Commission de Protection des Données Personnelles (CDP) du Sénégal',
-  delaiRetourJours: 'À COMPLÉTER (ex. 7)',
-  garantieMateriel: 'À COMPLÉTER (ex. 6 mois sur le matériel neuf)',
-  garantieReparation: "À COMPLÉTER (ex. 30 jours sur la main-d'œuvre)",
+  delaiRetourJours: '7',
+  garantieMateriel: '6 mois sur le matériel neuf',
+  garantieReparation: " 30 jours sur la main-d'œuvre",
   dernierMaj: '6 novembre 2026',
 };

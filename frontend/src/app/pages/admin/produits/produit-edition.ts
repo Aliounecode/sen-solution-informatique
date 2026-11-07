@@ -139,7 +139,9 @@ export class ProduitEdition implements OnInit {
     this.caracteristiquesLibres.update((l) => l.map((x, i) => (i === index ? { ...x, nom } : x)));
   }
   protected majLibreValeur(index: number, valeur: string): void {
-    this.caracteristiquesLibres.update((l) => l.map((x, i) => (i === index ? { ...x, valeur } : x)));
+    this.caracteristiquesLibres.update((l) =>
+      l.map((x, i) => (i === index ? { ...x, valeur } : x)),
+    );
   }
   protected retirerLibre(index: number): void {
     this.caracteristiquesLibres.update((l) => l.filter((_, i) => i !== index));
@@ -175,7 +177,9 @@ export class ProduitEdition implements OnInit {
   private async _ajouterImageDepuis(url: string, public_id: string | null): Promise<void> {
     if (this.enEdition() && this.produitId() != null) {
       const produit = await this.admin.ajouterImage(this.produitId()!, {
-        url, public_id: public_id ?? undefined, est_principale: this.images().length === 0,
+        url,
+        public_id: public_id ?? undefined,
+        est_principale: this.images().length === 0,
       });
       this.images.set(produit.images);
     } else {
@@ -193,7 +197,7 @@ export class ProduitEdition implements OnInit {
       const { url, public_id } = await this.admin.televerserImageCloudinary(fichier);
       await this._ajouterImageDepuis(url, public_id);
     } catch {
-      this.erreur.set("Téléversement impossible (Cloudinary configuré côté serveur ?).");
+      this.erreur.set('Téléversement impossible (Cloudinary configuré côté serveur ?).');
     } finally {
       this.televersement.set(false);
       input.value = '';
