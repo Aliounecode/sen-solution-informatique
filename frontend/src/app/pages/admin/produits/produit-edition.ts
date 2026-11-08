@@ -187,20 +187,65 @@ export class ProduitEdition implements OnInit {
     }
   }
 
+  /** Avancement du téléversement multiple (null = aucun en cours). */
+  protected readonly progression = signal<{ fait: number; total: number } | null>(null);
+
+  /** Téléverse plusieurs images d'un coup (3 en parallèle), puis les ajoute au produit dans l'ordre choisi. */
   protected async surFichier(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
-    const fichier = input.files?.[0];
-    if (!fichier) return;
+    const choisis = Array.from(input.files ?? []);
+    if (choisis.length === 0) return;
+
+    const TAILLE_MAX = 10 * 1024 * 1024; // 10 Mo (limite Cloudinary gratuit)
+    const fichiers = choisis.filter((f) => f.type.startsWith('image/') && f.size <= TAILLE_MAX);
+    const ignores = choisis.filter((f) => !fichiers.includes(f)).map((f) => f.name);
+    if (fichiers.length === 0) {
+      this.erreur.set(`Aucune image valide (images de 10 Mo maximum) : ${ignores.join(', ')}`);
+      input.value = '';
+      return;
+    }
+
     this.televersement.set(true);
     this.erreur.set(null);
+    this.progression.set({ fait: 0, total: fichiers.length });
+
+    const echecs: string[] = [...ignores];
+    const resultats: ({ url: string; public_id: string } | null)[] = new Array(
+      fichiers.length,
+    ).fill(null);
+    let suivant = 0;
+
+    const travailleur = async (): Promise<void> => {
+      while (suivant < fichiers.length) {
+        const i = suivant++;
+        try {
+          resultats[i] = await this.admin.televerserImageCloudinary(fichiers[i]);
+        } catch {
+          echecs.push(fichiers[i].name);
+        }
+        this.progression.update((p) => (p ? { ...p, fait: p.fait + 1 } : p));
+      }
+    };
+
     try {
-      const { url, public_id } = await this.admin.televerserImageCloudinary(fichier);
-      await this._ajouterImageDepuis(url, public_id);
-    } catch {
-      this.erreur.set('Téléversement impossible (Cloudinary configuré côté serveur ?).');
+      await Promise.all(Array.from({ length: Math.min(3, fichiers.length) }, travailleur));
+      // Ajout au produit dans l'ordre de sélection : la première image devient la principale si besoin.
+      for (const resultat of resultats) {
+        if (!resultat) continue;
+        try {
+          await this._ajouterImageDepuis(resultat.url, resultat.public_id);
+        } catch {
+          echecs.push("(enregistrement d'une image)");
+        }
+      }
     } finally {
       this.televersement.set(false);
+      this.progression.set(null);
       input.value = '';
+    }
+
+    if (echecs.length > 0) {
+      this.erreur.set(`Certaines images n'ont pas pu être ajoutées : ${echecs.join(', ')}`);
     }
   }
 

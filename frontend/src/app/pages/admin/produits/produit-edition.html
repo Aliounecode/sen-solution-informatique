@@ -1,5 +1,7 @@
 <div class="mx-auto max-w-4xl adm-apparait">
-  <a routerLink="/admin/produits" class="font-corps text-sm text-encre-attenue hover:text-cyan">← Retour aux produits</a>
+  <a routerLink="/admin/produits" class="font-corps text-sm text-encre-attenue hover:text-cyan"
+    >← Retour aux produits</a
+  >
   <h1 class="mt-3 font-display text-2xl font-bold">
     {{ enEdition() ? 'Modifier le produit' : 'Nouveau produit' }}
   </h1>
@@ -15,29 +17,53 @@
             <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue">
               Référence <span class="normal-case text-encre-attenue/70">(vide = auto)</span>
             </label>
-            <input [value]="reference()" (input)="reference.set($any($event.target).value)"
-                   placeholder="Générée automatiquement si vide" class="admin-champ" />
+            <input
+              [value]="reference()"
+              (input)="reference.set($any($event.target).value)"
+              placeholder="Générée automatiquement si vide"
+              class="admin-champ"
+            />
           </div>
           <div>
-            <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue">Nom *</label>
-            <input [value]="nom()" (input)="nom.set($any($event.target).value)" class="admin-champ" />
+            <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+              >Nom *</label
+            >
+            <input
+              [value]="nom()"
+              (input)="nom.set($any($event.target).value)"
+              class="admin-champ"
+            />
           </div>
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2">
           <div>
-            <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue">Catégorie *</label>
-            <select [value]="categorieId()" (change)="categorieId.set(+$any($event.target).value)" class="admin-champ">
+            <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+              >Catégorie *</label
+            >
+            <select
+              [value]="categorieId()"
+              (change)="categorieId.set(+$any($event.target).value)"
+              class="admin-champ"
+            >
               @for (c of categories(); track c.id) {
                 <option [value]="c.id">{{ c.nom }}</option>
               }
             </select>
           </div>
           <div>
-            <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue">Type *</label>
-            <select [value]="typeProduit()" (change)="typeProduit.set($any($event.target).value)" class="admin-champ">
+            <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+              >Type *</label
+            >
+            <select
+              [value]="typeProduit()"
+              (change)="typeProduit.set($any($event.target).value)"
+              class="admin-champ"
+            >
               @for (t of typesProposes(); track t.slug) {
-                <option [value]="t.slug" [selected]="t.slug === typeProduit()">{{ t.libelle }}</option>
+                <option [value]="t.slug" [selected]="t.slug === typeProduit()">
+                  {{ t.libelle }}
+                </option>
               }
             </select>
           </div>
@@ -45,49 +71,103 @@
 
         <div class="grid gap-4 sm:grid-cols-2">
           <div>
-            <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue">Marque</label>
-            <input [value]="marque()" (input)="marque.set($any($event.target).value)" class="admin-champ" />
+            <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+              >Marque</label
+            >
+            <input
+              [value]="marque()"
+              (input)="marque.set($any($event.target).value)"
+              class="admin-champ"
+            />
           </div>
           <div>
-            <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue">Modèle</label>
-            <input [value]="modele()" (input)="modele.set($any($event.target).value)" class="admin-champ" />
+            <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+              >Modèle</label
+            >
+            <input
+              [value]="modele()"
+              (input)="modele.set($any($event.target).value)"
+              class="admin-champ"
+            />
           </div>
         </div>
 
         <div>
-          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue">Description</label>
-          <textarea rows="3" [value]="description()" (input)="description.set($any($event.target).value)" class="admin-champ"></textarea>
+          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+            >Description</label
+          >
+          <textarea
+            rows="3"
+            [value]="description()"
+            (input)="description.set($any($event.target).value)"
+            class="admin-champ"
+          ></textarea>
         </div>
       </div>
 
       <!-- Prix & stock -->
       <div class="admin-carte grid gap-4 sm:grid-cols-4">
         <div>
-          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue">Prix (FCFA) *</label>
-          <input type="number" min="0" [value]="prix()"
-                 (input)="prix.set($any($event.target).value === '' ? null : +$any($event.target).value)" class="admin-champ" />
+          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+            >Prix (FCFA) *</label
+          >
+          <input
+            type="number"
+            min="0"
+            [value]="prix()"
+            (input)="prix.set($any($event.target).value === '' ? null : +$any($event.target).value)"
+            class="admin-champ"
+          />
         </div>
         <div>
-          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue">Prix promo</label>
-          <input type="number" min="0" [value]="prixPromo()"
-                 (input)="prixPromo.set($any($event.target).value === '' ? null : +$any($event.target).value)" class="admin-champ" />
+          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+            >Prix promo</label
+          >
+          <input
+            type="number"
+            min="0"
+            [value]="prixPromo()"
+            (input)="
+              prixPromo.set($any($event.target).value === '' ? null : +$any($event.target).value)
+            "
+            class="admin-champ"
+          />
         </div>
         <div>
-          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue">Stock</label>
-          <input type="number" min="0" [value]="stock()"
-                 (input)="stock.set(+$any($event.target).value)" class="admin-champ" />
+          <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+            >Stock</label
+          >
+          <input
+            type="number"
+            min="0"
+            [value]="stock()"
+            (input)="stock.set(+$any($event.target).value)"
+            class="admin-champ"
+          />
         </div>
         <div class="flex flex-col justify-end gap-2">
           <label class="flex items-center gap-2 font-corps text-sm">
-            <input type="checkbox" [checked]="promoActive()" (change)="promoActive.set($any($event.target).checked)" />
+            <input
+              type="checkbox"
+              [checked]="promoActive()"
+              (change)="promoActive.set($any($event.target).checked)"
+            />
             Promo active
           </label>
           <label class="flex items-center gap-2 font-corps text-sm">
-            <input type="checkbox" [checked]="enVedette()" (change)="enVedette.set($any($event.target).checked)" />
+            <input
+              type="checkbox"
+              [checked]="enVedette()"
+              (change)="enVedette.set($any($event.target).checked)"
+            />
             En vedette
           </label>
           <label class="flex items-center gap-2 font-corps text-sm">
-            <input type="checkbox" [checked]="actif()" (change)="actif.set($any($event.target).checked)" />
+            <input
+              type="checkbox"
+              [checked]="actif()"
+              (change)="actif.set($any($event.target).checked)"
+            />
             Actif (visible)
           </label>
         </div>
@@ -99,7 +179,9 @@
           <h2 class="font-display text-lg font-semibold">
             Caractéristiques
             @if (libelleTypeCourant()) {
-              <span class="ml-1 text-sm font-normal text-encre-attenue">· {{ libelleTypeCourant() }}</span>
+              <span class="ml-1 text-sm font-normal text-encre-attenue"
+                >· {{ libelleTypeCourant() }}</span
+              >
             }
           </h2>
           <p class="mt-1 font-corps text-xs text-encre-attenue">
@@ -108,31 +190,42 @@
           <div class="mt-4 grid gap-4 sm:grid-cols-2">
             @for (spec of specsVisibles(); track spec.id) {
               <div>
-                <label class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue">
+                <label
+                  class="mb-1 block font-corps text-xs uppercase tracking-wide text-encre-attenue"
+                >
                   {{ spec.libelle }}
                   @if (spec.unite) {
                     <span class="text-encre-attenue/70">({{ spec.unite }})</span>
                   }
                 </label>
                 @if (spec.type_valeur === 'liste' && spec.options) {
-                  <select [value]="caracteristiques()[spec.cle] || ''"
-                          (change)="majCaracteristique(spec.cle, $any($event.target).value)" class="admin-champ">
+                  <select
+                    [value]="caracteristiques()[spec.cle] || ''"
+                    (change)="majCaracteristique(spec.cle, $any($event.target).value)"
+                    class="admin-champ"
+                  >
                     <option value="">—</option>
                     @for (opt of spec.options; track opt) {
                       <option [value]="opt">{{ opt }}</option>
                     }
                   </select>
                 } @else if (spec.type_valeur === 'booleen') {
-                  <select [value]="caracteristiques()[spec.cle] || ''"
-                          (change)="majCaracteristique(spec.cle, $any($event.target).value)" class="admin-champ">
+                  <select
+                    [value]="caracteristiques()[spec.cle] || ''"
+                    (change)="majCaracteristique(spec.cle, $any($event.target).value)"
+                    class="admin-champ"
+                  >
                     <option value="">—</option>
                     <option value="true">Oui</option>
                     <option value="false">Non</option>
                   </select>
                 } @else {
-                  <input [type]="spec.type_valeur === 'nombre' ? 'number' : 'text'"
-                         [value]="caracteristiques()[spec.cle] || ''"
-                         (input)="majCaracteristique(spec.cle, $any($event.target).value)" class="admin-champ" />
+                  <input
+                    [type]="spec.type_valeur === 'nombre' ? 'number' : 'text'"
+                    [value]="caracteristiques()[spec.cle] || ''"
+                    (input)="majCaracteristique(spec.cle, $any($event.target).value)"
+                    class="admin-champ"
+                  />
                 }
               </div>
             }
@@ -145,18 +238,40 @@
         <h2 class="font-display text-lg font-semibold">Images</h2>
         <div class="mt-4 flex flex-wrap items-center gap-3">
           <label class="admin-bouton cursor-pointer">
-            {{ televersement() ? 'Téléversement…' : '+ Téléverser une image' }}
-            <input type="file" accept="image/*" class="hidden"
-                   (change)="surFichier($event)" [disabled]="televersement()" />
+            @if (progression(); as p) {
+              Téléversement {{ p.fait }}/{{ p.total }}…
+            } @else {
+              + Téléverser des images
+            }
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              class="hidden"
+              (change)="surFichier($event)"
+              [disabled]="televersement()"
+            />
           </label>
-          <span class="font-corps text-xs text-encre-attenue">ou par URL :</span>
+          <span class="font-corps text-xs text-encre-attenue"
+            >(sélection multiple possible) · ou par URL :</span
+          >
         </div>
         <div class="mt-2 flex flex-col gap-2 sm:flex-row">
-          <input placeholder="URL de l'image" [value]="urlImage()"
-                 (input)="urlImage.set($any($event.target).value)" class="admin-champ flex-1" />
-          <input placeholder="public_id (facultatif)" [value]="publicIdImage()"
-                 (input)="publicIdImage.set($any($event.target).value)" class="admin-champ sm:w-56" />
-          <button type="button" (click)="ajouterImageUrl()" class="admin-bouton-fantome">Ajouter l'URL</button>
+          <input
+            placeholder="URL de l'image"
+            [value]="urlImage()"
+            (input)="urlImage.set($any($event.target).value)"
+            class="admin-champ flex-1"
+          />
+          <input
+            placeholder="public_id (facultatif)"
+            [value]="publicIdImage()"
+            (input)="publicIdImage.set($any($event.target).value)"
+            class="admin-champ sm:w-56"
+          />
+          <button type="button" (click)="ajouterImageUrl()" class="admin-bouton-fantome">
+            Ajouter l'URL
+          </button>
         </div>
 
         @if (enEdition()) {
@@ -166,10 +281,18 @@
                 <div class="relative overflow-hidden rounded-lg border border-bordure">
                   <img [src]="img.url" alt="" class="aspect-square w-full object-cover" />
                   @if (img.est_principale) {
-                    <span class="absolute left-1 top-1 rounded bg-cyan px-1.5 py-0.5 font-corps text-[10px] font-bold text-white">principale</span>
+                    <span
+                      class="absolute left-1 top-1 rounded bg-cyan px-1.5 py-0.5 font-corps text-[10px] font-bold text-white"
+                      >principale</span
+                    >
                   }
-                  <button type="button" (click)="supprimerImage(img.id)"
-                          class="absolute right-1 top-1 rounded bg-fond/80 px-1.5 py-0.5 font-corps text-xs text-orange">✕</button>
+                  <button
+                    type="button"
+                    (click)="supprimerImage(img.id)"
+                    class="absolute right-1 top-1 rounded bg-fond/80 px-1.5 py-0.5 font-corps text-xs text-orange"
+                  >
+                    ✕
+                  </button>
                 </div>
               }
             </div>
@@ -178,21 +301,33 @@
           }
         } @else {
           @if (imagesEnAttente().length > 0) {
-            <p class="mt-4 font-corps text-xs text-encre-attenue">Ces images seront liées dès la création :</p>
+            <p class="mt-4 font-corps text-xs text-encre-attenue">
+              Ces images seront liées dès la création :
+            </p>
             <div class="mt-2 grid grid-cols-3 gap-3 sm:grid-cols-5">
               @for (img of imagesEnAttente(); track img.url; let i = $index) {
                 <div class="relative overflow-hidden rounded-lg border border-bordure">
                   <img [src]="img.url" alt="" class="aspect-square w-full object-cover" />
                   @if (i === 0) {
-                    <span class="absolute left-1 top-1 rounded bg-cyan px-1.5 py-0.5 font-corps text-[10px] font-bold text-white">principale</span>
+                    <span
+                      class="absolute left-1 top-1 rounded bg-cyan px-1.5 py-0.5 font-corps text-[10px] font-bold text-white"
+                      >principale</span
+                    >
                   }
-                  <button type="button" (click)="retirerEnAttente(i)"
-                          class="absolute right-1 top-1 rounded bg-fond/80 px-1.5 py-0.5 font-corps text-xs text-orange">✕</button>
+                  <button
+                    type="button"
+                    (click)="retirerEnAttente(i)"
+                    class="absolute right-1 top-1 rounded bg-fond/80 px-1.5 py-0.5 font-corps text-xs text-orange"
+                  >
+                    ✕
+                  </button>
                 </div>
               }
             </div>
           } @else {
-            <p class="mt-3 font-corps text-sm text-encre-attenue">Ajoutez des images : elles seront liées à la création du produit.</p>
+            <p class="mt-3 font-corps text-sm text-encre-attenue">
+              Ajoutez des images : elles seront liées à la création du produit.
+            </p>
           }
         }
       </div>
@@ -202,8 +337,19 @@
       }
 
       <div class="flex gap-3">
-        <button type="button" (click)="enregistrer()" [disabled]="envoi()" class="admin-bouton disabled:opacity-50">
-          {{ envoi() ? 'Enregistrement…' : (enEdition() ? 'Enregistrer les modifications' : 'Créer le produit') }}
+        <button
+          type="button"
+          (click)="enregistrer()"
+          [disabled]="envoi()"
+          class="admin-bouton disabled:opacity-50"
+        >
+          {{
+            envoi()
+              ? 'Enregistrement…'
+              : enEdition()
+                ? 'Enregistrer les modifications'
+                : 'Créer le produit'
+          }}
         </button>
         <a routerLink="/admin/produits" class="admin-bouton-fantome">Annuler</a>
       </div>
