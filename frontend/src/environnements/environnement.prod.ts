@@ -1,6 +1,6 @@
 export const environnement = {
-  production: false,
-  urlApi: 'http://localhost:8000/api',
+  production: true,
+  urlApi: 'https://sen-solution-informatique.onrender.com/',
   whatsapp: '221775434241',
   telephone: '+221 77 543 42 41',
   email: 'sambatakem@gmail.com',
