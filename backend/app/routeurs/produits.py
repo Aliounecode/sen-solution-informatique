@@ -119,6 +119,11 @@ def ajouter_image(produit_id: int, donnees: ImageProduitCreer, session: Session 
     return service_produit.ajouter_image(session, produit_id, donnees)
 
 
+@routeur_admin.put("/images/{image_id}/principale", response_model=ProduitDetail)
+def definir_image_principale(image_id: int, session: Session = Depends(obtenir_session)):
+    return service_produit.definir_image_principale(session, image_id)
+
+
 @routeur_admin.delete("/images/{image_id}", status_code=status.HTTP_204_NO_CONTENT)
 def supprimer_image(
     image_id: int,

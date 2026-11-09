@@ -249,6 +249,26 @@ export class ProduitEdition implements OnInit {
     }
   }
 
+  /** Édition : l'image choisie devient la principale (enregistré tout de suite). */
+  protected async definirPrincipale(imageId: number): Promise<void> {
+    this.erreur.set(null);
+    try {
+      const produit = await this.admin.definirImagePrincipale(imageId);
+      this.images.set(produit.images);
+    } catch {
+      this.erreur.set("Impossible de changer l'image principale.");
+    }
+  }
+
+  /** Création : l'image choisie passe en première position, donc principale à l'enregistrement. */
+  protected definirPrincipaleEnAttente(index: number): void {
+    this.imagesEnAttente.update((liste) => {
+      const copie = [...liste];
+      const [choisie] = copie.splice(index, 1);
+      return [choisie, ...copie];
+    });
+  }
+
   protected async ajouterImageUrl(): Promise<void> {
     if (!this.urlImage().trim()) return;
     try {

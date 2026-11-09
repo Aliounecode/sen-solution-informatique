@@ -233,9 +233,33 @@ def supprimer_image(session: Session, image_id: int) -> str | None:
     if image is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Image introuvable")
     public_id = image.public_id
+    produit_id = image.produit_id
+    etait_principale = image.est_principale
     session.delete(image)
+    session.flush()
+    if etait_principale:
+        # On ne laisse pas le produit sans image principale : la première restante prend le relais.
+        suivante = session.scalars(
+            select(ImageProduit)
+            .where(ImageProduit.produit_id == produit_id)
+            .order_by(ImageProduit.ordre, ImageProduit.id)
+        ).first()
+        if suivante is not None:
+            suivante.est_principale = True
     session.commit()
     return public_id
+
+
+def definir_image_principale(session: Session, image_id: int) -> Produit:
+    image = session.get(ImageProduit, image_id)
+    if image is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Image introuvable")
+    for autre in session.scalars(
+        select(ImageProduit).where(ImageProduit.produit_id == image.produit_id)
+    ):
+        autre.est_principale = autre.id == image.id
+    session.commit()
+    return obtenir(session, image.produit_id)
 
 
 def prix_effectif(produit: Produit) -> int:
