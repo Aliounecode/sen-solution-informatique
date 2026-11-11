@@ -239,3 +239,89 @@ html {
     @apply mb-1.5 block font-mono text-[11px] uppercase tracking-wider text-encre-attenue;
   }
 }
+
+/* ===== Héros vivant : vidéo d'ambiance + fond animé de repli ===== */
+.hero {
+  min-height: 34rem;
+  background: #0a0e12;
+}
+
+.hero-voile {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(10, 14, 18, 0.82) 0%,
+      rgba(10, 14, 18, 0.55) 55%,
+      rgba(10, 14, 18, 0.35) 100%
+    ),
+    linear-gradient(0deg, rgba(10, 14, 18, 0.55), transparent 40%);
+}
+
+.hero-orbe {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(70px);
+  opacity: 0.55;
+  will-change: transform;
+}
+.hero-orbe-1 {
+  width: 30rem;
+  height: 30rem;
+  top: -8rem;
+  right: -6rem;
+  background: rgba(34, 211, 238, 0.45);
+  animation: hero-flotte-1 16s ease-in-out infinite alternate;
+}
+.hero-orbe-2 {
+  width: 26rem;
+  height: 26rem;
+  bottom: -10rem;
+  left: 10%;
+  background: rgba(61, 220, 132, 0.3);
+  animation: hero-flotte-2 20s ease-in-out infinite alternate;
+}
+.hero-orbe-3 {
+  width: 18rem;
+  height: 18rem;
+  top: 30%;
+  left: 45%;
+  background: rgba(255, 122, 26, 0.22);
+  animation: hero-flotte-3 24s ease-in-out infinite alternate;
+}
+.hero-anime {
+  animation: hero-grille 30s linear infinite;
+}
+
+@keyframes hero-flotte-1 {
+  to {
+    transform: translate(-8rem, 6rem) scale(1.15);
+  }
+}
+@keyframes hero-flotte-2 {
+  to {
+    transform: translate(10rem, -5rem) scale(1.2);
+  }
+}
+@keyframes hero-flotte-3 {
+  to {
+    transform: translate(-6rem, -8rem) scale(0.85);
+  }
+}
+@keyframes hero-grille {
+  to {
+    background-position:
+      32px 32px,
+      32px 32px;
+  }
+}
+
+/* Mouvement réduit : pas de vidéo, fond fixe */
+@media (prefers-reduced-motion: reduce) {
+  .hero-video {
+    display: none;
+  }
+  .hero-orbe,
+  .hero-anime {
+    animation: none !important;
+  }
+}

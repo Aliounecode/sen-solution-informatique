@@ -5,6 +5,7 @@ import { CarteProduit } from '../../composants/carte-produit/carte-produit';
 import { Categorie } from '../../coeur/modeles/categorie';
 import { ProduitResume } from '../../coeur/modeles/produit';
 import { CatalogueService } from '../../coeur/services/catalogue';
+import { environnement } from '../../../environnements/environnement';
 
 @Component({
   selector: 'app-accueil',
@@ -13,6 +14,9 @@ import { CatalogueService } from '../../coeur/services/catalogue';
 })
 export class Accueil implements OnInit {
   private readonly catalogue = inject(CatalogueService);
+
+  protected readonly urlVideo = environnement.urlVideoAccueil;
+  protected readonly urlPoster = environnement.urlAffichePoster;
 
   protected readonly chargement = signal(true);
   protected readonly categories = signal<Categorie[]>([]);

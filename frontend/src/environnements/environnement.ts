@@ -1,6 +1,9 @@
 export const environnement = {
   production: false,
   urlApi: 'http://localhost:8000/api',
+  // Vidéo d'ambiance du héros (accueil). Ex. 'video/accueil.mp4' (dossier public/) ou URL Cloudinary. Vide = fond animé.
+  urlVideoAccueil: '',
+  urlAffichePoster: '', // image affichée pendant le chargement (optionnel)
   whatsapp: '221775434241',
   telephone: '+221 77 543 42 41',
   email: 'sambatakem@gmail.com',

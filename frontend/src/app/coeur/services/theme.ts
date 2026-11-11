@@ -8,9 +8,10 @@ function themeInitial(): Theme {
     const memorise = localStorage.getItem(CLE);
     if (memorise === 'clair' || memorise === 'sombre') return memorise;
   } catch {
-    /* stockage indisponible : on retombe sur la préférence du système */
+    /* stockage indisponible : on retombe sur le thème par défaut */
   }
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'sombre' : 'clair';
+  // Thème clair par défaut (le visiteur peut basculer, son choix est mémorisé).
+  return 'clair';
 }
 
 @Injectable({ providedIn: 'root' })

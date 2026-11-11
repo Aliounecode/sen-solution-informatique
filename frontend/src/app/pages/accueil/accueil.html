@@ -1,8 +1,32 @@
 <!-- Héros -->
-<section class="theme-sombre motif-grille relative overflow-hidden">
-  <div class="halo-cyan pointer-events-none absolute inset-0"></div>
+<section class="theme-sombre hero relative overflow-hidden">
+  <!-- Fond animé (toujours présent : sert de repli si la vidéo manque ou charge) -->
+  <div class="hero-anime motif-grille pointer-events-none absolute inset-0" aria-hidden="true">
+    <span class="hero-orbe hero-orbe-1"></span>
+    <span class="hero-orbe hero-orbe-2"></span>
+    <span class="hero-orbe hero-orbe-3"></span>
+  </div>
+
+  @if (urlVideo) {
+    <video
+      class="hero-video pointer-events-none absolute inset-0 h-full w-full object-cover"
+      [muted]="true"
+      autoplay
+      loop
+      playsinline
+      preload="auto"
+      [attr.poster]="urlPoster || null"
+      aria-hidden="true"
+      tabindex="-1"
+    >
+      <source [src]="urlVideo" type="video/mp4" />
+    </video>
+  }
+  <!-- Voile sombre : garde le texte lisible par-dessus la vidéo -->
+  <div class="hero-voile pointer-events-none absolute inset-0" aria-hidden="true"></div>
+
   <div
-    class="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 md:px-6 md:py-20 lg:grid-cols-5 lg:items-center"
+    class="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 md:px-6 md:py-24 lg:grid-cols-5 lg:items-center"
   >
     <div class="lg:col-span-3">
       <span class="puce">// Dakar · informatique</span>
