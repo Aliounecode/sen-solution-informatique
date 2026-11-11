@@ -6,6 +6,7 @@ import { environnement } from '../../../environnements/environnement';
 import { Categorie } from '../modeles/categorie';
 import { PageProduits, ProduitComplet, TypeProduit, ProduitResume } from '../modeles/produit';
 import { Specification } from '../modeles/specification';
+import { TypeDeProduit } from '../modeles/type-produit';
 
 export interface FiltresProduits {
   categorie_id?: number;
@@ -27,6 +28,10 @@ export class CatalogueService {
 
   listerCategories(): Promise<Categorie[]> {
     return firstValueFrom(this.http.get<Categorie[]>(`${this.base}/categories`));
+  }
+
+  listerTypes(): Promise<TypeDeProduit[]> {
+    return firstValueFrom(this.http.get<TypeDeProduit[]>(`${this.base}/types`));
   }
 
   listerSpecifications(): Promise<Specification[]> {

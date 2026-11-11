@@ -38,6 +38,14 @@
           "border-color: color-mix(in srgb, var(--color-cyan) 45%, var(--color-bordure))"
         ]
       }
+    ],
+    "compat-api/html": [
+      "default",
+      {
+        "ignore": [
+          "meta[name=theme-color]"
+        ]
+      }
     ]
   }
 }

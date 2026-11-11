@@ -108,12 +108,9 @@
             class="mt-2 w-full rounded-lg border border-bordure bg-fond px-3 py-2 text-sm outline-none focus:border-cyan"
           >
             <option value="" [selected]="typeProduit() === null">Tous</option>
-            <option value="ordinateur" [selected]="typeProduit() === 'ordinateur'">
-              Ordinateurs
-            </option>
-            <option value="accessoire" [selected]="typeProduit() === 'accessoire'">
-              Accessoires
-            </option>
+            @for (t of types(); track t.slug) {
+              <option [value]="t.slug" [selected]="typeProduit() === t.slug">{{ t.libelle }}</option>
+            }
           </select>
         </div>
 

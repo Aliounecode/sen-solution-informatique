@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CarteProduit } from '../../composants/carte-produit/carte-produit';
 import { Categorie } from '../../coeur/modeles/categorie';
 import { ProduitResume, TypeProduit } from '../../coeur/modeles/produit';
+import { TypeDeProduit } from '../../coeur/modeles/type-produit';
 import { CatalogueService, FiltresProduits } from '../../coeur/services/catalogue';
 
 const TRIS = ['recent', 'prix_asc', 'prix_desc', 'nom'];
@@ -21,6 +22,7 @@ export class Boutique {
   private readonly routeur = inject(Router);
 
   protected readonly categories = signal<Categorie[]>([]);
+  protected readonly types = signal<TypeDeProduit[]>([]);
   protected readonly produits = signal<ProduitResume[]>([]);
   protected readonly total = signal(0);
   protected readonly chargement = signal(true);
@@ -38,7 +40,7 @@ export class Boutique {
   });
   protected readonly typeProduit = computed<TypeProduit | null>(() => {
     const v = this.params().get('type');
-    return v === 'ordinateur' || v === 'accessoire' ? v : null;
+    return v ? v : null;
   });
   protected readonly tri = computed(() => {
     const v = this.params().get('tri') ?? '';
@@ -76,7 +78,8 @@ export class Boutique {
     if (this.categorieId()) liste.push({ libelle: cat?.nom ?? 'Catégorie', cles: ['categorie'] });
     if (this.typeProduit()) {
       liste.push({
-        libelle: this.typeProduit() === 'ordinateur' ? 'Ordinateurs' : 'Accessoires',
+        libelle:
+          this.types().find((t) => t.slug === this.typeProduit())?.libelle ?? this.typeProduit()!,
         cles: ['type'],
       });
     }
@@ -104,6 +107,7 @@ export class Boutique {
 
   constructor() {
     void this._chargerCategories();
+    void this._chargerTypes();
     effect(() => {
       void this._charger(this.filtres());
     });
@@ -167,6 +171,14 @@ export class Boutique {
   private async _chargerCategories(): Promise<void> {
     try {
       this.categories.set(await this.catalogue.listerCategories());
+    } catch {
+      /* non bloquant */
+    }
+  }
+
+  private async _chargerTypes(): Promise<void> {
+    try {
+      this.types.set(await this.catalogue.listerTypes());
     } catch {
       /* non bloquant */
     }
