@@ -2,6 +2,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { CarteProduit } from '../../composants/carte-produit/carte-produit';
+import { SectionAvis } from '../../composants/section-avis/section-avis';
 import { Categorie } from '../../coeur/modeles/categorie';
 import { ProduitResume } from '../../coeur/modeles/produit';
 import { CatalogueService } from '../../coeur/services/catalogue';
@@ -9,7 +10,7 @@ import { environnement } from '../../../environnements/environnement';
 
 @Component({
   selector: 'app-accueil',
-  imports: [RouterLink, CarteProduit],
+  imports: [RouterLink, CarteProduit, SectionAvis],
   templateUrl: './accueil.html',
 })
 export class Accueil implements OnInit {

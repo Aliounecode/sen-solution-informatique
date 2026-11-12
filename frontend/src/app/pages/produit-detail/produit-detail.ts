@@ -2,6 +2,7 @@ import { Component, computed, effect, inject, input, signal } from '@angular/cor
 import { RouterLink } from '@angular/router';
 import { environnement } from '../../../environnements/environnement';
 import { CarteProduit } from '../../composants/carte-produit/carte-produit';
+import { SectionAvis } from '../../composants/section-avis/section-avis';
 import { ProduitComplet, ProduitResume } from '../../coeur/modeles/produit';
 import { Specification } from '../../coeur/modeles/specification';
 import { Fcfa } from '../../coeur/pipes/fcfa';
@@ -11,7 +12,7 @@ import { PanierService } from '../../coeur/services/panier';
 
 @Component({
   selector: 'app-produit-detail',
-  imports: [RouterLink, Fcfa, CarteProduit],
+  imports: [RouterLink, Fcfa, CarteProduit, SectionAvis],
   templateUrl: './produit-detail.html',
   host: {
     '(document:keydown.arrowleft)': 'precedente()',

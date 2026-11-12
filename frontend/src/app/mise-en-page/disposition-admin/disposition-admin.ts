@@ -80,8 +80,12 @@ export class DispositionAdmin {
         {
           chemin: '/admin/demandes',
           libelle: 'Dépannages',
-          icone:
-            'M14.7 6.3a4 4 0 0 0-5 5L3 18l3 3 6.7-6.7a4 4 0 0 0 5-5l-2.5 2.5-2.5-.7-.7-2.5 2.7-2.3z',
+          icone: 'M14.7 6.3a4 4 0 0 0-5 5L3 18l3 3 6.7-6.7a4 4 0 0 0 5-5l-2.5 2.5-2.5-.7-.7-2.5 2.7-2.3z',
+        },
+        {
+          chemin: '/admin/avis',
+          libelle: 'Avis clients',
+          icone: 'M21 12a8 8 0 0 1-11.5 7.2L3 21l1.8-5.5A8 8 0 1 1 21 12zM8.5 11h7M8.5 14h4',
         },
         {
           chemin: '/admin/prestations',
@@ -101,8 +105,7 @@ export class DispositionAdmin {
         {
           chemin: '/admin/utilisateurs',
           libelle: 'Utilisateurs',
-          icone:
-            'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21a7 7 0 0 1 14 0M17 3.5a4 4 0 0 1 0 7M22 21a7 7 0 0 0-5-6.7',
+          icone: 'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21a7 7 0 0 1 14 0M17 3.5a4 4 0 0 1 0 7M22 21a7 7 0 0 0-5-6.7',
         },
       ],
     },
@@ -141,9 +144,7 @@ export class DispositionAdmin {
   private readonly url = signal(this.routeur.url.split('?')[0]);
 
   constructor() {
-    this.routeur.events
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => this.url.set(this.routeur.url.split('?')[0]));
+    this.routeur.events.pipe(takeUntilDestroyed()).subscribe(() => this.url.set(this.routeur.url.split('?')[0]));
   }
 
   protected exact(chemin: string): boolean {

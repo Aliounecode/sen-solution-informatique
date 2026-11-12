@@ -1,0 +1,154 @@
+<section class="mx-auto max-w-7xl px-4 py-14 md:px-6" id="avis">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h2 class="font-display text-2xl font-semibold">{{ titre() }}</h2>
+      @if (total() > 0 && moyenne() !== null) {
+        <p class="mt-2 flex items-center gap-2 text-sm text-encre-attenue">
+          <span class="flex" aria-hidden="true">
+            @for (e of etoiles; track e) {
+              <svg viewBox="0 0 24 24" class="h-5 w-5" [class.text-amber-400]="e <= Math.round(moyenne()!)" [class.text-bordure]="e > Math.round(moyenne()!)" fill="currentColor">
+                <path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.5L12 17.2 6.1 20.5l1.3-6.5L2.5 9.4l6.6-.8L12 2.5z" />
+              </svg>
+            }
+          </span>
+          <span class="font-semibold text-encre">{{ moyenne() }}/5</span>
+          · {{ total() }} avis
+        </p>
+      }
+    </div>
+    @if (!formulaireOuvert()) {
+      @if (auth.estConnecte()) {
+        <button type="button" (click)="ouvrirFormulaire()" class="bouton-primaire">
+          Donner mon avis
+        </button>
+      } @else {
+        <a routerLink="/connexion" [queryParams]="{ retour: routeur.url }" class="bouton-fantome">
+          Connectez-vous pour donner votre avis
+        </a>
+      }
+    }
+  </div>
+
+  @if (confirmation()) {
+    <p class="mt-5 rounded-xl border border-vert bg-surface p-4 text-sm text-vert" role="status">
+      {{ confirmation() }}
+    </p>
+  }
+
+  @if (formulaireOuvert()) {
+    <form
+      class="mt-6 max-w-2xl space-y-4 rounded-xl border border-bordure bg-surface p-5"
+      (submit)="$event.preventDefault(); envoyer()"
+    >
+      <div>
+        <p class="font-mono text-[11px] uppercase tracking-widest text-encre-attenue">Votre note</p>
+        <div class="mt-2 flex gap-1" (mouseleave)="survol.set(0)">
+          @for (e of etoiles; track e) {
+            <button
+              type="button"
+              (click)="note.set(e)"
+              (mouseenter)="survol.set(e)"
+              [attr.aria-label]="e + ' étoile(s)'"
+              class="p-0.5"
+            >
+              <svg viewBox="0 0 24 24" class="h-8 w-8 transition" [class.text-amber-400]="e <= (survol() || note())" [class.text-bordure]="e > (survol() || note())" fill="currentColor">
+                <path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.5L12 17.2 6.1 20.5l1.3-6.5L2.5 9.4l6.6-.8L12 2.5z" />
+              </svg>
+            </button>
+          }
+        </div>
+      </div>
+
+      <div>
+        <label class="font-mono text-[11px] uppercase tracking-widest text-encre-attenue" for="avis-nom">
+          Nom affiché avec votre avis
+        </label>
+        <input
+          id="avis-nom"
+          maxlength="80"
+          [value]="nom()"
+          (input)="nom.set($any($event.target).value)"
+          class="mt-2 w-full rounded-lg border border-bordure bg-fond px-3 py-2 text-sm outline-none focus:border-cyan"
+        />
+      </div>
+
+      <div>
+        <label class="font-mono text-[11px] uppercase tracking-widest text-encre-attenue" for="avis-texte">
+          Votre expérience
+        </label>
+        <textarea
+          id="avis-texte"
+          rows="4"
+          maxlength="1000"
+          [value]="commentaire()"
+          (input)="commentaire.set($any($event.target).value)"
+          placeholder="Qualité du produit, accueil, rapidité du dépannage…"
+          class="mt-2 w-full rounded-lg border border-bordure bg-fond px-3 py-2 text-sm outline-none focus:border-cyan"
+        ></textarea>
+      </div>
+
+      @if (erreur()) {
+        <p class="text-sm text-orange" role="alert">{{ erreur() }}</p>
+      }
+      <p class="text-xs text-encre-attenue">
+        Votre avis sera publié avec votre nom après vérification par notre équipe.
+      </p>
+      <div class="flex gap-3">
+        <button type="submit" [disabled]="envoi()" class="bouton-primaire disabled:opacity-50">
+          {{ envoi() ? 'Envoi…' : 'Envoyer mon avis' }}
+        </button>
+        <button type="button" (click)="formulaireOuvert.set(false)" class="bouton-fantome">
+          Annuler
+        </button>
+      </div>
+    </form>
+  }
+
+  @if (chargement()) {
+    <div class="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3" aria-busy="true">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="h-36 animate-pulse rounded-xl bg-surface-2"></div>
+      }
+    </div>
+  } @else if (avis().length === 0) {
+    <p class="mt-6 rounded-xl border border-bordure bg-surface p-6 text-sm text-encre-attenue">
+      Aucun avis pour le moment. Soyez le premier à partager votre expérience !
+    </p>
+  } @else {
+    <div class="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      @for (a of avis(); track a.id) {
+        <article class="flex flex-col rounded-xl border border-bordure bg-surface p-5">
+          <div class="flex" role="img" [attr.aria-label]="'Note : ' + a.note + ' sur 5'">
+            @for (e of etoiles; track e) {
+              <svg viewBox="0 0 24 24" class="h-4 w-4" [class.text-amber-400]="e <= a.note" [class.text-bordure]="e > a.note" fill="currentColor">
+                <path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.5L12 17.2 6.1 20.5l1.3-6.5L2.5 9.4l6.6-.8L12 2.5z" />
+              </svg>
+            }
+          </div>
+          <p class="mt-3 flex-1 text-sm leading-relaxed">« {{ a.commentaire }} »</p>
+          <div class="mt-4 flex items-center gap-3 border-t border-bordure pt-3">
+            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cyan font-display text-sm font-bold text-surface">
+              {{ initiales(a.nom_affiche) }}
+            </span>
+            <div class="min-w-0">
+              <p class="truncate text-sm font-semibold">{{ a.nom_affiche }}</p>
+              <p class="truncate text-xs text-encre-attenue">
+                {{ date(a.cree_le) }}
+                @if (a.produit_nom && produitId() === null) {
+                  · <a [routerLink]="['/produit', a.produit_slug]" class="hover:text-cyan">{{ a.produit_nom }}</a>
+                }
+              </p>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+    @if (avis().length < total()) {
+      <div class="mt-6 text-center">
+        <button type="button" (click)="voirPlus()" [disabled]="chargementPlus()" class="bouton-fantome disabled:opacity-50">
+          {{ chargementPlus() ? 'Chargement…' : 'Voir plus d’avis' }}
+        </button>
+      </div>
+    }
+  }
+</section>

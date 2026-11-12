@@ -121,6 +121,10 @@ export const routes: Routes = [
           import('./pages/admin/categories/categories').then((m) => m.AdminCategories),
       },
       {
+        path: 'avis',
+        loadComponent: () => import('./pages/admin/avis/avis-admin').then((m) => m.AvisAdminPage),
+      },
+      {
         path: 'types',
         loadComponent: () =>
           import('./pages/admin/types/types-produits').then((m) => m.AdminTypesProduits),

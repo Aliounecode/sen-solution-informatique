@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .configuration import parametres
 from .routeurs import (
     authentification,
+    avis,
     categories,
     chatbot,
     commandes,
@@ -35,6 +36,7 @@ application.include_router(categories.routeur)
 application.include_router(specifications.routeur)
 application.include_router(types_produits.routeur)
 application.include_router(produits.routeur)
+application.include_router(avis.routeur)
 
 # Services de dépannage — accès public / client
 application.include_router(prestations.routeur)
@@ -55,6 +57,7 @@ application.include_router(categories.routeur_admin)
 application.include_router(specifications.routeur_admin)
 application.include_router(types_produits.routeur_admin)
 application.include_router(produits.routeur_admin)
+application.include_router(avis.routeur_admin)
 application.include_router(prestations.routeur_admin)
 application.include_router(techniciens.routeur_admin)
 application.include_router(demandes_depannage.routeur_admin)

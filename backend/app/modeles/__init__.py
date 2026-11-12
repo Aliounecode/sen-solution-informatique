@@ -1,3 +1,4 @@
+from .avis import Avis
 from .base import Base
 from .categorie import Categorie
 from .commande import (
@@ -19,6 +20,7 @@ from .utilisateur import RoleUtilisateur, Utilisateur
 __all__ = [
     "Base",
     "Utilisateur",
+    "Avis",
     "RoleUtilisateur",
     "Categorie",
     "Produit",

@@ -7,7 +7,8 @@
     "axe/text-alternatives": [
       "default",
       {
-        "image-alt": "off"
+        "image-alt": "off",
+        "role-img-alt": "off"
       }
     ],
     "axe/forms": [

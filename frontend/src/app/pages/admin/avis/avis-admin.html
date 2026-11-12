@@ -1,0 +1,134 @@
+<div class="mx-auto max-w-6xl">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h1 class="font-display text-2xl font-bold md:text-3xl">Avis clients</h1>
+      <p class="mt-1 max-w-xl text-sm text-encre-attenue">
+        Les avis déposés par les clients apparaissent ici « à valider » : ils ne sont visibles sur le
+        site (avec le nom du client) qu'une fois publiés.
+      </p>
+    </div>
+    <button type="button" (click)="ouvrirFormulaire()" class="admin-bouton">+ Ajouter un avis</button>
+  </div>
+
+  @if (formulaireOuvert()) {
+    <div class="admin-carte adm-apparait mt-6 space-y-4">
+      <h2 class="font-display text-lg font-semibold">Ajouter un avis (publié directement)</h2>
+      <p class="text-xs text-encre-attenue">
+        Utile pour un témoignage reçu par WhatsApp ou en boutique, avec l'accord du client.
+      </p>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-encre-attenue">Nom affiché *</label>
+          <input [value]="nom()" (input)="nom.set($any($event.target).value)" maxlength="80"
+                 placeholder="Awa Diop" class="admin-champ" />
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-encre-attenue">Concerne</label>
+          <select (change)="produitId.set($any($event.target).value ? +$any($event.target).value : null)" class="admin-champ">
+            <option value="">Le site / la boutique</option>
+            @for (p of produits(); track p.id) {
+              <option [value]="p.id">{{ p.nom }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-encre-attenue">Note</label>
+        <div class="flex gap-1">
+          @for (e of etoiles; track e) {
+            <button type="button" (click)="note.set(e)" [attr.aria-label]="e + ' étoile(s)'" class="p-0.5">
+              <svg viewBox="0 0 24 24" class="h-7 w-7" [class.text-amber-400]="e <= note()" [class.opacity-30]="e > note()" fill="currentColor">
+                <path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.5L12 17.2 6.1 20.5l1.3-6.5L2.5 9.4l6.6-.8L12 2.5z" />
+              </svg>
+            </button>
+          }
+        </div>
+      </div>
+      <div>
+        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-encre-attenue">Commentaire *</label>
+        <textarea rows="3" maxlength="1000" [value]="commentaire()"
+                  (input)="commentaire.set($any($event.target).value)" class="admin-champ"></textarea>
+      </div>
+      @if (erreur()) {
+        <p class="text-sm text-orange">{{ erreur() }}</p>
+      }
+      <div class="flex gap-3">
+        <button type="button" (click)="enregistrer()" [disabled]="envoi()" class="admin-bouton disabled:opacity-50">
+          {{ envoi() ? 'Enregistrement…' : 'Publier' }}
+        </button>
+        <button type="button" (click)="formulaireOuvert.set(false)" class="admin-bouton-fantome">Annuler</button>
+      </div>
+    </div>
+  }
+
+  <!-- Filtres -->
+  <div class="mt-6 flex flex-wrap gap-2">
+    @for (f of filtres; track f.valeur) {
+      <button type="button" (click)="choisirFiltre(f.valeur)"
+              class="admin-bouton-fantome !py-1.5"
+              [class.!border-cyan]="filtre() === f.valeur" [class.!text-cyan]="filtre() === f.valeur">
+        {{ f.libelle }}
+        @if (f.valeur === 'en_attente' && enAttente() > 0) {
+          <span class="ml-1 rounded-full bg-orange px-1.5 text-xs font-semibold text-white">{{ enAttente() }}</span>
+        }
+      </button>
+    }
+  </div>
+
+  @if (erreur() && !formulaireOuvert()) {
+    <p class="mt-4 text-sm text-orange">{{ erreur() }}</p>
+  }
+
+  @if (chargement() && avis().length === 0) {
+    <div class="adm-squelette mt-6 h-64"></div>
+  } @else if (avis().length === 0) {
+    <div class="admin-carte mt-6 text-center text-sm text-encre-attenue">Aucun avis dans cette catégorie.</div>
+  } @else {
+    <div class="mt-6 space-y-3" [class.opacity-60]="chargement()">
+      @for (a of avis(); track a.id) {
+        <div class="admin-carte">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="font-semibold">{{ a.nom_affiche }}</span>
+                <span class="flex" aria-hidden="true">
+                  @for (e of etoiles; track e) {
+                    <svg viewBox="0 0 24 24" class="h-4 w-4" [class.text-amber-400]="e <= a.note" [class.opacity-25]="e > a.note" fill="currentColor">
+                      <path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.5L12 17.2 6.1 20.5l1.3-6.5L2.5 9.4l6.6-.8L12 2.5z" />
+                    </svg>
+                  }
+                </span>
+                <span class="adm-statut" [style.--c]="couleurStatut(a.statut)">{{ libelleStatut(a.statut) }}</span>
+              </div>
+              <p class="mt-1 text-xs text-encre-attenue">
+                {{ date(a.cree_le) }} · {{ a.produit_nom ?? 'Site / boutique' }}
+                @if (a.utilisateur_id === null) { · saisi par l'admin }
+              </p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              @if (a.statut !== 'publie') {
+                <button type="button" (click)="changerStatut(a, 'publie')" class="admin-bouton !py-1">Publier</button>
+              }
+              @if (a.statut !== 'refuse') {
+                <button type="button" (click)="changerStatut(a, 'refuse')" class="admin-bouton-fantome !py-1">Refuser</button>
+              }
+              <button type="button" (click)="supprimer(a)"
+                      class="admin-bouton-fantome !py-1 hover:!border-orange/60 hover:!text-orange">Suppr.</button>
+            </div>
+          </div>
+          <p class="mt-3 text-sm leading-relaxed">« {{ a.commentaire }} »</p>
+        </div>
+      }
+    </div>
+
+    <div class="mt-4 flex items-center justify-between text-sm text-encre-attenue">
+      <span>Page {{ page() }} / {{ nombrePages() }} · {{ total() }} avis</span>
+      <div class="flex gap-2">
+        <button type="button" (click)="allerPage(page() - 1)" [disabled]="page() <= 1"
+                class="admin-bouton-fantome disabled:opacity-40">← Précédent</button>
+        <button type="button" (click)="allerPage(page() + 1)" [disabled]="page() >= nombrePages()"
+                class="admin-bouton-fantome disabled:opacity-40">Suivant →</button>
+      </div>
+    </div>
+  }
+</div>
