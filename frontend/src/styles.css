@@ -250,9 +250,9 @@ html {
   background:
     linear-gradient(
       90deg,
-      rgba(10, 14, 18, 0.82) 0%,
-      rgba(10, 14, 18, 0.55) 55%,
-      rgba(10, 14, 18, 0.35) 100%
+      rgba(10, 14, 18, 0.72) 0%,
+      rgba(10, 14, 18, 0.42) 55%,
+      rgba(10, 14, 18, 0.2) 100%
     ),
     linear-gradient(0deg, rgba(10, 14, 18, 0.55), transparent 40%);
 }
