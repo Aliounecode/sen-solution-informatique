@@ -1,11 +1,29 @@
 <!-- Héros -->
-<section class="theme-sombre motif-grille relative overflow-hidden">
-  <div
-    class="pointer-events-none absolute inset-0"
-    style="
-      background: radial-gradient(60% 70% at 85% 15%, rgba(61, 220, 132, 0.2), transparent 70%);
-    "
-  ></div>
+<section class="theme-sombre hero relative overflow-hidden">
+  <!-- Fond animé de repli (visible si la vidéo manque ou charge) -->
+  <div class="hero-anime motif-grille pointer-events-none absolute inset-0" aria-hidden="true">
+    <span class="hero-orbe hero-orbe-2"></span>
+    <span class="hero-orbe hero-orbe-1" style="background: rgba(61, 220, 132, 0.35)"></span>
+  </div>
+
+  @if (urlVideo) {
+    <video
+      class="hero-video pointer-events-none absolute inset-0 h-full w-full object-cover"
+      [muted]="true"
+      autoplay
+      loop
+      playsinline
+      preload="auto"
+      [attr.poster]="urlPoster || null"
+      aria-hidden="true"
+      tabindex="-1"
+    >
+      <source [src]="urlVideo" type="video/mp4" />
+    </video>
+  }
+  <!-- Voile : garde le texte lisible, plus marqué à gauche où se trouve le texte -->
+  <div class="hero-voile pointer-events-none absolute inset-0" aria-hidden="true"></div>
+
   <div class="relative mx-auto max-w-7xl px-4 py-14 md:px-6 md:py-20">
     <span class="puce !border-vert !text-vert">// Dépannage</span>
     <h1 class="mt-5 max-w-3xl font-display text-4xl font-bold leading-tight md:text-5xl">
