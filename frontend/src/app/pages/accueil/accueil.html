@@ -77,39 +77,109 @@
 
 <!-- Réassurance -->
 <section class="border-b border-bordure bg-surface">
-  <div class="mx-auto grid max-w-7xl grid-cols-2 gap-4 px-4 py-5 md:grid-cols-4 md:px-6">
-    @for (g of garanties; track g.titre) {
-      <div class="flex items-start gap-3">
-        <span class="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full bg-cyan"></span>
-        <div>
-          <p class="font-corps text-sm font-semibold">{{ g.titre }}</p>
-          <p class="text-xs text-encre-attenue">{{ g.texte }}</p>
-        </div>
+  <div class="mx-auto max-w-7xl px-4 py-5 md:px-6">
+    <div class="defilement-conteneur">
+      <div class="defilement-piste defilement-garanties">
+        @for (copie of [0, 1]; track copie) {
+          <div class="defilement-groupe" [attr.aria-hidden]="copie === 1 ? 'true' : null">
+            @for (g of garanties; track g.titre) {
+              <div class="defilement-garantie flex items-start gap-3">
+                <span class="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full bg-cyan"></span>
+
+                <div>
+                  <p class="font-corps text-sm font-semibold">{{ g.titre }}</p>
+                  <p class="text-xs text-encre-attenue">{{ g.texte }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        }
       </div>
-    }
+    </div>
   </div>
 </section>
 
-<!-- Catégories -->
+<!-- Explorer par catégorie -->
 @if (racines().length > 0) {
   <section class="mx-auto max-w-7xl px-4 pt-14 md:px-6">
     <div class="flex items-end justify-between">
-      <h2 class="font-display text-2xl font-semibold">Explorer par catégorie</h2>
-      <a routerLink="/boutique" class="font-mono text-sm text-cyan hover:underline">Tout voir →</a>
+      <div>
+        <h2 class="font-display text-2xl font-semibold">Explorer par catégorie</h2>
+        <p class="mt-1 text-sm text-encre-attenue">
+          Trouvez rapidement le matériel qu'il vous faut.
+        </p>
+      </div>
+
+      <a routerLink="/boutique" class="font-mono text-sm text-cyan hover:underline">
+        Tout voir →
+      </a>
     </div>
-    <div class="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+
+    <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
       @for (c of racines(); track c.id) {
         <a
           routerLink="/boutique"
           [queryParams]="{ categorie: c.id }"
-          class="group rounded-xl border border-bordure bg-surface p-4 text-center transition hover:-translate-y-0.5 hover:border-cyan hover:shadow-md"
+          class="categorie-card group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-bordure bg-surface shadow-sm"
         >
-          <span
-            class="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-surface-2 font-display text-xl font-bold text-cyan group-hover:bg-cyan group-hover:text-surface"
-          >
-            {{ c.nom.charAt(0) }}
-          </span>
-          <p class="mt-3 line-clamp-2 font-corps text-sm font-semibold">{{ c.nom }}</p>
+          <!-- Image de la catégorie -->
+          <img
+            [src]="imageCategorie(c.nom)"
+            [alt]="'Découvrir la catégorie ' + c.nom"
+            loading="lazy"
+            class="categorie-image absolute inset-0 h-full w-full object-cover"
+          />
+
+          <!-- Dégradé sombre -->
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent transition-opacity duration-500 group-hover:from-black/95"
+          ></div>
+
+          <!-- Effet lumineux au survol -->
+          <div
+            class="absolute inset-0 bg-cyan/0 transition-colors duration-500 group-hover:bg-cyan/10"
+          ></div>
+
+          <!-- Contenu -->
+          <div class="absolute inset-x-0 bottom-0 z-10 p-5 md:p-6">
+            <div class="flex items-end justify-between gap-3">
+              <div>
+                <span
+                  class="mb-2 inline-block rounded-full border border-white/30 bg-white/15 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-white backdrop-blur-md"
+                >
+                  Découvrir
+                </span>
+
+                <h3 class="font-display text-2xl font-bold text-white md:text-3xl">
+                  {{ c.nom }}
+                </h3>
+              </div>
+
+              <span
+                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/40 bg-white/10 text-white backdrop-blur-md transition-all duration-300 group-hover:translate-x-1 group-hover:border-cyan group-hover:bg-cyan"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
+                </svg>
+              </span>
+            </div>
+          </div>
+
+          <!-- Bordure animée -->
+          <div
+            class="pointer-events-none absolute inset-0 rounded-2xl border-2 border-transparent transition-all duration-500 group-hover:border-cyan/70"
+          ></div>
         </a>
       }
     </div>
@@ -157,12 +227,23 @@
   <section class="mx-auto max-w-7xl px-4 pt-14 md:px-6">
     <div class="flex items-end justify-between">
       <h2 class="font-display text-2xl font-semibold">Notre sélection</h2>
-      <a routerLink="/boutique" class="font-mono text-sm text-cyan hover:underline">Tout voir →</a>
+      <a routerLink="/boutique" class="font-mono text-sm text-cyan hover:underline">
+        Tout voir →
+      </a>
     </div>
-    <div class="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-      @for (p of vedettes(); track p.id) {
-        <app-carte-produit [produit]="p" />
-      }
+
+    <div class="defilement-conteneur mt-6">
+      <div class="defilement-piste defilement-selection">
+        @for (copie of [0, 1]; track copie) {
+          <div class="defilement-groupe" [attr.aria-hidden]="copie === 1 ? 'true' : null">
+            @for (p of vedettes(); track p.id) {
+              <div class="defilement-produit">
+                <app-carte-produit [produit]="p" />
+              </div>
+            }
+          </div>
+        }
+      </div>
     </div>
   </section>
 }
@@ -208,19 +289,29 @@
 @if (marques().length > 0) {
   <section class="mx-auto max-w-7xl px-4 py-14 md:px-6">
     <h2 class="font-display text-2xl font-semibold">Nos marques</h2>
-    <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
-      @for (m of marques(); track m.nom) {
-        <a
-          routerLink="/boutique"
-          [queryParams]="{ q: m.nom }"
-          class="rounded-xl border border-bordure bg-surface px-3 py-4 text-center transition hover:border-cyan hover:shadow-md"
-        >
-          <span class="block font-display text-base font-bold">{{ m.nom }}</span>
-          <span class="mt-1 block font-mono text-[11px] text-encre-attenue"
-            >{{ m.nombre }} produit(s)</span
-          >
-        </a>
-      }
+
+    <div class="defilement-conteneur mt-6">
+      <div class="defilement-piste defilement-marques">
+        @for (copie of [0, 1]; track copie) {
+          <div class="defilement-groupe" [attr.aria-hidden]="copie === 1 ? 'true' : null">
+            @for (m of marques(); track m.nom) {
+              <a
+                routerLink="/boutique"
+                [queryParams]="{ q: m.nom }"
+                tabindex="-1"
+                class="defilement-marque rounded-xl border border-bordure bg-surface px-5 py-4 text-center transition hover:border-cyan hover:shadow-md"
+              >
+                <span class="block font-display text-base font-bold">
+                  {{ m.nom }}
+                </span>
+                <span class="mt-1 block font-mono text-[11px] text-encre-attenue">
+                  {{ m.nombre }} produit(s)
+                </span>
+              </a>
+            }
+          </div>
+        }
+      </div>
     </div>
   </section>
 }

@@ -450,3 +450,142 @@ html {
     display: none;
   }
 }
+
+/* =========================================
+   Défilement horizontal automatique
+   Sélection, marques et garanties
+========================================= */
+
+.defilement-conteneur {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+
+  /* Fondu sur les côtés */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+}
+
+.defilement-piste {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: defilement-horizontal 55s linear infinite;
+}
+
+/* Les deux groupes doivent avoir la même largeur */
+.defilement-groupe {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: stretch;
+  gap: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+/* Animation continue */
+@keyframes defilement-horizontal {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Arrêt au survol de la souris */
+.defilement-conteneur:hover .defilement-piste {
+  animation-play-state: paused;
+}
+
+/* Notre sélection */
+.defilement-selection {
+  animation-duration: 65s;
+}
+
+.defilement-produit {
+  flex: 0 0 18rem;
+  width: 18rem;
+}
+
+/* Nos marques */
+.defilement-marques {
+  animation-duration: 55s;
+}
+
+.defilement-marque {
+  flex: 0 0 10rem;
+  width: 10rem;
+}
+
+/* Garanties */
+.defilement-garanties {
+  animation-duration: 45s;
+}
+
+.defilement-garantie {
+  flex: 0 0 15rem;
+  width: 15rem;
+  padding: 0.5rem;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .defilement-produit {
+    flex-basis: 15rem;
+    width: 15rem;
+  }
+
+  .defilement-marque {
+    flex-basis: 8.5rem;
+    width: 8.5rem;
+  }
+
+  .defilement-garantie {
+    flex-basis: 13rem;
+    width: 13rem;
+  }
+}
+
+/* Respect des préférences de mouvement */
+@media (prefers-reduced-motion: reduce) {
+  .defilement-piste {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+/* ==================================
+   CARTES EXPLORER PAR CATEGORIE
+================================== */
+
+.categorie-card {
+  isolation: isolate;
+  transition:
+    transform 0.4s ease,
+    box-shadow 0.4s ease,
+    border-color 0.4s ease;
+}
+
+.categorie-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+}
+
+.categorie-image {
+  transition:
+    transform 0.8s cubic-bezier(0.2, 0.7, 0.3, 1),
+    filter 0.6s ease;
+}
+
+.categorie-card:hover .categorie-image {
+  transform: scale(1.09);
+  filter: saturate(1.15);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .categorie-card,
+  .categorie-image {
+    transition: none !important;
+  }
+}

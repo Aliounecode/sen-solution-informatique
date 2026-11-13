@@ -33,6 +33,24 @@ export class Accueil implements OnInit {
       .slice(0, 6),
   );
 
+  protected imageCategorie(nom: string): string {
+    const categorie = nom.toLowerCase().trim();
+
+    if (categorie.includes('ordinateur')) {
+      return '/images/categories/ordinateurs.webp';
+    }
+
+    if (categorie.includes('accessoire')) {
+      return '/images/categories/accessoires.webp';
+    }
+
+    if (categorie.includes('console')) {
+      return '/images/categories/consoles.webp';
+    }
+
+    return '/images/categories/ordinateurs.webp';
+  }
+
   protected readonly marques = computed(() => {
     const compte = new Map<string, number>();
     for (const p of this.echantillon()) {
