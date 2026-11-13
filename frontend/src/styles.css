@@ -325,3 +325,128 @@ html {
     animation: none !important;
   }
 }
+
+/* ===== Avis clients : rails horizontaux qui défilent lentement ===== */
+.avis-defile {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 1.75rem;
+}
+
+.avis-rail {
+  overflow: hidden;
+  padding: 1rem 0;
+  /* Les cartes émergent et disparaissent en fondu sur les bords */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+}
+
+.avis-piste {
+  display: flex;
+  gap: 1.25rem;
+  width: max-content;
+  animation: avis-defile var(--duree, 70s) linear infinite;
+  will-change: transform;
+}
+.avis-piste.avis-inverse {
+  animation-direction: reverse;
+}
+
+/* La boucle se fait sur la moitié de la piste (les cartes sont dupliquées) */
+@keyframes avis-defile {
+  to {
+    transform: translateX(calc(-50% - 0.625rem));
+  }
+}
+
+/* L'arrêt (survol, toucher, focus, bouton) est géré en douceur par le composant (vitesse ralentie image par image) */
+
+.avis-carte {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  width: 19rem;
+  overflow: hidden;
+  padding: 1.25rem;
+  border: 1px solid var(--color-bordure);
+  border-radius: 1rem;
+  background: var(--color-surface);
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 0.3s,
+    box-shadow 0.35s;
+}
+
+/* Grand guillemet décoratif */
+.avis-carte::before {
+  content: '“';
+  position: absolute;
+  top: -0.6rem;
+  right: 0.9rem;
+  font-family: Georgia, serif;
+  font-size: 6.5rem;
+  line-height: 1;
+  color: var(--color-cyan);
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+/* Reflet qui balaie la carte au survol */
+.avis-carte::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.22) 50%,
+    transparent 65%
+  );
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+
+.avis-carte:hover {
+  transform: translateY(-8px) scale(1.03);
+  border-color: var(--color-cyan);
+  box-shadow: 0 18px 40px -14px color-mix(in srgb, var(--color-cyan) 55%, transparent);
+}
+.avis-carte:hover::after {
+  transform: translateX(120%);
+  transition: transform 0.9s ease;
+}
+
+/* Peu d'avis : pas de défilement, cartes simplement centrées */
+.avis-statique .avis-rail {
+  overflow: visible;
+  -webkit-mask-image: none;
+  mask-image: none;
+  padding-inline: 1rem;
+}
+.avis-statique .avis-piste {
+  width: auto;
+  flex-wrap: wrap;
+  justify-content: center;
+  animation: none;
+}
+
+/* Mouvement réduit : plus d'animation, on fait défiler à la main (glisser/molette) */
+@media (prefers-reduced-motion: reduce) {
+  .avis-defile:not(.avis-statique) .avis-rail {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-mask-image: none;
+    mask-image: none;
+    padding-inline: 1rem;
+  }
+  .avis-defile:not(.avis-statique) .avis-piste {
+    animation: none !important;
+  }
+  .avis-defile:not(.avis-statique) .avis-carte {
+    scroll-snap-align: center;
+  }
+  .avis-carte[aria-hidden='true'] {
+    display: none;
+  }
+}
